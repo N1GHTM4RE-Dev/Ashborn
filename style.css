@@ -260,7 +260,8 @@ a {
 
 .card {
   background:
-    linear-gradient(145deg, rgba(75, 40, 18, 0.85), rgba(18, 7, 2, 0.95));
+  linear-gradient(rgba(9, 4, 3, 0.35), rgba(9, 4, 3, 0.9)),
+  url("assets/background.png");
   border: 1px solid rgba(216, 168, 77, 0.28);
   border-radius: 22px;
   padding: 28px;

@@ -6,34 +6,53 @@
 
   <title>Ashborn AktenSystem</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=IM+Fell+English+SC&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
-  <div class="page-bg"></div>
-  <div class="vignette"></div>
-  <div class="embers" aria-hidden="true"></div>
+  <div class="ash-bg"></div>
+  <div class="ash-vignette"></div>
+  <div class="ash-smoke"></div>
+  <div class="ash-embers" aria-hidden="true"></div>
 
   <!-- STARTSEITE -->
   <main id="landingPage" class="landing-page">
 
-    <button id="logoButton" class="logo-button" type="button" aria-label="AktenSystem öffnen">
-      <img
-        src="./assets/logo.png"
-        alt="Ashborn Logo"
-        id="mainLogo"
-        class="main-logo"
-      />
-      <span class="logo-hint">Zum Betreten klicken</span>
-    </button>
+    <section class="landing-stage">
+      <div class="sigil-ring"></div>
+
+      <button id="logoButton" class="logo-button" type="button" aria-label="Ashborn AktenSystem öffnen">
+        <img
+          src="./assets/logo.png"
+          alt="Ashborn Logo"
+          id="mainLogo"
+          class="main-logo"
+        />
+      </button>
+
+      <div class="landing-text">
+        <p class="overline">Ashborn Archiv</p>
+        <h1>AktenSystem</h1>
+        <p class="landing-hint">Klicke auf das Siegel, um den Zugang zu öffnen</p>
+      </div>
+    </section>
 
     <section id="loginBox" class="login-box" aria-hidden="true">
       <button id="closeLoginBtn" class="close-login" type="button" aria-label="Login schließen">×</button>
 
-      <div class="login-seal">A</div>
+      <div class="login-crown">
+        <span>A</span>
+      </div>
 
-      <h1>Zugang zum AktenSystem</h1>
-      <p class="login-subtitle">Interner Bereich der Ashborn-Aktenverwaltung</p>
+      <p class="overline">Gesicherter Zugang</p>
+      <h2>Archiv entsiegeln</h2>
+      <p class="login-subtitle">
+        Nur Mitglieder mit Systemkennwort erhalten Zugriff auf die internen Ashborn-Akten.
+      </p>
 
       <div class="input-group">
         <label for="passwordInput">Systemkennwort</label>
@@ -45,7 +64,9 @@
         />
       </div>
 
-      <button id="loginBtn" class="primary-btn" type="button">Eintreten</button>
+      <button id="loginBtn" class="primary-btn" type="button">
+        <span>Siegel brechen</span>
+      </button>
 
       <div id="loginError" class="login-error"></div>
     </section>
@@ -60,34 +81,34 @@
         <img src="./assets/logo.png" alt="Ashborn Logo" class="header-logo" />
 
         <div>
-          <p class="eyebrow">Interne Verwaltung</p>
+          <p class="overline">Interne Verwaltung</p>
           <h1>Ashborn AktenSystem</h1>
-          <p class="header-subline">Akten suchen, erstellen und später mit Datenbank erweitern</p>
+          <p class="header-subline">Verbrannte Archive · Geheime Berichte · Fraktionsakten</p>
         </div>
       </div>
 
-      <button id="logoutBtn" class="logout-btn" type="button">Abmelden</button>
+      <button id="logoutBtn" class="logout-btn" type="button">Archiv schließen</button>
     </header>
 
-    <nav class="akten-tabs">
+    <nav class="akten-tabs" aria-label="AktenSystem Navigation">
       <button class="tab-btn active" data-tab="searchTab" type="button">
-        <span>🔎</span>
-        Akten suchen
+        <span class="tab-icon">🔎</span>
+        <span>Akten suchen</span>
       </button>
 
       <button class="tab-btn" data-tab="createTab" type="button">
-        <span>📜</span>
-        Akte erstellen
+        <span class="tab-icon">📜</span>
+        <span>Akte erstellen</span>
       </button>
 
       <button class="tab-btn" data-tab="archiveTab" type="button">
-        <span>🗄️</span>
-        Archiv
+        <span class="tab-icon">🗄️</span>
+        <span>Archiv</span>
       </button>
 
       <button class="tab-btn" data-tab="settingsTab" type="button">
-        <span>⚙️</span>
-        System
+        <span class="tab-icon">⚙️</span>
+        <span>System</span>
       </button>
     </nav>
 
@@ -95,59 +116,65 @@
     <div id="searchTab" class="tab-content active">
       <div class="dashboard-grid">
 
-        <aside class="system-card">
-          <h2>Aktenübersicht</h2>
+        <aside class="side-ledger">
+          <div class="side-ledger-inner">
+            <p class="overline">Archivstatus</p>
+            <h2>Übersicht</h2>
 
-          <div class="stat-row">
-            <span>Gesamte Akten</span>
-            <strong id="totalAktenCount">0</strong>
+            <div class="stat-card">
+              <span>Gesamte Akten</span>
+              <strong id="totalAktenCount">0</strong>
+            </div>
+
+            <div class="stat-card">
+              <span>Suchtreffer</span>
+              <strong id="filteredAktenCount">0</strong>
+            </div>
+
+            <div class="stat-card">
+              <span>Speicherort</span>
+              <strong>Lokal</strong>
+            </div>
+
+            <div class="wax-note">
+              <strong>Hinweis</strong>
+              <p>
+                Diese Version speichert Akten lokal im Browser. Die Datenbank-Anbindung bauen wir später sauber darunter.
+              </p>
+            </div>
           </div>
-
-          <div class="stat-row">
-            <span>Suchtreffer</span>
-            <strong id="filteredAktenCount">0</strong>
-          </div>
-
-          <div class="stat-row">
-            <span>Speicher</span>
-            <strong>Lokal</strong>
-          </div>
-
-          <p class="small-note">
-            Aktuell werden Akten nur im Browser gespeichert. Später ersetzen wir das durch eine echte Datenbank.
-          </p>
         </aside>
 
-        <div class="panel">
-          <div class="panel-title-row">
+        <section class="ash-panel">
+          <div class="panel-heading">
             <div>
-              <p class="eyebrow">Suche</p>
+              <p class="overline">Durchsuchung</p>
               <h2>Akten durchsuchen</h2>
             </div>
           </div>
 
           <div class="search-shell">
-            <span>🔎</span>
+            <span class="search-symbol">✦</span>
             <input
               type="text"
               id="searchInput"
               class="search-input"
-              placeholder="Nach Name, Inhalt, Kategorie oder Beschreibung suchen..."
+              placeholder="Name, Kategorie, Beschreibung oder Inhalt durchsuchen..."
             />
           </div>
 
           <div id="aktenList" class="akten-list"></div>
-        </div>
+        </section>
 
       </div>
     </div>
 
     <!-- ERSTELLEN -->
     <div id="createTab" class="tab-content">
-      <div class="panel form-panel">
-        <div class="panel-title-row">
+      <section class="ash-panel form-panel">
+        <div class="panel-heading">
           <div>
-            <p class="eyebrow">Neue Akte</p>
+            <p class="overline">Neue Eintragung</p>
             <h2>Akte erstellen</h2>
           </div>
         </div>
@@ -155,7 +182,7 @@
         <div class="form-grid">
           <div class="field">
             <label for="akteTitle">Aktenname</label>
-            <input type="text" id="akteTitle" placeholder="z. B. Person X / Vorfall / Bericht" />
+            <input type="text" id="akteTitle" placeholder="z. B. Person, Vorfall, Bericht, Handel" />
           </div>
 
           <div class="field">
@@ -175,59 +202,60 @@
         </div>
 
         <div class="form-actions">
-          <button id="saveAkteBtn" class="primary-btn" type="button">Akte speichern</button>
+          <button id="saveAkteBtn" class="primary-btn small-primary" type="button">Akte versiegeln</button>
           <button id="resetFormBtn" class="secondary-btn" type="button">Felder leeren</button>
         </div>
 
         <div id="saveInfo" class="save-info"></div>
-      </div>
+      </section>
     </div>
 
     <!-- ARCHIV -->
     <div id="archiveTab" class="tab-content">
-      <div class="panel">
-        <p class="eyebrow">Vorbereitet</p>
-        <h2>Archiv</h2>
-        <p>
-          Dieser Bereich ist vorbereitet. Später können wir hier abgeschlossene Akten,
-          gelöschte Akten, Kategorien oder Fraktionsarchive einbauen.
+      <section class="ash-panel">
+        <p class="overline">Vorbereitet</p>
+        <h2>Archivkammer</h2>
+        <p class="panel-text">
+          Hier können wir später abgeschlossene Akten, alte Berichte, Kategorien, gelöschte Akten,
+          interne Fraktionsarchive oder spezielle Rollen-Bereiche einbauen.
         </p>
 
         <div class="feature-preview-grid">
-          <div class="feature-card">
+          <article class="feature-card">
             <h3>Abgeschlossene Akten</h3>
-            <p>Für Akten, die nicht mehr aktiv bearbeitet werden.</p>
-          </div>
+            <p>Für Vorgänge, die nicht mehr aktiv bearbeitet werden.</p>
+          </article>
 
-          <div class="feature-card">
+          <article class="feature-card">
             <h3>Kategorien</h3>
             <p>Für spätere Filter nach Personen, Vorfällen, Handel oder Fraktion.</p>
-          </div>
+          </article>
 
-          <div class="feature-card">
+          <article class="feature-card">
             <h3>Datenbank-Sync</h3>
-            <p>Vorbereitet für Supabase/Firebase oder eigenes Backend.</p>
-          </div>
+            <p>Vorbereitet für Supabase, Firebase oder ein eigenes Backend.</p>
+          </article>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- SYSTEM -->
     <div id="settingsTab" class="tab-content">
-      <div class="panel">
-        <p class="eyebrow">Einstellungen</p>
-        <h2>System</h2>
+      <section class="ash-panel">
+        <p class="overline">Einstellungen</p>
+        <h2>Systemkammer</h2>
 
-        <p>
+        <p class="panel-text">
           Diese Version ist die Design- und Strukturgrundlage.
-          Benutzerrechte, echte Datenbank, Rollen, Aktenstatus und weitere Reiter können später sauber ergänzt werden.
+          Benutzerrechte, echte Datenbank, Rollen, Aktenstatus, Anhänge und weitere Reiter
+          können später sauber ergänzt werden.
         </p>
 
         <div class="system-actions">
           <button id="clearLocalDataBtn" class="danger-btn" type="button">Lokale Testdaten löschen</button>
           <button id="createDemoDataBtn" class="secondary-btn" type="button">Demo-Akten erstellen</button>
         </div>
-      </div>
+      </section>
     </div>
 
   </section>

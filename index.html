@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050302" />
 
   <title>Ashborn AktenSystem</title>
 
@@ -13,20 +14,28 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <div class="bg-scene"></div>
-  <div class="bg-vignette"></div>
-  <div class="bg-smoke"></div>
+  <div class="bg-scene" aria-hidden="true"></div>
+  <div class="bg-vignette" aria-hidden="true"></div>
+  <div class="bg-smoke" aria-hidden="true"></div>
   <div class="bg-embers" aria-hidden="true"></div>
   <div id="smokeTransition" class="smoke-transition" aria-hidden="true"></div>
 
-  <!-- STARTSEITE -->
   <main id="landingPage" class="landing-page">
     <div class="landing-logo-frame">
-      <div class="landing-logo-ring"></div>
+      <div class="landing-logo-ring" aria-hidden="true"></div>
 
       <button id="logoButton" class="landing-logo-button" type="button" aria-label="Login öffnen">
         <img src="./assets/logo.png" alt="Ashborn Logo" id="mainLogo" class="landing-logo" />
       </button>
+
+      <div class="landing-copy">
+        <p class="landing-kicker">VERSIEGELTES FRAKTIONSARCHIV</p>
+        <h1 class="landing-title">Ashborn</h1>
+        <p class="landing-subtitle">Aus Asche geboren. Durch Feuer geformt.</p>
+        <button id="landingLoginBtn" class="primary-btn landing-open-btn" type="button">
+          Archivzugang öffnen
+        </button>
+      </div>
     </div>
 
     <section id="loginBox" class="login-box" aria-hidden="true">
@@ -60,7 +69,6 @@
     </section>
   </main>
 
-  <!-- INNENBEREICH -->
   <section id="aktenSystem" class="akten-system hidden">
     <header class="system-header">
       <div class="system-brand">
@@ -101,7 +109,6 @@
       </button>
     </nav>
 
-    <!-- TAB: SUCHE -->
     <div id="searchTab" class="tab-content active">
       <div class="archive-layout">
         <aside class="archive-sidepanel">
@@ -149,7 +156,7 @@
 
           <div class="search-shell">
             <div class="search-core">
-              <span class="search-icon">⌘</span>
+              <span class="search-icon">A</span>
               <input
                 type="text"
                 id="searchInput"
@@ -172,7 +179,6 @@
       </div>
     </div>
 
-    <!-- TAB: ERSTELLEN -->
     <div id="createTab" class="tab-content">
       <section class="panel form-panel">
         <div class="panel-header">
@@ -231,7 +237,6 @@
       </section>
     </div>
 
-    <!-- TAB: ARCHIV -->
     <div id="archiveTab" class="tab-content">
       <section class="panel">
         <div class="panel-header">
@@ -260,7 +265,6 @@
       </section>
     </div>
 
-    <!-- TAB: SYSTEM -->
     <div id="settingsTab" class="tab-content">
       <section class="panel">
         <div class="panel-header">
@@ -283,7 +287,6 @@
     </div>
   </section>
 
-  <!-- DETAILANSICHT -->
   <div id="detailModal" class="detail-modal hidden">
     <div class="detail-backdrop" id="detailBackdrop"></div>
 
@@ -327,12 +330,11 @@
     </section>
   </div>
 
-  <!-- STATUS MODAL -->
   <div id="statusModal" class="status-modal hidden">
     <div class="detail-backdrop" id="statusBackdrop"></div>
 
     <section class="status-box">
-      <button id="closeStatusBtn" class="close-detail" type="button">×</button>
+      <button id="closeStatusBtn" class="close-detail" type="button" aria-label="Statusfenster schließen">×</button>
 
       <p class="section-kicker">STATUS ÄNDERN</p>
       <h2>Akte neu markieren</h2>
@@ -346,6 +348,6 @@
     </section>
   </div>
 
-  <script src="./app.js"></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>

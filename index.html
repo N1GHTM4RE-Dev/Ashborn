@@ -3,58 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Ashborn AktenSystem</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=IM+Fell+English+SC&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@400;500;600;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-
-  <div class="ash-bg"></div>
-  <div class="ash-vignette"></div>
-  <div class="ash-smoke"></div>
-  <div class="ash-embers" aria-hidden="true"></div>
+  <div class="bg-scene"></div>
+  <div class="bg-vignette"></div>
+  <div class="bg-smoke"></div>
+  <div class="bg-embers" aria-hidden="true"></div>
+  <div id="smokeTransition" class="smoke-transition" aria-hidden="true"></div>
 
   <!-- STARTSEITE -->
   <main id="landingPage" class="landing-page">
+    <div class="landing-logo-frame">
+      <div class="landing-logo-ring"></div>
 
-    <section class="landing-stage">
-      <div class="sigil-ring"></div>
-
-      <button id="logoButton" class="logo-button" type="button" aria-label="Ashborn AktenSystem öffnen">
-        <img
-          src="./assets/logo.png"
-          alt="Ashborn Logo"
-          id="mainLogo"
-          class="main-logo"
-        />
+      <button id="logoButton" class="landing-logo-button" type="button" aria-label="Login öffnen">
+        <img src="./assets/logo.png" alt="Ashborn Logo" id="mainLogo" class="landing-logo" />
       </button>
-
-      <div class="landing-text">
-        <p class="overline">Ashborn Archiv</p>
-        <h1>AktenSystem</h1>
-        <p class="landing-hint">Klicke auf das Siegel, um den Zugang zu öffnen</p>
-      </div>
-    </section>
+    </div>
 
     <section id="loginBox" class="login-box" aria-hidden="true">
-      <button id="closeLoginBtn" class="close-login" type="button" aria-label="Login schließen">×</button>
+      <button id="closeLoginBtn" class="close-login" type="button" aria-label="Schließen">×</button>
 
-      <div class="login-crown">
+      <div class="login-seal">
         <span>A</span>
       </div>
 
-      <p class="overline">Gesicherter Zugang</p>
-      <h2>Archiv entsiegeln</h2>
+      <p class="login-kicker">VERSIEGELTES ARCHIV</p>
+      <h1>Archivzugang</h1>
       <p class="login-subtitle">
-        Nur Mitglieder mit Systemkennwort erhalten Zugriff auf die internen Ashborn-Akten.
+        Interner Zugang zum Ashborn-Aktenarchiv. Nur freigegebene Mitglieder mit Systemkennwort erhalten Zutritt.
       </p>
 
-      <div class="input-group">
+      <div class="login-field">
         <label for="passwordInput">Systemkennwort</label>
         <input
           type="password"
@@ -65,200 +52,256 @@
       </div>
 
       <button id="loginBtn" class="primary-btn" type="button">
-        <span>Siegel brechen</span>
+        <span>Archiv entsiegeln</span>
       </button>
 
       <div id="loginError" class="login-error"></div>
     </section>
-
   </main>
 
-  <!-- AKTENSYSTEM -->
+  <!-- INNENBEREICH -->
   <section id="aktenSystem" class="akten-system hidden">
+    <header class="system-header">
+      <div class="system-brand">
+        <img src="./assets/logo.png" alt="Ashborn Logo" class="system-logo" />
 
-    <header class="akten-header">
-      <div class="brand-block">
-        <img src="./assets/logo.png" alt="Ashborn Logo" class="header-logo" />
-
-        <div>
-          <p class="overline">Interne Verwaltung</p>
-          <h1>Ashborn AktenSystem</h1>
-          <p class="header-subline">Verbrannte Archive · Geheime Berichte · Fraktionsakten</p>
+        <div class="system-brand-text">
+          <p class="system-kicker">INTERNE VERWALTUNG</p>
+          <h1><span class="brand-word">Ashborn</span> AktenSystem</h1>
+          <p class="system-subline">Geheime Fallakten · Archivierte Berichte · Interne Dossiers</p>
         </div>
       </div>
 
-      <button id="logoutBtn" class="logout-btn" type="button">Archiv schließen</button>
+      <div class="system-header-actions">
+        <div class="status-pill">Archivstatus: Aktiv</div>
+        <button id="logoutBtn" class="secondary-btn logout-btn" type="button">Archiv schließen</button>
+      </div>
     </header>
 
-    <nav class="akten-tabs" aria-label="AktenSystem Navigation">
+    <nav class="system-tabs" aria-label="Navigation">
       <button class="tab-btn active" data-tab="searchTab" type="button">
-        <span class="tab-icon">🔎</span>
+        <span class="tab-seal"></span>
         <span>Akten suchen</span>
       </button>
 
       <button class="tab-btn" data-tab="createTab" type="button">
-        <span class="tab-icon">📜</span>
+        <span class="tab-seal"></span>
         <span>Akte erstellen</span>
       </button>
 
       <button class="tab-btn" data-tab="archiveTab" type="button">
-        <span class="tab-icon">🗄️</span>
+        <span class="tab-seal"></span>
         <span>Archiv</span>
       </button>
 
       <button class="tab-btn" data-tab="settingsTab" type="button">
-        <span class="tab-icon">⚙️</span>
+        <span class="tab-seal"></span>
         <span>System</span>
       </button>
     </nav>
 
-    <!-- SUCHEN -->
+    <!-- TAB: SUCHE -->
     <div id="searchTab" class="tab-content active">
-      <div class="dashboard-grid">
+      <div class="archive-layout">
+        <aside class="archive-sidepanel">
+          <div class="sidepanel-block">
+            <p class="section-kicker">AKTENLAGE</p>
+            <h2>Archivübersicht</h2>
 
-        <aside class="side-ledger">
-          <div class="side-ledger-inner">
-            <p class="overline">Archivstatus</p>
-            <h2>Übersicht</h2>
-
-            <div class="stat-card">
+            <div class="archive-stat">
               <span>Gesamte Akten</span>
               <strong id="totalAktenCount">0</strong>
             </div>
 
-            <div class="stat-card">
+            <div class="archive-stat">
               <span>Suchtreffer</span>
               <strong id="filteredAktenCount">0</strong>
             </div>
 
-            <div class="stat-card">
+            <div class="archive-stat">
               <span>Speicherort</span>
               <strong>Lokal</strong>
             </div>
+          </div>
 
-            <div class="wax-note">
-              <strong>Hinweis</strong>
-              <p>
-                Diese Version speichert Akten lokal im Browser. Die Datenbank-Anbindung bauen wir später sauber darunter.
-              </p>
-            </div>
+          <div class="sidepanel-block sidepanel-note">
+            <p class="section-kicker">HINWEIS</p>
+            <p>
+              Dieses Archiv speichert aktuell lokal im Browser.
+              Die Datenbank-Anbindung können wir später direkt darunter anschließen.
+            </p>
           </div>
         </aside>
 
-        <section class="ash-panel">
-          <div class="panel-heading">
+        <section class="archive-main">
+          <div class="panel-header">
             <div>
-              <p class="overline">Durchsuchung</p>
-              <h2>Akten durchsuchen</h2>
+              <p class="section-kicker">DURCHSUCHUNG</p>
+              <h2>Aktenordner durchsuchen</h2>
             </div>
           </div>
 
           <div class="search-shell">
-            <span class="search-symbol">✦</span>
-            <input
-              type="text"
-              id="searchInput"
-              class="search-input"
-              placeholder="Name, Kategorie, Beschreibung oder Inhalt durchsuchen..."
-            />
+            <div class="search-core">
+              <span class="search-icon">⌘</span>
+              <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="Nach Titel, Kategorie, Beschreibung, Inhalt oder Status suchen..."
+              />
+            </div>
           </div>
 
           <div id="aktenList" class="akten-list"></div>
         </section>
-
       </div>
     </div>
 
-    <!-- ERSTELLEN -->
+    <!-- TAB: ERSTELLEN -->
     <div id="createTab" class="tab-content">
-      <section class="ash-panel form-panel">
-        <div class="panel-heading">
+      <section class="panel form-panel">
+        <div class="panel-header">
           <div>
-            <p class="overline">Neue Eintragung</p>
+            <p class="section-kicker">NEUE FALLAKTE</p>
             <h2>Akte erstellen</h2>
           </div>
         </div>
 
         <div class="form-grid">
-          <div class="field">
+          <div class="form-field">
             <label for="akteTitle">Aktenname</label>
-            <input type="text" id="akteTitle" placeholder="z. B. Person, Vorfall, Bericht, Handel" />
+            <input type="text" id="akteTitle" placeholder="z. B. Vorfall, Person, Bericht oder Dossier" />
           </div>
 
-          <div class="field">
+          <div class="form-field">
             <label for="akteCategory">Kategorie</label>
-            <input type="text" id="akteCategory" placeholder="z. B. Mitglieder, Vorfälle, Handel, Fraktion" />
+            <input type="text" id="akteCategory" placeholder="z. B. Mitglieder, Handel, Vorfälle, Fraktion" />
           </div>
         </div>
 
-        <div class="field">
-          <label for="akteDescription">Kurze Beschreibung</label>
-          <input type="text" id="akteDescription" placeholder="Kurze Zusammenfassung der Akte" />
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="akteStatus">Status</label>
+            <select id="akteStatus">
+              <option value="Aktiv">Aktiv</option>
+              <option value="Geheim">Geheim</option>
+              <option value="Beobachtung">Beobachtung</option>
+              <option value="Archiviert">Archiviert</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="akteDescription">Kurze Beschreibung</label>
+            <input type="text" id="akteDescription" placeholder="Kurze Zusammenfassung der Akte" />
+          </div>
         </div>
 
-        <div class="field">
+        <div class="form-field">
           <label for="akteContent">Akteninhalt</label>
-          <textarea id="akteContent" placeholder="Hier den vollständigen Inhalt der Akte eintragen..."></textarea>
+          <textarea id="akteContent" placeholder="Hier den vollständigen Inhalt der Fallakte eintragen..."></textarea>
         </div>
 
         <div class="form-actions">
-          <button id="saveAkteBtn" class="primary-btn small-primary" type="button">Akte versiegeln</button>
-          <button id="resetFormBtn" class="secondary-btn" type="button">Felder leeren</button>
+          <button id="saveAkteBtn" class="primary-btn small-btn" type="button">
+            <span>Akte versiegeln</span>
+          </button>
+          <button id="resetFormBtn" class="secondary-btn small-btn" type="button">Felder leeren</button>
         </div>
 
         <div id="saveInfo" class="save-info"></div>
       </section>
     </div>
 
-    <!-- ARCHIV -->
+    <!-- TAB: ARCHIV -->
     <div id="archiveTab" class="tab-content">
-      <section class="ash-panel">
-        <p class="overline">Vorbereitet</p>
-        <h2>Archivkammer</h2>
-        <p class="panel-text">
-          Hier können wir später abgeschlossene Akten, alte Berichte, Kategorien, gelöschte Akten,
-          interne Fraktionsarchive oder spezielle Rollen-Bereiche einbauen.
-        </p>
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">ARCHIVKAMMER</p>
+            <h2>Vorbereitete Bereiche</h2>
+          </div>
+        </div>
 
-        <div class="feature-preview-grid">
+        <div class="feature-grid">
           <article class="feature-card">
-            <h3>Abgeschlossene Akten</h3>
-            <p>Für Vorgänge, die nicht mehr aktiv bearbeitet werden.</p>
+            <h3>Abgeschlossene Fallakten</h3>
+            <p>Für abgeschlossene oder ruhende Vorgänge.</p>
           </article>
 
           <article class="feature-card">
-            <h3>Kategorien</h3>
-            <p>Für spätere Filter nach Personen, Vorfällen, Handel oder Fraktion.</p>
+            <h3>Geheime Dossiers</h3>
+            <p>Für spätere Rechte- und Rollenbereiche mit Sichtschutz.</p>
           </article>
 
           <article class="feature-card">
-            <h3>Datenbank-Sync</h3>
-            <p>Vorbereitet für Supabase, Firebase oder ein eigenes Backend.</p>
+            <h3>Anhänge & Beweise</h3>
+            <p>Für Dokumente, Bilder und spätere Datenbank-Anbindung.</p>
           </article>
         </div>
       </section>
     </div>
 
-    <!-- SYSTEM -->
+    <!-- TAB: SYSTEM -->
     <div id="settingsTab" class="tab-content">
-      <section class="ash-panel">
-        <p class="overline">Einstellungen</p>
-        <h2>Systemkammer</h2>
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">SYSTEMKAMMER</p>
+            <h2>Verwaltung</h2>
+          </div>
+        </div>
 
-        <p class="panel-text">
-          Diese Version ist die Design- und Strukturgrundlage.
-          Benutzerrechte, echte Datenbank, Rollen, Aktenstatus, Anhänge und weitere Reiter
-          können später sauber ergänzt werden.
+        <p class="system-text">
+          Diese Version ist die Design- und Grundstruktur des AktenSystems.
+          Später können wir hier Rollen, Benutzerrechte, Datenbank, Bearbeiten, Löschen, Anhänge und weitere Reiter ergänzen.
         </p>
 
-        <div class="system-actions">
-          <button id="clearLocalDataBtn" class="danger-btn" type="button">Lokale Testdaten löschen</button>
-          <button id="createDemoDataBtn" class="secondary-btn" type="button">Demo-Akten erstellen</button>
+        <div class="form-actions">
+          <button id="clearLocalDataBtn" class="danger-btn small-btn" type="button">Lokale Testdaten löschen</button>
+          <button id="createDemoDataBtn" class="secondary-btn small-btn" type="button">Demo-Akten erstellen</button>
         </div>
       </section>
     </div>
-
   </section>
+
+  <!-- DETAILANSICHT -->
+  <div id="detailModal" class="detail-modal hidden">
+    <div class="detail-backdrop" id="detailBackdrop"></div>
+
+    <section class="detail-sheet">
+      <button id="closeDetailBtn" class="close-detail" type="button" aria-label="Detailansicht schließen">×</button>
+
+      <div class="detail-topline">
+        <p class="section-kicker">FALLAKTE</p>
+        <div id="detailStatus" class="detail-status-seal">Aktiv</div>
+      </div>
+
+      <h2 id="detailTitle">Aktenname</h2>
+
+      <div class="detail-meta-row">
+        <div class="detail-meta-box">
+          <span>Kategorie</span>
+          <strong id="detailCategory">-</strong>
+        </div>
+
+        <div class="detail-meta-box">
+          <span>Erstellt</span>
+          <strong id="detailDate">-</strong>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Beschreibung</h3>
+        <p id="detailDescription">-</p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Akteninhalt</h3>
+        <div id="detailContent" class="detail-content">-</div>
+      </div>
+    </section>
+  </div>
 
   <script src="./app.js"></script>
 </body>

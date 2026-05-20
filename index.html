@@ -4,209 +4,114 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Ashborn | Red Dead Redemption 2 Roleplay Fraktion</title>
-
-  <meta
-    name="description"
-    content="Offizielle Website der Red Dead Redemption 2 Roleplay Fraktion Ashborn."
-  />
+  <title>Ashborn AktenSystem</title>
 
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <header class="site-header">
-    <nav class="navbar">
-      <a href="#start" class="brand">
-  <img src="assets/logo.png" alt="Ashborn Logo" class="brand-logo" />
-  <span class="brand-text">Ashborn</span>
-</a>
 
-      <button class="nav-toggle" id="navToggle" aria-label="Menü öffnen">
-        ☰
-      </button>
+  <!-- STARTSEITE -->
+  <main id="landingPage" class="landing-page">
+    <div class="logo-wrap">
+      <img
+        src="assets/logo.png"
+        alt="Ashborn Logo"
+        id="mainLogo"
+        class="main-logo"
+      />
+    </div>
 
-      <ul class="nav-links" id="navLinks">
-        <li><a href="#start">Start</a></li>
-        <li><a href="#about">Über uns</a></li>
-        <li><a href="#lore">Lore</a></li>
-        <li><a href="#rules">Regeln</a></li>
-        <li><a href="#ranks">Ränge</a></li>
-        <li><a href="#apply" class="nav-cta">Bewerben</a></li>
-      </ul>
-    </nav>
-  </header>
+    <section id="loginBox" class="login-box">
+      <h1>Zugang zum AktenSystem</h1>
+      <p>Gib das Systemkennwort ein.</p>
 
-  <main>
-    <section class="hero" id="start">
-      <div class="hero-overlay"></div>
+      <input
+        type="password"
+        id="passwordInput"
+        placeholder="Kennwort"
+        autocomplete="off"
+      />
 
-      <div class="hero-content">
-  <img src="assets/logo.png" alt="Ashborn Logo" class="hero-logo" />
+      <button id="loginBtn">Eintreten</button>
 
-  <p class="eyebrow">Red Dead Redemption 2 Roleplay Fraktion</p>
-
-  <h1>Ashborn</h1>
-
-        <p class="hero-subtitle">
-          Aus Asche geboren. Durch Loyalität verbunden. Im Westen gefürchtet.
-        </p>
-
-        <div class="hero-actions">
-          <a href="#apply" class="btn btn-primary">Jetzt bewerben</a>
-          <a href="#about" class="btn btn-secondary">Mehr erfahren</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section intro-section" id="about">
-      <div class="section-heading">
-        <p class="eyebrow">Wer wir sind</p>
-        <h2>Eine Fraktion mit Ehre, Stärke und Geschichte</h2>
-      </div>
-
-      <div class="content-grid">
-        <article class="card">
-          <h3>Loyalität</h3>
-          <p>
-            Ashborn steht für Zusammenhalt. Wer Teil der Fraktion ist, schützt
-            seine Leute und steht auch in schweren Zeiten an ihrer Seite.
-          </p>
-        </article>
-
-        <article class="card">
-          <h3>Roleplay</h3>
-          <p>
-            Unser Fokus liegt auf glaubwürdigem, atmosphärischem und sauberem
-            Roleplay im Stil des wilden Westens.
-          </p>
-        </article>
-
-        <article class="card">
-          <h3>Präsenz</h3>
-          <p>
-            Wir treten organisiert, respektvoll und konsequent auf. Ashborn soll
-            im RP wiedererkennbar und ernstzunehmend sein.
-          </p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section lore-section" id="lore">
-      <div class="split-layout">
-        <div>
-          <p class="eyebrow">Unsere Geschichte</p>
-          <h2>Aus der Asche des Westens</h2>
-          <p>
-            Die Ashborn entstanden aus Menschen, die alles verloren hatten:
-            Namen, Heimat, Familie und Vertrauen. Doch was verbrannt wurde,
-            kehrte stärker zurück.
-          </p>
-          <p>
-            Heute steht Ashborn für eine Gemeinschaft, die sich ihren Platz im
-            Westen nicht erbittet, sondern verdient.
-          </p>
-        </div>
-
-        <div class="quote-box">
-          <p>
-            „Manche werden im Licht geboren. Wir wurden in der Asche gemacht.“
-          </p>
-          <span>— Ashborn Kodex</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="section rules-section" id="rules">
-      <div class="section-heading">
-        <p class="eyebrow">Verhaltenskodex</p>
-        <h2>Unsere Grundregeln</h2>
-      </div>
-
-      <div class="rules-list">
-        <div class="rule-item">
-          <span>01</span>
-          <p>Respektvolles Verhalten gegenüber Mitgliedern und anderen Spielern.</p>
-        </div>
-
-        <div class="rule-item">
-          <span>02</span>
-          <p>Sauberes RP ohne unnötiges FailRP, PowerRP oder OOC-Störungen.</p>
-        </div>
-
-        <div class="rule-item">
-          <span>03</span>
-          <p>Interne Informationen bleiben innerhalb der Fraktion.</p>
-        </div>
-
-        <div class="rule-item">
-          <span>04</span>
-          <p>Entscheidungen der Führung werden respektiert und intern geklärt.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section ranks-section" id="ranks">
-      <div class="section-heading">
-        <p class="eyebrow">Struktur</p>
-        <h2>Rangsystem</h2>
-      </div>
-
-      <div class="rank-table">
-        <div class="rank-row rank-head">
-          <span>Rang</span>
-          <span>Beschreibung</span>
-        </div>
-
-        <div class="rank-row">
-          <span>Founder</span>
-          <span>Leitung und finale Entscheidungen der Fraktion.</span>
-        </div>
-
-        <div class="rank-row">
-          <span>Leader</span>
-          <span>Organisation, Aufnahme und Führung im Alltag.</span>
-        </div>
-
-        <div class="rank-row">
-          <span>Member</span>
-          <span>Vollwertiges Mitglied der Ashborn.</span>
-        </div>
-
-        <div class="rank-row">
-          <span>Rekrut</span>
-          <span>Probephase für neue Bewerber.</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="section apply-section" id="apply">
-      <div class="apply-box">
-        <p class="eyebrow">Werde Teil von Ashborn</p>
-        <h2>Bereit für den Westen?</h2>
-
-        <p>
-          Du möchtest dich Ashborn anschließen? Dann bewirb dich über unseren
-          Discord und erzähle uns, wer dein Charakter ist und warum du zu uns
-          passt.
-        </p>
-
-        <a href="#" class="btn btn-primary">
-          Discord-Link einfügen
-        </a>
-
-        <small>
-          Den echten Discord-Link tragen wir später hier ein.
-        </small>
-      </div>
+      <div id="loginError" class="login-error"></div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <p>© 2026 Ashborn | RDR2 Roleplay Fraktion</p>
-    <p>Diese Website ist ein Fan-/Roleplay-Projekt.</p>
-  </footer>
+  <!-- AKTENSYSTEM -->
+  <section id="aktenSystem" class="akten-system hidden">
 
-  <script src="script.js"></script>
+    <header class="akten-header">
+      <div>
+        <h1>Ashborn AktenSystem</h1>
+        <p>Interne Aktenverwaltung</p>
+      </div>
+
+      <button id="logoutBtn" class="logout-btn">Abmelden</button>
+    </header>
+
+    <nav class="akten-tabs">
+      <button class="tab-btn active" data-tab="searchTab">Akten suchen</button>
+      <button class="tab-btn" data-tab="createTab">Akte erstellen</button>
+      <button class="tab-btn" data-tab="settingsTab">System</button>
+    </nav>
+
+    <!-- SUCHEN -->
+    <div id="searchTab" class="tab-content active">
+      <div class="panel">
+        <h2>Akten suchen</h2>
+
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Nach Name, Inhalt, Kategorie oder Beschreibung suchen..."
+        />
+
+        <div id="aktenList" class="akten-list"></div>
+      </div>
+    </div>
+
+    <!-- ERSTELLEN -->
+    <div id="createTab" class="tab-content">
+      <div class="panel">
+        <h2>Neue Akte erstellen</h2>
+
+        <label>Aktenname</label>
+        <input type="text" id="akteTitle" placeholder="z. B. Person X / Vorfall / Bericht" />
+
+        <label>Kategorie</label>
+        <input type="text" id="akteCategory" placeholder="z. B. Mitglieder, Vorfälle, Handel, Fraktion" />
+
+        <label>Kurze Beschreibung</label>
+        <input type="text" id="akteDescription" placeholder="Kurze Zusammenfassung der Akte" />
+
+        <label>Akteninhalt</label>
+        <textarea id="akteContent" placeholder="Hier den vollständigen Inhalt der Akte eintragen..."></textarea>
+
+        <button id="saveAkteBtn" class="save-btn">Akte speichern</button>
+
+        <div id="saveInfo" class="save-info"></div>
+      </div>
+    </div>
+
+    <!-- SYSTEM -->
+    <div id="settingsTab" class="tab-content">
+      <div class="panel">
+        <h2>System</h2>
+
+        <p>
+          Dieses System läuft aktuell lokal im Browser.
+          Später können wir hier Datenbank, Benutzerrechte, Rollen,
+          Akten-Berechtigungen und weitere Reiter ergänzen.
+        </p>
+
+        <button id="clearLocalDataBtn" class="danger-btn">Lokale Testdaten löschen</button>
+      </div>
+    </div>
+
+  </section>
+
+  <script src="app.js"></script>
 </body>
 </html>

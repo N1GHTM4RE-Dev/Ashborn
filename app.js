@@ -7,6 +7,7 @@ let currentDetailId = null;
 
 const landingPage = document.getElementById("landingPage");
 const logoButton = document.getElementById("logoButton");
+const landingLoginBtn = document.getElementById("landingLoginBtn");
 const loginBox = document.getElementById("loginBox");
 const closeLoginBtn = document.getElementById("closeLoginBtn");
 const passwordInput = document.getElementById("passwordInput");
@@ -64,6 +65,8 @@ const statusBackdrop = document.getElementById("statusBackdrop");
 const closeStatusBtn = document.getElementById("closeStatusBtn");
 const statusChoices = document.querySelectorAll(".status-choice");
 
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 document.addEventListener("DOMContentLoaded", () => {
   const isLoggedIn = sessionStorage.getItem(SESSION_KEY) === "true";
 
@@ -73,13 +76,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderAkten();
+  startAmbientEmbers();
+  bindHeroParallax();
 });
 
-logoButton.addEventListener("click", showLogin);
-closeLoginBtn.addEventListener("click", hideLogin);
-loginBtn.addEventListener("click", login);
+on(logoButton, "click", showLogin);
+on(landingLoginBtn, "click", showLogin);
+on(closeLoginBtn, "click", hideLogin);
+on(loginBtn, "click", login);
 
-passwordInput.addEventListener("keydown", (event) => {
+on(passwordInput, "keydown", (event) => {
   if (event.key === "Enter") {
     login();
   }
@@ -89,7 +95,7 @@ passwordInput.addEventListener("keydown", (event) => {
   }
 });
 
-logoutBtn.addEventListener("click", () => {
+on(logoutBtn, "click", () => {
   sessionStorage.removeItem(SESSION_KEY);
   closeDetail();
   closeStatusModal();
@@ -121,21 +127,21 @@ filterButtons.forEach((button) => {
   });
 });
 
-searchInput.addEventListener("input", renderAkten);
-saveAkteBtn.addEventListener("click", saveAkteFromForm);
+on(searchInput, "input", renderAkten);
+on(saveAkteBtn, "click", saveAkteFromForm);
 
-resetFormBtn.addEventListener("click", () => {
+on(resetFormBtn, "click", () => {
   clearForm();
   setSaveMessage("Felder wurden geleert.", "neutral");
 });
 
-cancelEditBtn.addEventListener("click", () => {
+on(cancelEditBtn, "click", () => {
   clearForm();
   setCreateMode();
   setSaveMessage("Bearbeitung wurde abgebrochen.", "neutral");
 });
 
-clearLocalDataBtn.addEventListener("click", () => {
+on(clearLocalDataBtn, "click", () => {
   const confirmDelete = confirm("Willst du wirklich alle lokalen Test-Akten löschen?");
   if (!confirmDelete) return;
 
@@ -145,7 +151,7 @@ clearLocalDataBtn.addEventListener("click", () => {
   renderAkten();
 });
 
-createDemoDataBtn.addEventListener("click", () => {
+on(createDemoDataBtn, "click", () => {
   const existing = getAkten();
 
   const demoAkten = [
@@ -186,7 +192,7 @@ createDemoDataBtn.addEventListener("click", () => {
   renderAkten();
 });
 
-aktenList.addEventListener("click", (event) => {
+on(aktenList, "click", (event) => {
   const card = event.target.closest(".akten-card");
   if (!card || card.disabled) return;
 
@@ -200,10 +206,10 @@ aktenList.addEventListener("click", (event) => {
   }
 });
 
-detailBackdrop.addEventListener("click", closeDetail);
-closeDetailBtn.addEventListener("click", closeDetail);
+on(detailBackdrop, "click", closeDetail);
+on(closeDetailBtn, "click", closeDetail);
 
-editDetailBtn.addEventListener("click", () => {
+on(editDetailBtn, "click", () => {
   if (!currentDetailId) return;
 
   const akte = getAkten().find((entry) => entry.id === currentDetailId);
@@ -213,19 +219,18 @@ editDetailBtn.addEventListener("click", () => {
   loadAkteIntoForm(akte);
 });
 
-archiveDetailBtn.addEventListener("click", () => {
+on(archiveDetailBtn, "click", () => {
   if (!currentDetailId) return;
   openStatusModal();
 });
 
-deleteDetailBtn.addEventListener("click", () => {
+on(deleteDetailBtn, "click", () => {
   if (!currentDetailId) return;
 
   const akte = getAkten().find((entry) => entry.id === currentDetailId);
   if (!akte) return;
 
   const confirmDelete = confirm(`Willst du die Akte "${akte.title}" wirklich löschen?`);
-
   if (!confirmDelete) return;
 
   const updatedAkten = getAkten().filter((entry) => entry.id !== currentDetailId);
@@ -236,13 +241,12 @@ deleteDetailBtn.addEventListener("click", () => {
   renderAkten();
 });
 
-statusBackdrop.addEventListener("click", closeStatusModal);
-closeStatusBtn.addEventListener("click", closeStatusModal);
+on(statusBackdrop, "click", closeStatusModal);
+on(closeStatusBtn, "click", closeStatusModal);
 
 statusChoices.forEach((button) => {
   button.addEventListener("click", () => {
-    const newStatus = button.dataset.status;
-    updateCurrentAkteStatus(newStatus);
+    updateCurrentAkteStatus(button.dataset.status);
   });
 });
 
@@ -264,8 +268,14 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+function on(element, eventName, handler) {
+  if (!element) return;
+  element.addEventListener(eventName, handler);
+}
+
 function showLogin() {
   loginError.textContent = "";
+  landingPage.classList.add("login-open");
   loginBox.classList.add("show");
   loginBox.setAttribute("aria-hidden", "false");
 
@@ -275,6 +285,7 @@ function showLogin() {
 }
 
 function hideLogin() {
+  landingPage.classList.remove("login-open");
   loginBox.classList.remove("show");
   loginBox.setAttribute("aria-hidden", "true");
   loginError.textContent = "";
@@ -312,9 +323,7 @@ function playSmokeTransition(callback) {
   void smokeTransition.offsetWidth;
   smokeTransition.classList.add("active");
 
-  setTimeout(() => {
-    callback();
-  }, 320);
+  setTimeout(callback, 320);
 
   setTimeout(() => {
     smokeTransition.classList.remove("active");
@@ -460,6 +469,8 @@ function saveAkten(akten) {
 }
 
 function renderAkten() {
+  if (!aktenList) return;
+
   const akten = getAkten();
   const query = (searchInput.value || "").trim().toLowerCase();
 
@@ -603,4 +614,39 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function startAmbientEmbers() {
+  if (prefersReducedMotion) return;
+
+  const emberLayer = document.querySelector(".bg-embers");
+  if (!emberLayer) return;
+
+  window.setInterval(() => {
+    const ember = document.createElement("span");
+    ember.className = "ember-particle";
+    ember.style.setProperty("--ember-left", `${Math.random() * 100}%`);
+    ember.style.setProperty("--ember-drift", `${Math.random() * 90 - 45}px`);
+    ember.style.setProperty("--ember-duration", `${7 + Math.random() * 7}s`);
+    ember.style.setProperty("--ember-size", `${2 + Math.random() * 3}px`);
+
+    emberLayer.appendChild(ember);
+
+    window.setTimeout(() => {
+      ember.remove();
+    }, 15000);
+  }, 520);
+}
+
+function bindHeroParallax() {
+  if (prefersReducedMotion) return;
+
+  const scene = document.querySelector(".bg-scene");
+  if (!scene) return;
+
+  document.addEventListener("pointermove", (event) => {
+    const x = (event.clientX / window.innerWidth - 0.5) * 10;
+    const y = (event.clientY / window.innerHeight - 0.5) * 8;
+    scene.style.transform = `scale(1.04) translate3d(${x}px, ${y}px, 0)`;
+  });
 }

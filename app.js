@@ -1,4 +1,4 @@
-const SYSTEM_PASSWORD = "System";
+const SYSTEM_PASSWORD = "Zwerg";
 const STORAGE_KEY = "ashborn_akten";
 const SESSION_KEY = "ashborn_logged_in";
 

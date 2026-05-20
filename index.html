@@ -6,112 +6,232 @@
 
   <title>Ashborn AktenSystem</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
+  <div class="page-bg"></div>
+  <div class="vignette"></div>
+  <div class="embers" aria-hidden="true"></div>
+
   <!-- STARTSEITE -->
   <main id="landingPage" class="landing-page">
-    <div class="logo-wrap">
+
+    <button id="logoButton" class="logo-button" type="button" aria-label="AktenSystem öffnen">
       <img
-        src="assets/logo.png"
+        src="./assets/logo.png"
         alt="Ashborn Logo"
         id="mainLogo"
         class="main-logo"
       />
-    </div>
+      <span class="logo-hint">Zum Betreten klicken</span>
+    </button>
 
-    <section id="loginBox" class="login-box">
+    <section id="loginBox" class="login-box" aria-hidden="true">
+      <button id="closeLoginBtn" class="close-login" type="button" aria-label="Login schließen">×</button>
+
+      <div class="login-seal">A</div>
+
       <h1>Zugang zum AktenSystem</h1>
-      <p>Gib das Systemkennwort ein.</p>
+      <p class="login-subtitle">Interner Bereich der Ashborn-Aktenverwaltung</p>
 
-      <input
-        type="password"
-        id="passwordInput"
-        placeholder="Kennwort"
-        autocomplete="off"
-      />
+      <div class="input-group">
+        <label for="passwordInput">Systemkennwort</label>
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Kennwort eingeben"
+          autocomplete="off"
+        />
+      </div>
 
-      <button id="loginBtn">Eintreten</button>
+      <button id="loginBtn" class="primary-btn" type="button">Eintreten</button>
 
       <div id="loginError" class="login-error"></div>
     </section>
+
   </main>
 
   <!-- AKTENSYSTEM -->
   <section id="aktenSystem" class="akten-system hidden">
 
     <header class="akten-header">
-      <div>
-        <h1>Ashborn AktenSystem</h1>
-        <p>Interne Aktenverwaltung</p>
+      <div class="brand-block">
+        <img src="./assets/logo.png" alt="Ashborn Logo" class="header-logo" />
+
+        <div>
+          <p class="eyebrow">Interne Verwaltung</p>
+          <h1>Ashborn AktenSystem</h1>
+          <p class="header-subline">Akten suchen, erstellen und später mit Datenbank erweitern</p>
+        </div>
       </div>
 
-      <button id="logoutBtn" class="logout-btn">Abmelden</button>
+      <button id="logoutBtn" class="logout-btn" type="button">Abmelden</button>
     </header>
 
     <nav class="akten-tabs">
-      <button class="tab-btn active" data-tab="searchTab">Akten suchen</button>
-      <button class="tab-btn" data-tab="createTab">Akte erstellen</button>
-      <button class="tab-btn" data-tab="settingsTab">System</button>
+      <button class="tab-btn active" data-tab="searchTab" type="button">
+        <span>🔎</span>
+        Akten suchen
+      </button>
+
+      <button class="tab-btn" data-tab="createTab" type="button">
+        <span>📜</span>
+        Akte erstellen
+      </button>
+
+      <button class="tab-btn" data-tab="archiveTab" type="button">
+        <span>🗄️</span>
+        Archiv
+      </button>
+
+      <button class="tab-btn" data-tab="settingsTab" type="button">
+        <span>⚙️</span>
+        System
+      </button>
     </nav>
 
     <!-- SUCHEN -->
     <div id="searchTab" class="tab-content active">
-      <div class="panel">
-        <h2>Akten suchen</h2>
+      <div class="dashboard-grid">
 
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="Nach Name, Inhalt, Kategorie oder Beschreibung suchen..."
-        />
+        <aside class="system-card">
+          <h2>Aktenübersicht</h2>
 
-        <div id="aktenList" class="akten-list"></div>
+          <div class="stat-row">
+            <span>Gesamte Akten</span>
+            <strong id="totalAktenCount">0</strong>
+          </div>
+
+          <div class="stat-row">
+            <span>Suchtreffer</span>
+            <strong id="filteredAktenCount">0</strong>
+          </div>
+
+          <div class="stat-row">
+            <span>Speicher</span>
+            <strong>Lokal</strong>
+          </div>
+
+          <p class="small-note">
+            Aktuell werden Akten nur im Browser gespeichert. Später ersetzen wir das durch eine echte Datenbank.
+          </p>
+        </aside>
+
+        <div class="panel">
+          <div class="panel-title-row">
+            <div>
+              <p class="eyebrow">Suche</p>
+              <h2>Akten durchsuchen</h2>
+            </div>
+          </div>
+
+          <div class="search-shell">
+            <span>🔎</span>
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="Nach Name, Inhalt, Kategorie oder Beschreibung suchen..."
+            />
+          </div>
+
+          <div id="aktenList" class="akten-list"></div>
+        </div>
+
       </div>
     </div>
 
     <!-- ERSTELLEN -->
     <div id="createTab" class="tab-content">
-      <div class="panel">
-        <h2>Neue Akte erstellen</h2>
+      <div class="panel form-panel">
+        <div class="panel-title-row">
+          <div>
+            <p class="eyebrow">Neue Akte</p>
+            <h2>Akte erstellen</h2>
+          </div>
+        </div>
 
-        <label>Aktenname</label>
-        <input type="text" id="akteTitle" placeholder="z. B. Person X / Vorfall / Bericht" />
+        <div class="form-grid">
+          <div class="field">
+            <label for="akteTitle">Aktenname</label>
+            <input type="text" id="akteTitle" placeholder="z. B. Person X / Vorfall / Bericht" />
+          </div>
 
-        <label>Kategorie</label>
-        <input type="text" id="akteCategory" placeholder="z. B. Mitglieder, Vorfälle, Handel, Fraktion" />
+          <div class="field">
+            <label for="akteCategory">Kategorie</label>
+            <input type="text" id="akteCategory" placeholder="z. B. Mitglieder, Vorfälle, Handel, Fraktion" />
+          </div>
+        </div>
 
-        <label>Kurze Beschreibung</label>
-        <input type="text" id="akteDescription" placeholder="Kurze Zusammenfassung der Akte" />
+        <div class="field">
+          <label for="akteDescription">Kurze Beschreibung</label>
+          <input type="text" id="akteDescription" placeholder="Kurze Zusammenfassung der Akte" />
+        </div>
 
-        <label>Akteninhalt</label>
-        <textarea id="akteContent" placeholder="Hier den vollständigen Inhalt der Akte eintragen..."></textarea>
+        <div class="field">
+          <label for="akteContent">Akteninhalt</label>
+          <textarea id="akteContent" placeholder="Hier den vollständigen Inhalt der Akte eintragen..."></textarea>
+        </div>
 
-        <button id="saveAkteBtn" class="save-btn">Akte speichern</button>
+        <div class="form-actions">
+          <button id="saveAkteBtn" class="primary-btn" type="button">Akte speichern</button>
+          <button id="resetFormBtn" class="secondary-btn" type="button">Felder leeren</button>
+        </div>
 
         <div id="saveInfo" class="save-info"></div>
+      </div>
+    </div>
+
+    <!-- ARCHIV -->
+    <div id="archiveTab" class="tab-content">
+      <div class="panel">
+        <p class="eyebrow">Vorbereitet</p>
+        <h2>Archiv</h2>
+        <p>
+          Dieser Bereich ist vorbereitet. Später können wir hier abgeschlossene Akten,
+          gelöschte Akten, Kategorien oder Fraktionsarchive einbauen.
+        </p>
+
+        <div class="feature-preview-grid">
+          <div class="feature-card">
+            <h3>Abgeschlossene Akten</h3>
+            <p>Für Akten, die nicht mehr aktiv bearbeitet werden.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>Kategorien</h3>
+            <p>Für spätere Filter nach Personen, Vorfällen, Handel oder Fraktion.</p>
+          </div>
+
+          <div class="feature-card">
+            <h3>Datenbank-Sync</h3>
+            <p>Vorbereitet für Supabase/Firebase oder eigenes Backend.</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- SYSTEM -->
     <div id="settingsTab" class="tab-content">
       <div class="panel">
+        <p class="eyebrow">Einstellungen</p>
         <h2>System</h2>
 
         <p>
-          Dieses System läuft aktuell lokal im Browser.
-          Später können wir hier Datenbank, Benutzerrechte, Rollen,
-          Akten-Berechtigungen und weitere Reiter ergänzen.
+          Diese Version ist die Design- und Strukturgrundlage.
+          Benutzerrechte, echte Datenbank, Rollen, Aktenstatus und weitere Reiter können später sauber ergänzt werden.
         </p>
 
-        <button id="clearLocalDataBtn" class="danger-btn">Lokale Testdaten löschen</button>
+        <div class="system-actions">
+          <button id="clearLocalDataBtn" class="danger-btn" type="button">Lokale Testdaten löschen</button>
+          <button id="createDemoDataBtn" class="secondary-btn" type="button">Demo-Akten erstellen</button>
+        </div>
       </div>
     </div>
 
   </section>
 
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>

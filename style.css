@@ -207,6 +207,7 @@ button {
   place-items: center;
   width: min(760px, 94vw);
   min-height: 420px;
+  z-index: 1;
 }
 
 .landing-logo-ring {
@@ -239,6 +240,7 @@ button {
 
 .landing-logo-button {
   position: relative;
+  z-index: 1;
   border: 0;
   background: transparent;
   padding: 0;
@@ -299,6 +301,7 @@ button {
 
 .login-box {
   position: absolute;
+  z-index: 50;
   width: min(480px, calc(100vw - 28px));
   padding: 34px 32px 28px;
   border-radius: var(--radius-xl);
@@ -307,6 +310,7 @@ button {
     linear-gradient(180deg, rgba(18, 19, 24, 0.98), rgba(10, 10, 14, 0.98)),
     linear-gradient(145deg, rgba(255,255,255,0.05), transparent);
   box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.24),
     var(--shadow-main),
     var(--shadow-gold),
     inset 0 0 26px rgba(255, 255, 255, 0.02);

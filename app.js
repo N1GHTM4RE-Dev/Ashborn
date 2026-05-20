@@ -114,20 +114,24 @@ logoutBtn.addEventListener("click", () => {
 
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    const targetTab = button.dataset.tab;
+    switchTab(button.dataset.tab);
 
-    tabButtons.forEach((btn) => btn.classList.remove("active"));
-    tabContents.forEach((content) => content.classList.remove("active"));
-
-    button.classList.add("active");
-    document.getElementById(targetTab).classList.add("active");
-
-    if (targetTab === "searchTab") {
+    if (button.dataset.tab === "searchTab") {
       renderAkten();
-      searchInput.focus();
+      setTimeout(() => searchInput.focus(), 80);
     }
   });
 });
+
+function switchTab(tabId) {
+  tabButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.tab === tabId);
+  });
+
+  tabContents.forEach((content) => {
+    content.classList.toggle("active", content.id === tabId);
+  });
+}
 
 function getAkten() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -185,7 +189,7 @@ function createAkte() {
   saveAkten(akten);
 
   clearForm();
-  setSaveMessage("Akte wurde gespeichert.", "success");
+  setSaveMessage("Akte wurde versiegelt.", "success");
 
   switchTab("searchTab");
   renderAkten();
@@ -237,7 +241,8 @@ function renderAkten() {
       <article class="akte-card">
         <h3>Keine Akten gefunden</h3>
         <div class="akte-meta">
-          <span class="badge">Hinweis</span>
+          <span class="badge">Archiv leer</span>
+          <span class="badge">Suchtreffer: 0</span>
         </div>
         <p>Erstelle eine neue Akte oder ändere deine Suche.</p>
       </article>
@@ -263,16 +268,6 @@ function renderAkten() {
   }).join("");
 }
 
-function switchTab(tabId) {
-  tabButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.tab === tabId);
-  });
-
-  tabContents.forEach((content) => {
-    content.classList.toggle("active", content.id === tabId);
-  });
-}
-
 clearLocalDataBtn.addEventListener("click", () => {
   const confirmDelete = confirm("Willst du wirklich alle lokalen Test-Akten löschen?");
 
@@ -290,28 +285,28 @@ createDemoDataBtn.addEventListener("click", () => {
   const demoAkten = [
     {
       id: createId(),
-      title: "Beispielakte: Fraktionsbericht",
+      title: "Fraktionsbericht: Ashborn",
       category: "Fraktion",
-      description: "Interner Bericht als Beispiel für die Suchfunktion.",
-      content: "Diese Beispielakte zeigt, dass die Suche nicht nur den Aktennamen, sondern auch den kompletten Akteninhalt durchsucht.",
+      description: "Interner Bericht über Struktur, Aufgaben und aktuelle Lage.",
+      content: "Diese Beispielakte zeigt, dass die Suche nicht nur den Aktennamen, sondern auch den kompletten Akteninhalt durchsucht. Begriffe wie Phoenix, Archiv, Handel oder Vorfall werden ebenfalls gefunden.",
       createdAt: new Date().toLocaleString("de-DE"),
       status: "Aktiv"
     },
     {
       id: createId(),
-      title: "Beispielakte: Vorfall Valentine",
+      title: "Vorfallakte: Valentine",
       category: "Vorfälle",
       description: "Ein vorbereiteter Testeintrag für spätere Archiv- und Filterfunktionen.",
-      content: "Ort: Valentine. Beteiligte: unbekannt. Diese Akte kann später mit Personen, Status, Anhängen und Rollen erweitert werden.",
+      content: "Ort: Valentine. Beteiligte: unbekannt. Diese Akte kann später mit Personen, Status, Anhängen, Rollen und Rechten erweitert werden.",
       createdAt: new Date().toLocaleString("de-DE"),
       status: "Aktiv"
     },
     {
       id: createId(),
-      title: "Beispielakte: Handelskontakt",
+      title: "Handelsakte: Kontaktperson",
       category: "Handel",
-      description: "Testakte für Handel und Kontakte.",
-      content: "Diese Akte ist ein Platzhalter für spätere Handelskontakte, Notizen, Preise, Treffen und Verlauf.",
+      description: "Testakte für Handel, Kontakte und spätere Transaktionsnotizen.",
+      content: "Diese Akte ist ein Platzhalter für spätere Handelskontakte, Notizen, Preise, Treffen und Verlauf. Das System ist vorbereitet, um später an eine echte Datenbank angeschlossen zu werden.",
       createdAt: new Date().toLocaleString("de-DE"),
       status: "Aktiv"
     }

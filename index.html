@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Ashborn AktenSystem</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@400;500;600;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:wght@400;500;600;700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -119,8 +120,13 @@
             </div>
 
             <div class="archive-stat">
-              <span>Speicherort</span>
-              <strong>Lokal</strong>
+              <span>Geheime Akten</span>
+              <strong id="secretAktenCount">0</strong>
+            </div>
+
+            <div class="archive-stat">
+              <span>Archivierte Akten</span>
+              <strong id="archivedAktenCount">0</strong>
             </div>
           </div>
 
@@ -153,6 +159,14 @@
             </div>
           </div>
 
+          <div class="quick-filters">
+            <button class="filter-btn active" data-filter="Alle" type="button">Alle</button>
+            <button class="filter-btn" data-filter="Aktiv" type="button">Aktiv</button>
+            <button class="filter-btn" data-filter="Geheim" type="button">Geheim</button>
+            <button class="filter-btn" data-filter="Beobachtung" type="button">Beobachtung</button>
+            <button class="filter-btn" data-filter="Archiviert" type="button">Archiviert</button>
+          </div>
+
           <div id="aktenList" class="akten-list"></div>
         </section>
       </div>
@@ -164,9 +178,11 @@
         <div class="panel-header">
           <div>
             <p class="section-kicker">NEUE FALLAKTE</p>
-            <h2>Akte erstellen</h2>
+            <h2 id="formTitle">Akte erstellen</h2>
           </div>
         </div>
+
+        <input type="hidden" id="editAkteId" />
 
         <div class="form-grid">
           <div class="form-field">
@@ -204,9 +220,11 @@
 
         <div class="form-actions">
           <button id="saveAkteBtn" class="primary-btn small-btn" type="button">
-            <span>Akte versiegeln</span>
+            <span id="saveButtonText">Akte versiegeln</span>
           </button>
+
           <button id="resetFormBtn" class="secondary-btn small-btn" type="button">Felder leeren</button>
+          <button id="cancelEditBtn" class="danger-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
         </div>
 
         <div id="saveInfo" class="save-info"></div>
@@ -254,7 +272,7 @@
 
         <p class="system-text">
           Diese Version ist die Design- und Grundstruktur des AktenSystems.
-          Später können wir hier Rollen, Benutzerrechte, Datenbank, Bearbeiten, Löschen, Anhänge und weitere Reiter ergänzen.
+          Später können wir hier Rollen, Benutzerrechte, Datenbank, Anhänge und weitere Reiter ergänzen.
         </p>
 
         <div class="form-actions">
@@ -299,6 +317,31 @@
       <div class="detail-section">
         <h3>Akteninhalt</h3>
         <div id="detailContent" class="detail-content">-</div>
+      </div>
+
+      <div class="detail-actions">
+        <button id="editDetailBtn" class="primary-btn small-btn" type="button">Akte bearbeiten</button>
+        <button id="archiveDetailBtn" class="secondary-btn small-btn" type="button">Status ändern</button>
+        <button id="deleteDetailBtn" class="danger-btn small-btn" type="button">Akte löschen</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- STATUS MODAL -->
+  <div id="statusModal" class="status-modal hidden">
+    <div class="detail-backdrop" id="statusBackdrop"></div>
+
+    <section class="status-box">
+      <button id="closeStatusBtn" class="close-detail" type="button">×</button>
+
+      <p class="section-kicker">STATUS ÄNDERN</p>
+      <h2>Akte neu markieren</h2>
+
+      <div class="status-choice-grid">
+        <button class="status-choice" data-status="Aktiv" type="button">Aktiv</button>
+        <button class="status-choice status-geheim" data-status="Geheim" type="button">Geheim</button>
+        <button class="status-choice status-beobachtung" data-status="Beobachtung" type="button">Beobachtung</button>
+        <button class="status-choice status-archiviert" data-status="Archiviert" type="button">Archiviert</button>
       </div>
     </section>
   </div>

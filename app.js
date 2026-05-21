@@ -356,34 +356,59 @@ function switchTab(tabId) {
 }
 
 async function loadAllData() {
+  setBusy(true, "Daten werden geladen...");
+
+  const loadSteps = [
+    ["Großes Aktensystem", loadRecords],
+    ["Preisliste Verkauf", () => loadPriceItems("sell")],
+    ["Preisliste Kauf", () => loadPriceItems("buy")],
+    ["Ashborn Intern", loadInternalNotes],
+    ["Buchhaltung", loadCashEntries]
+  ];
+
+  const errors = [];
+
   try {
-    setBusy(true, "Daten werden geladen...");
-    await Promise.all([
-      loadRecords(),
-      loadPriceItems("sell"),
-      loadPriceItems("buy"),
-      loadInternalNotes(),
-      loadCashEntries()
-    ]);
+    for (const [label, loader] of loadSteps) {
+      try {
+        await loader();
+      } catch (error) {
+        console.error(`Ladefehler in ${label}:`, error);
+        errors.push(`${label}: ${error.message || error}`);
+      }
+    }
+
     renderAll();
+
+    if (errors.length) {
+      alert(`Einige Bereiche konnten nicht geladen werden:\n\n${errors.join("\n")}`);
+    }
   } catch (error) {
-    console.error(error);
-    alert(`Daten konnten nicht geladen werden: ${error.message || error}`);
+    console.error("Renderfehler nach dem Laden:", error);
+    alert(`Daten wurden geladen, aber die Anzeige hatte einen Fehler: ${error.message || error}`);
   } finally {
     setBusy(false);
   }
 }
 
+function safeRender(label, fn) {
+  try {
+    fn();
+  } catch (error) {
+    console.error(`Anzeige-Fehler in ${label}:`, error);
+  }
+}
+
 function renderAll() {
-  renderRecords();
-  renderPriceModule("sell");
-  renderPriceModule("buy");
-  renderInternal();
-  renderCash();
-  renderCashEnhancements();
-  renderSystemDashboard();
-  renderDashboard();
-  renderDashboardEnhancements();
+  safeRender("Großes Aktensystem", renderRecords);
+  safeRender("Preisliste Verkauf", () => renderPriceModule("sell"));
+  safeRender("Preisliste Kauf", () => renderPriceModule("buy"));
+  safeRender("Ashborn Intern", renderInternal);
+  safeRender("Buchhaltung", renderCash);
+  safeRender("Buchhaltung Erweiterungen", renderCashEnhancements);
+  safeRender("Systemzentrale", renderSystemDashboard);
+  safeRender("Dashboard", renderDashboard);
+  safeRender("Dashboard Erweiterungen", renderDashboardEnhancements);
 }
 
 function renderSystemDashboard() {
@@ -692,11 +717,39 @@ async function normalizeRecord(row) {
 }
 
 async function withSignedImageUrls(images) {
-  return Promise.all(images.map(async (image) => {
-    if (!image.path) return image;
-    const { data } = await supabaseClient.storage.from(IMAGE_BUCKET).createSignedUrl(image.path, 60 * 60 * 24);
-    return { ...image, src: data?.signedUrl || "" };
-  }));
+  if (!Array.isArray(images)) return [];
+
+  const normalizedImages = [];
+
+  for (const rawImage of images) {
+    try {
+      if (!rawImage || typeof rawImage !== "object") continue;
+
+      const image = {
+        name: String(rawImage.name || "Bild"),
+        path: typeof rawImage.path === "string" ? rawImage.path : "",
+        src: typeof rawImage.src === "string" ? rawImage.src : ""
+      };
+
+      if (!image.path) {
+        normalizedImages.push(image);
+        continue;
+      }
+
+      const { data, error } = await supabaseClient.storage
+        .from(IMAGE_BUCKET)
+        .createSignedUrl(image.path, 60 * 60 * 24);
+
+      normalizedImages.push({
+        ...image,
+        src: error ? image.src : (data?.signedUrl || image.src || "")
+      });
+    } catch (error) {
+      console.error("Bild-URL konnte nicht geladen werden:", error, rawImage);
+    }
+  }
+
+  return normalizedImages;
 }
 
 async function saveRecord() {

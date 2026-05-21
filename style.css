@@ -12,6 +12,26 @@
   --gold-3: #ffe3a0;
   --gold-dark: #6b4714;
   --parchment: #d8b56a;
+  --gold-metal:
+    repeating-linear-gradient(110deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 4px),
+    linear-gradient(
+      180deg,
+      #fff8d4 0%,
+      #f8dc86 16%,
+      #d99b35 34%,
+      #fff0a6 48%,
+      #c68121 64%,
+      #f4c767 82%,
+      #8d5717 100%
+    );
+  --gold-soft:
+    linear-gradient(
+      180deg,
+      #fff1b4 0%,
+      #eac264 36%,
+      #b8731d 68%,
+      #f2c76b 100%
+    );
 
   --rust: #7a1f12;
   --ember: #ff3b13;
@@ -444,17 +464,25 @@ img {
   position: relative;
   z-index: 2;
   margin: 0 0 8px;
-  color: var(--gold);
+  color: #d0a352;
   font-family: var(--font-title);
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 2.2px;
+  font-weight: 800;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(242, 199, 107, 0.16);
 }
 
 .landing-title {
   margin: 0;
-  color: var(--gold-2);
+  color: #f2c76b;
+  background: var(--gold-metal);
+  background-blend-mode: overlay, normal;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: var(--font-brand);
   font-size: clamp(48px, 8vw, 112px);
   font-weight: 700;
@@ -464,6 +492,9 @@ img {
     0 3px 0 rgba(0, 0, 0, 0.9),
     0 0 24px rgba(242, 199, 107, 0.32),
     0 0 42px rgba(255, 59, 19, 0.18);
+  filter:
+    drop-shadow(0 2px 0 rgba(38, 16, 4, 0.86))
+    drop-shadow(0 0 16px rgba(242, 199, 107, 0.24));
 }
 
 .landing-subtitle {
@@ -622,17 +653,23 @@ img {
   position: relative;
   z-index: 2;
   margin: 0;
-  color: var(--gold-2);
+  color: #f2c76b;
+  background: var(--gold-metal);
+  background-blend-mode: overlay, normal;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: var(--font-title);
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.012em;
   text-transform: uppercase;
   overflow-wrap: normal;
   hyphens: auto;
-  text-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.72),
-    0 0 20px rgba(242, 199, 107, 0.2);
+  text-shadow: none;
+  filter:
+    drop-shadow(0 2px 0 rgba(38, 16, 4, 0.9))
+    drop-shadow(0 0 14px rgba(242, 199, 107, 0.18));
 }
 
 .login-box h1 {
@@ -1002,9 +1039,9 @@ select:focus-visible {
 }
 
 .system-brand h1 {
-  font-size: clamp(30px, 2.7vw, 48px);
+  font-size: clamp(29px, 2.45vw, 44px);
   max-width: 980px;
-  line-height: 1.02;
+  line-height: 1.04;
 }
 
 .brand-word {
@@ -1131,8 +1168,14 @@ select:focus-visible {
 .archive-sidepanel h2,
 .panel h2,
 .archive-main h2 {
-  font-size: clamp(26px, 2.4vw, 38px);
+  font-size: clamp(26px, 2vw, 36px);
   line-height: 1.05;
+}
+
+.archive-sidepanel h2 {
+  font-size: clamp(24px, 1.55vw, 31px);
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .archive-stat {
@@ -1149,11 +1192,11 @@ select:focus-visible {
 .archive-stat span,
 .detail-meta-box span {
   display: block;
-  color: var(--text-muted);
+  color: rgba(228, 194, 126, 0.68);
   font-family: var(--font-title);
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.1px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
   text-transform: uppercase;
 }
 
@@ -1161,10 +1204,15 @@ select:focus-visible {
 .detail-meta-box strong {
   display: block;
   margin-top: 6px;
-  color: var(--gold-2);
+  color: #f2c76b;
+  background: var(--gold-soft);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: var(--font-title);
   font-size: 32px;
   line-height: 1;
+  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
 }
 
 .sidepanel-note p {
@@ -1280,13 +1328,18 @@ select:focus-visible {
   position: relative;
   z-index: 2;
   margin: 0 0 10px;
-  color: var(--gold-2);
+  color: #f2c76b;
+  background: var(--gold-soft);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: var(--font-title);
   font-size: clamp(22px, 2.2vw, 32px);
-  font-weight: 900;
-  line-height: 1.05;
+  font-weight: 800;
+  line-height: 1.08;
   text-transform: uppercase;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.72);
+  text-shadow: none;
+  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.84));
 }
 
 .akten-card p,
@@ -1610,8 +1663,8 @@ select:focus-visible {
   }
 
   .system-brand h1 {
-    font-size: clamp(38px, 3vw, 58px);
-    max-width: 1120px;
+    font-size: clamp(34px, 2.55vw, 50px);
+    max-width: 1040px;
   }
 
   .system-subline {
@@ -1620,8 +1673,8 @@ select:focus-visible {
 
   .system-kicker,
   .section-kicker {
-    font-size: 14px;
-    letter-spacing: 2.4px;
+    font-size: 13px;
+    letter-spacing: 2.1px;
   }
 
   .system-header-actions {
@@ -1675,12 +1728,13 @@ select:focus-visible {
   .archive-sidepanel h2,
   .panel h2,
   .archive-main h2 {
-    font-size: clamp(32px, 2.45vw, 50px);
+    font-size: clamp(30px, 2.1vw, 44px);
     line-height: 1.06;
   }
 
   .archive-sidepanel h2 {
-    font-size: clamp(30px, 2vw, 40px);
+    font-size: clamp(25px, 1.45vw, 32px);
+    line-height: 1.12;
   }
 
   .archive-stat {
@@ -1694,7 +1748,7 @@ select:focus-visible {
   }
 
   .archive-stat strong {
-    font-size: 44px;
+    font-size: 40px;
   }
 
   .sidepanel-note p,
@@ -1742,7 +1796,7 @@ select:focus-visible {
   .akten-card h3,
   .feature-card h3,
   .detail-section h3 {
-    font-size: clamp(28px, 2.15vw, 40px);
+    font-size: clamp(26px, 1.9vw, 36px);
     line-height: 1.08;
   }
 
@@ -1819,7 +1873,7 @@ select:focus-visible {
 
   .detail-sheet h2,
   .status-box h2 {
-    font-size: clamp(38px, 3.4vw, 62px);
+    font-size: clamp(34px, 2.8vw, 54px);
   }
 
   .detail-meta-row {

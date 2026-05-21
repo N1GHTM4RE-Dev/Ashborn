@@ -7,6 +7,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let sessionUser = null;
 let activeRecordFilter = "Alle";
+let activeRecordImageFilter = false;
+let recordSortMode = "newest";
 let currentRecordId = null;
 let pendingImages = [];
 let recordsCache = [];
@@ -88,6 +90,30 @@ function bindEvents() {
   });
 
   on($("recordSearchInput"), "input", renderRecords);
+  on($("recordSortSelect"), "change", (event) => {
+    recordSortMode = event.target.value || "newest";
+    renderRecords();
+  });
+  on($("toggleImageFilterBtn"), "click", () => {
+    activeRecordImageFilter = !activeRecordImageFilter;
+    $("toggleImageFilterBtn").classList.toggle("active", activeRecordImageFilter);
+    $("toggleImageFilterBtn").textContent = activeRecordImageFilter ? "Alle Bilder anzeigen" : "Nur mit Bildern";
+    renderRecords();
+  });
+  on($("clearRecordSearchBtn"), "click", () => {
+    $("recordSearchInput").value = "";
+    activeRecordFilter = "Alle";
+    activeRecordImageFilter = false;
+    recordSortMode = "newest";
+    if ($("recordSortSelect")) $("recordSortSelect").value = "newest";
+    recordFilterButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.recordFilter === "Alle"));
+    if ($("toggleImageFilterBtn")) {
+      $("toggleImageFilterBtn").classList.remove("active");
+      $("toggleImageFilterBtn").textContent = "Nur mit Bildern";
+    }
+    renderRecords();
+  });
+  on($("exportRecordsCsvBtn"), "click", exportRecordsCsv);
   on($("saveRecordBtn"), "click", saveRecord);
   on($("resetRecordBtn"), "click", () => {
     clearRecordForm();
@@ -133,6 +159,7 @@ function bindEvents() {
     }
   });
   on($("deleteRecordBtn"), "click", () => deleteRecord(currentRecordId));
+  on($("copyTelegramBtn"), "click", copyCurrentTelegram);
 
   setupPriceModule("sell");
   setupPriceModule("buy");
@@ -286,7 +313,9 @@ async function normalizeRecord(row) {
     description: row.description || "",
     images,
     createdAt: formatDate(row.created_at),
-    updatedAt: row.updated_at ? formatDate(row.updated_at) : ""
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || ""
   };
 }
 
@@ -435,38 +464,63 @@ function renderRecords() {
   const list = $("recordList");
   if (!list) return;
   const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
-  const filtered = recordsCache.filter((record) => {
-    const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
-    const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.createdAt, record.updatedAt].join(" ").toLowerCase();
-    return matchesType && haystack.includes(query);
-  });
+  const filtered = recordsCache
+    .filter((record) => {
+      const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
+      const hasImages = Array.isArray(record.images) && record.images.length > 0;
+      const matchesImages = !activeRecordImageFilter || hasImages;
+      const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.createdAt, record.updatedAt].join(" ").toLowerCase();
+      return matchesType && matchesImages && haystack.includes(query);
+    })
+    .sort(sortRecords);
 
   setText("totalRecordsCount", recordsCache.length);
   setText("filteredRecordsCount", filtered.length);
   setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
+  setText("personRecordsCount", recordsCache.filter((item) => item.type === "Person").length);
+  setText("routeRecordsCount", recordsCache.filter((item) => item.type === "Route").length);
+  setText("locationRecordsCount", recordsCache.filter((item) => item.type === "Ort").length);
+  setText("objectRecordsCount", recordsCache.filter((item) => item.type === "Gegenstand").length);
 
   if (!filtered.length) {
     list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
     return;
   }
 
-  list.innerHTML = filtered.map((record) => `
-    <button class="akten-card" type="button" data-id="${escapeHtml(record.id)}">
-      <div class="folder-chip-row">
-        <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
-        <span class="folder-chip">${escapeHtml(record.updatedAt ? `Bearbeitet: ${record.updatedAt}` : `Erstellt: ${record.createdAt || "-"}`)}</span>
-        <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
-      </div>
-      <h3>${escapeHtml(record.name)}</h3>
-      <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
-      <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
-      <p class="akten-preview">${escapeHtml(record.description || "Keine Beschreibung")}</p>
-      <div class="card-actions">
-        <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
-        <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
-      </div>
-    </button>
-  `).join("");
+  list.innerHTML = filtered.map((record) => {
+    const firstImage = Array.isArray(record.images) ? record.images.find((img) => img.src) : null;
+    return `
+      <button class="akten-card record-card" type="button" data-id="${escapeHtml(record.id)}">
+        <div class="record-card-main">
+          <div class="record-thumb ${firstImage ? "has-image" : ""}">
+            ${firstImage ? `<img src="${firstImage.src}" alt="${escapeHtml(firstImage.name || record.name)}" />` : `<span>${escapeHtml((record.type || "A").slice(0, 1))}</span>`}
+          </div>
+          <div class="record-card-body">
+            <div class="folder-chip-row">
+              <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
+              <span class="folder-chip">${escapeHtml(record.updatedAt ? `Bearbeitet: ${record.updatedAt}` : `Erstellt: ${record.createdAt || "-"}`)}</span>
+              <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
+            </div>
+            <h3>${escapeHtml(record.name)}</h3>
+            <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
+            <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
+            <p class="akten-preview">${escapeHtml(record.description || "Keine Beschreibung")}</p>
+            <div class="card-actions">
+              <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
+              <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function sortRecords(a, b) {
+  if (recordSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+  if (recordSortMode === "name") return String(a.name || "").localeCompare(String(b.name || ""), "de");
+  if (recordSortMode === "type") return String(a.type || "").localeCompare(String(b.type || ""), "de") || String(a.name || "").localeCompare(String(b.name || ""), "de");
+  return new Date(b.updatedAtRaw || b.createdAtRaw || 0) - new Date(a.updatedAtRaw || a.createdAtRaw || 0);
 }
 
 function openDetail(record) {
@@ -476,6 +530,9 @@ function openDetail(record) {
   setText("detailLocation", record.location || "-");
   setText("detailTelegram", record.telegram || "-");
   setText("detailDescription", record.description || "Keine Beschreibung eingetragen.");
+  setText("detailCreatedAt", record.createdAt || "-");
+  setText("detailUpdatedAt", record.updatedAt || "Noch nicht bearbeitet");
+  if ($("copyTelegramBtn")) $("copyTelegramBtn").disabled = !record.telegram;
   const images = Array.isArray(record.images) ? record.images : [];
   $("detailImages").innerHTML = images.length
     ? images.map((img) => img.src ? `<a href="${img.src}" target="_blank" rel="noopener"><img src="${img.src}" alt="${escapeHtml(img.name || "Bild")}" /></a>` : "").join("")
@@ -510,6 +567,44 @@ async function deleteRecord(id) {
     setBusy(false);
   }
 }
+
+async function copyCurrentTelegram() {
+  const record = recordsCache.find((item) => item.id === currentRecordId);
+  if (!record?.telegram) return;
+  try {
+    await navigator.clipboard.writeText(record.telegram);
+    const btn = $("copyTelegramBtn");
+    if (!btn) return;
+    const oldText = btn.textContent;
+    btn.textContent = "Kopiert";
+    setTimeout(() => { btn.textContent = oldText; }, 1200);
+  } catch (error) {
+    alert(`Kopieren fehlgeschlagen: ${error.message || error}`);
+  }
+}
+
+function exportRecordsCsv() {
+  if (!recordsCache.length) {
+    alert("Keine Datensätze zum Exportieren vorhanden.");
+    return;
+  }
+  const headers = ["Name", "Was", "Wo finde ich es", "Telegramm Nummer", "Beschreibung", "Bilder", "Erstellt", "Bearbeitet"];
+  const rows = recordsCache.map((record) => [
+    record.name,
+    record.type,
+    record.location,
+    record.telegram,
+    record.description,
+    Array.isArray(record.images) ? record.images.length : 0,
+    record.createdAt,
+    record.updatedAt
+  ]);
+  const csv = [headers, ...rows]
+    .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(";"))
+    .join("\n");
+  downloadTextFile(`ashborn-datensaetze-${new Date().toISOString().slice(0, 10)}.csv`, csv, "text/csv;charset=utf-8");
+}
+
 
 function setupPriceModule(type) {
   const prefix = type === "sell" ? "sell" : "buy";
@@ -796,6 +891,16 @@ async function clearAllData() {
   }
 }
 
+function downloadTextFile(filename, content, mimeType = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function exportData() {
   const data = {
     records: recordsCache,
@@ -805,13 +910,7 @@ function exportData() {
     cash: cashCache,
     exportedAt: new Date().toISOString()
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `ashborn-export-${new Date().toISOString().slice(0, 10)}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadTextFile(`ashborn-export-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
 }
 
 function setBusy(state, message = "") {

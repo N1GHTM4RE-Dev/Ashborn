@@ -31,8 +31,9 @@
   --shadow: 0 34px 100px rgba(0, 0, 0, 0.72);
   --shadow-soft: 0 18px 54px rgba(0, 0, 0, 0.48);
 
-  --font-title: "Cinzel Decorative", "Cinzel", Georgia, serif;
-  --font-brand: "UnifrakturCook", "Cinzel Decorative", Georgia, serif;
+  --font-title: "Cinzel", Georgia, serif;
+  --font-brand: "Cinzel Decorative", "Cinzel", Georgia, serif;
+  --font-accent: "UnifrakturCook", "Cinzel Decorative", Georgia, serif;
   --font-body: "Cormorant Garamond", Georgia, serif;
 
   --radius-xl: 8px;
@@ -70,6 +71,12 @@ body {
   line-height: 1.55;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+.system-brand-text,
+.panel-header > div,
+.sidepanel-block {
+  min-width: 0;
 }
 
 button,
@@ -452,7 +459,7 @@ img {
   font-size: clamp(48px, 8vw, 112px);
   font-weight: 700;
   line-height: 0.9;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   text-shadow:
     0 3px 0 rgba(0, 0, 0, 0.9),
     0 0 24px rgba(242, 199, 107, 0.32),
@@ -600,7 +607,7 @@ img {
 }
 
 .login-seal span {
-  font-family: var(--font-brand);
+  font-family: var(--font-accent);
   font-size: 42px;
   line-height: 1;
 }
@@ -619,8 +626,10 @@ img {
   font-family: var(--font-title);
   font-weight: 900;
   line-height: 1;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+  overflow-wrap: normal;
+  hyphens: auto;
   text-shadow:
     0 3px 0 rgba(0, 0, 0, 0.72),
     0 0 20px rgba(242, 199, 107, 0.2);
@@ -993,13 +1002,16 @@ select:focus-visible {
 }
 
 .system-brand h1 {
-  font-size: clamp(30px, 3vw, 52px);
+  font-size: clamp(30px, 2.7vw, 48px);
+  max-width: 980px;
+  line-height: 1.02;
 }
 
 .brand-word {
   font-family: var(--font-brand);
   font-weight: 700;
   margin-right: 6px;
+  letter-spacing: 0.015em;
 }
 
 .system-subline {
@@ -1119,7 +1131,8 @@ select:focus-visible {
 .archive-sidepanel h2,
 .panel h2,
 .archive-main h2 {
-  font-size: clamp(28px, 3vw, 42px);
+  font-size: clamp(26px, 2.4vw, 38px);
+  line-height: 1.05;
 }
 
 .archive-stat {
@@ -1597,17 +1610,18 @@ select:focus-visible {
   }
 
   .system-brand h1 {
-    font-size: clamp(46px, 4vw, 78px);
+    font-size: clamp(38px, 3vw, 58px);
+    max-width: 1120px;
   }
 
   .system-subline {
-    font-size: 25px;
+    font-size: 22px;
   }
 
   .system-kicker,
   .section-kicker {
-    font-size: 15px;
-    letter-spacing: 2.8px;
+    font-size: 14px;
+    letter-spacing: 2.4px;
   }
 
   .system-header-actions {
@@ -1617,7 +1631,7 @@ select:focus-visible {
   .status-pill {
     min-height: 58px;
     padding: 13px 18px;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .logout-btn {
@@ -1635,7 +1649,7 @@ select:focus-visible {
     min-height: 84px;
     gap: 14px;
     padding: 20px 24px;
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .tab-seal {
@@ -1661,7 +1675,12 @@ select:focus-visible {
   .archive-sidepanel h2,
   .panel h2,
   .archive-main h2 {
-    font-size: clamp(42px, 3.2vw, 66px);
+    font-size: clamp(32px, 2.45vw, 50px);
+    line-height: 1.06;
+  }
+
+  .archive-sidepanel h2 {
+    font-size: clamp(30px, 2vw, 40px);
   }
 
   .archive-stat {
@@ -1671,18 +1690,18 @@ select:focus-visible {
 
   .archive-stat span,
   .detail-meta-box span {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .archive-stat strong {
-    font-size: 50px;
+    font-size: 44px;
   }
 
   .sidepanel-note p,
   .akten-card p,
   .feature-card p,
   .system-text {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .search-core {
@@ -1698,7 +1717,7 @@ select:focus-visible {
 
   .search-input {
     min-height: 56px;
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .quick-filters {
@@ -1709,7 +1728,7 @@ select:focus-visible {
   .filter-btn {
     min-height: 52px;
     padding: 12px 18px;
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .akten-list {
@@ -1723,7 +1742,8 @@ select:focus-visible {
   .akten-card h3,
   .feature-card h3,
   .detail-section h3 {
-    font-size: clamp(32px, 2.6vw, 46px);
+    font-size: clamp(28px, 2.15vw, 40px);
+    line-height: 1.08;
   }
 
   .folder-chip-row {
@@ -1734,7 +1754,7 @@ select:focus-visible {
   .folder-chip {
     min-height: 34px;
     padding: 7px 14px;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .form-grid {
@@ -1746,7 +1766,7 @@ select:focus-visible {
   }
 
   .form-field label {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .form-field input,
@@ -1754,7 +1774,7 @@ select:focus-visible {
   .form-field select {
     min-height: 68px;
     padding: 18px;
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .form-field textarea {
@@ -1770,7 +1790,7 @@ select:focus-visible {
   .status-modal .status-choice {
     min-height: 68px;
     padding: 18px 26px;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .akten-system .small-btn,
@@ -1799,7 +1819,7 @@ select:focus-visible {
 
   .detail-sheet h2,
   .status-box h2 {
-    font-size: clamp(44px, 4vw, 72px);
+    font-size: clamp(38px, 3.4vw, 62px);
   }
 
   .detail-meta-row {
@@ -1812,12 +1832,12 @@ select:focus-visible {
   }
 
   .detail-meta-box strong {
-    font-size: 32px;
+    font-size: 28px;
   }
 
   .detail-section p,
   .detail-content {
-    font-size: 25px;
+    font-size: 23px;
   }
 }
 

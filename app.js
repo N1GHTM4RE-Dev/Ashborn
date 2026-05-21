@@ -991,28 +991,59 @@ function renderInternal() {
   if (!list) return;
 
   const notes = getVisibleInternalNotes();
+  const total = internalCache.length;
+  const countByCategory = (category) => internalCache.filter((note) => String(note.category || "Allgemein") === category).length;
+
+  setText("internalTotalCount", String(total));
+  setText("internalRulesCount", String(countByCategory("Regeln")));
+  setText("internalRolesCount", String(countByCategory("Rollen")));
+  setText("internalPlansCount", String(countByCategory("Pläne")));
+  setText("internalVisibleCount", `${notes.length} sichtbar`);
 
   list.innerHTML = notes.length
-    ? notes.map((note) => `
-      <article class="akten-card static-card internal-card">
-        <div class="folder-chip-row">
-          <span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span>
-          <span class="folder-chip">${escapeHtml(note.updatedAt ? `Bearbeitet: ${note.updatedAt}` : `Erstellt: ${note.createdAt}`)}</span>
-        </div>
-        <h3>${escapeHtml(note.title)}</h3>
-        <p>${escapeHtml(note.content || "Keine zusätzliche Information hinterlegt.")}</p>
-        <div class="card-actions price-actions">
-          <button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button>
-          <button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button>
-        </div>
-      </article>
-    `).join("")
-    : `<article class="akten-card static-card"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Hinweise, Pläne oder Bündnisse an. Über Suche und Kategorie findest du sie später schnell wieder.</p></article>`;
+    ? notes.map((note) => {
+      const created = note.createdAt || "-";
+      const updated = note.updatedAt && note.updatedAt !== note.createdAt ? note.updatedAt : "";
+      const preview = note.content || "Keine zusätzliche Information hinterlegt.";
+      return `
+        <article class="internal-note-card-v11" data-internal-card="${escapeHtml(note.id)}">
+          <div class="folder-chip-row internal-chip-row-v11">
+            <span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span>
+            <span class="folder-chip">Erstellt: ${escapeHtml(created)}</span>
+            ${updated ? `<span class="folder-chip">Bearbeitet: ${escapeHtml(updated)}</span>` : ""}
+          </div>
+
+          <h3>${escapeHtml(note.title)}</h3>
+          <div class="internal-note-content-v11">${escapeHtml(preview)}</div>
+
+          <div class="internal-actions-v11">
+            <button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button>
+            <button class="secondary-btn mini-btn" data-copy-internal="${escapeHtml(note.id)}" type="button">Kopieren</button>
+            <button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button>
+          </div>
+        </article>
+      `;
+    }).join("")
+    : `<article class="internal-note-card-v11 empty-internal-v11"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Hinweise, Pläne oder Bündnisse an. Über Suche und Kategorie findest du sie später schnell wieder.</p></article>`;
 
   list.querySelectorAll("[data-edit-internal]").forEach((button) => {
     button.addEventListener("click", () => {
       const note = internalCache.find((entry) => entry.id === button.dataset.editInternal);
       if (note) loadInternalIntoForm(note);
+    });
+  });
+
+  list.querySelectorAll("[data-copy-internal]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const note = internalCache.find((entry) => entry.id === button.dataset.copyInternal);
+      if (!note) return;
+      const text = [note.title, note.category ? `Kategorie: ${note.category}` : "", note.content || ""].filter(Boolean).join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        setInternalMessage("Interne Information wurde kopiert.", "success");
+      } catch (error) {
+        setInternalMessage("Kopieren wurde vom Browser blockiert.", "error");
+      }
     });
   });
 
@@ -1028,6 +1059,7 @@ function loadInternalIntoForm(note) {
   $("internalCategory").value = note.category || "Allgemein";
   $("internalContent").value = note.content || "";
   setText("internalSaveButtonText", "Änderungen speichern");
+  setText("internalEditorTitle", "Interne Information bearbeiten");
   $("cancelInternalEditBtn")?.classList.remove("hidden");
   setInternalMessage("Bearbeitungsmodus aktiv.", "neutral");
   setTimeout(() => $("internalTitle")?.focus(), 80);
@@ -1039,6 +1071,7 @@ function clearInternalForm() {
   if ($("internalCategory")) $("internalCategory").value = "Allgemein";
   if ($("internalContent")) $("internalContent").value = "";
   setText("internalSaveButtonText", "Information speichern");
+  setText("internalEditorTitle", "Interne Information anlegen");
   $("cancelInternalEditBtn")?.classList.add("hidden");
 }
 

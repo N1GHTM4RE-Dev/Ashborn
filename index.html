@@ -158,6 +158,9 @@
               </div>
             </div>
             <div class="dashboard-action-list">
+              <button class="primary-btn small-btn" type="button" data-quick-action="newRecord">+ Neuer Datensatz</button>
+              <button class="primary-btn small-btn" type="button" data-quick-action="newTodo">+ Neue Aufgabe</button>
+              <button class="primary-btn small-btn" type="button" data-quick-action="newCash">+ Neue Buchung</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="dataTab">Daten erfassen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="sellTab">Verkauf öffnen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="buyTab">Kauf öffnen</button>
@@ -191,6 +194,16 @@
               <div><span>Orte</span><strong id="dashPlaceCount">0</strong></div>
               <div><span>Gegenstände</span><strong id="dashObjectCount">0</strong></div>
             </div>
+          </article>
+
+          <article class="dashboard-card">
+            <div class="dashboard-card-head">
+              <div>
+                <p class="section-kicker">DIAGRAMME</p>
+                <h3>Übersicht</h3>
+              </div>
+            </div>
+            <div id="dashboardCharts" class="mini-chart-stack"></div>
           </article>
 
           <article class="dashboard-card">
@@ -253,6 +266,12 @@
             </div>
           </div>
 
+          <div class="form-grid feature-grid-form">
+            <div class="form-field"><label for="recordImportance">Wichtigkeit</label><select id="recordImportance"><option value="Normal">Normal</option><option value="Wichtig">Wichtig</option><option value="Kritisch">Kritisch</option></select></div>
+            <div class="form-field"><label for="recordRelationStatus">Beziehungsstatus</label><select id="recordRelationStatus"><option value="">Nicht festgelegt</option><option value="Neutral">Neutral</option><option value="Freundlich">Freundlich</option><option value="Bündnis">Bündnis</option><option value="Problematisch">Problematisch</option><option value="Feindlich">Feindlich</option></select></div>
+            <label class="feature-check"><input type="checkbox" id="recordFavorite" /> Favorit</label>
+          </div>
+
           <div class="form-grid">
             <div class="form-field">
               <label for="recordLocation">Wo finde ich es?</label>
@@ -262,6 +281,17 @@
               <label for="recordTelegram">Telegramm Nummer</label>
               <input type="text" id="recordTelegram" placeholder="z. B. 12345 oder Telegramm-Kontakt" />
             </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field"><label for="recordTags">Tags / Schlagwörter</label><input id="recordTags" type="text" placeholder="z. B. wichtig, Bündnis, Problem, Lieferant" /></div>
+            <div class="form-field"><label for="recordRelatedIds">Verknüpfte Einträge</label><select id="recordRelatedIds" multiple size="4"></select><p class="field-hint">STRG gedrückt halten, um mehrere Einträge auszuwählen.</p></div>
+          </div>
+
+          <div class="record-conditional-grid">
+            <div class="form-field"><label for="recordOrgMembers">Mitglieder / Personen dieser Organisation</label><textarea id="recordOrgMembers" placeholder="Namen oder Telegramm-Nummern, je Zeile ein Eintrag"></textarea></div>
+            <div class="form-field"><label for="recordRouteInfo">Routen-Details</label><textarea id="recordRouteInfo" placeholder="Start, Ziel, Zwischenpunkte, Risiko, Gewinn oder Notizen"></textarea></div>
+            <div class="form-field"><label for="recordPlaceInfo">Orts-Details</label><textarea id="recordPlaceInfo" placeholder="Kartenhinweis, Zugang, Risiko, Besonderheiten"></textarea></div>
           </div>
 
           <div class="form-field">
@@ -358,8 +388,13 @@
               <div class="form-field"><label for="sellCalculatorQty">Menge</label><input id="sellCalculatorQty" type="number" min="0" step="1" value="1" /></div>
               <div class="form-field"><label for="sellCalculatorAdjust">Rabatt/Aufschlag %</label><input id="sellCalculatorAdjust" type="number" step="0.01" value="0" /></div>
             </div>
+            <div class="form-actions compact-actions">
+              <button id="sellAddCartBtn" class="secondary-btn small-btn" type="button">In Warenkorb</button>
+              <button id="sellCreateReceiptBtn" class="primary-btn small-btn" type="button">Beleg + Buchung</button>
+            </div>
             <div class="calc-result muted-result"><span>Einzelpreis</span><strong id="sellCalculatorSingle">0 $</strong></div>
             <div class="calc-result"><span>Gesamt</span><strong id="sellCalculatorResult">0 $</strong></div>
+            <div id="sellCartBox" class="cart-box"><p class="field-hint">Warenkorb ist leer.</p></div>
           </div>
         </div>
         <div class="price-toolbar">
@@ -406,8 +441,13 @@
               <div class="form-field"><label for="buyCalculatorQty">Menge</label><input id="buyCalculatorQty" type="number" min="0" step="1" value="1" /></div>
               <div class="form-field"><label for="buyCalculatorAdjust">Rabatt/Aufschlag %</label><input id="buyCalculatorAdjust" type="number" step="0.01" value="0" /></div>
             </div>
+            <div class="form-actions compact-actions">
+              <button id="buyAddCartBtn" class="secondary-btn small-btn" type="button">In Warenkorb</button>
+              <button id="buyCreateReceiptBtn" class="primary-btn small-btn" type="button">Beleg + Buchung</button>
+            </div>
             <div class="calc-result muted-result"><span>Einzelpreis</span><strong id="buyCalculatorSingle">0 $</strong></div>
             <div class="calc-result"><span>Gesamt</span><strong id="buyCalculatorResult">0 $</strong></div>
+            <div id="buyCartBox" class="cart-box"><p class="field-hint">Warenkorb ist leer.</p></div>
           </div>
         </div>
         <div class="price-toolbar">
@@ -419,6 +459,10 @@
         <div id="buyPriceList" class="price-list"></div>
       </section>
     </div>
+
+    <div id="priceCompareTab" class="tab-content hidden"></div>
+
+    <div class="tab-content always-hidden-feature" aria-hidden="true"></div>
 
     <div id="internTab" class="tab-content">
       <section class="panel internal-panel-v11">
@@ -482,9 +526,22 @@
                   <option value="Mitglieder">Mitglieder</option>
                   <option value="Pläne">Pläne</option>
                   <option value="Bündnisse">Bündnisse</option>
-                  <option value="Hinweise">Hinweise</option>
+                  <option value="Hinweise">Hinweise</option><option value="Aufgaben">Aufgaben</option><option value="Kontakte">Kontakte</option>
                 </select>
               </div>
+            </div>
+
+            <div class="form-grid compact-grid">
+              <div class="form-field"><label for="internalImportance">Wichtigkeit</label><select id="internalImportance"><option value="Normal">Normal</option><option value="Wichtig">Wichtig</option><option value="Kritisch">Kritisch</option></select></div>
+              <div class="form-field"><label for="internalStatus">Status</label><select id="internalStatus"><option value="Offen">Offen</option><option value="In Arbeit">In Arbeit</option><option value="Erledigt">Erledigt</option></select></div>
+            </div>
+            <div class="form-grid compact-grid">
+              <div class="form-field"><label for="internalAssignee">Zuständig / Kontakt</label><input id="internalAssignee" type="text" placeholder="Name, Rolle oder Kontakt" /></div>
+              <div class="form-field"><label for="internalDueDate">Fällig bis</label><input id="internalDueDate" type="date" /></div>
+            </div>
+            <div class="form-grid compact-grid">
+              <div class="form-field"><label for="internalTags">Tags</label><input id="internalTags" type="text" placeholder="z. B. wichtig, Regel, Kontakt" /></div>
+              <label class="feature-check"><input type="checkbox" id="internalFavorite" /> Favorit</label>
             </div>
 
             <div class="form-field">
@@ -527,7 +584,7 @@
               <option value="Mitglieder">Mitglieder</option>
               <option value="Pläne">Pläne</option>
               <option value="Bündnisse">Bündnisse</option>
-              <option value="Hinweise">Hinweise</option>
+              <option value="Hinweise">Hinweise</option><option value="Aufgaben">Aufgaben</option><option value="Kontakte">Kontakte</option>
             </select>
           </div>
 
@@ -559,12 +616,14 @@
           <div class="archive-stat"><span>Buchungen</span><strong id="cashBookingCount">0</strong></div>
           <div class="archive-stat"><span>Gefilterter Saldo</span><strong id="cashFilteredBalance">0 $</strong></div>
         </div>
+        <div class="monthly-overview-card"><p class="section-kicker">MONATSÜBERSICHT</p><div id="cashMonthlyOverview" class="monthly-overview-grid"></div></div>
 
         <div class="cash-form-card">
           <p class="section-kicker">NEUE BUCHUNG</p>
           <div class="cash-form-grid">
             <div class="form-field"><label for="cashType">Aktion</label><select id="cashType"><option value="deposit">Einzahlung</option><option value="withdraw">Auszahlung</option></select></div>
             <div class="form-field"><label for="cashAmount">Betrag</label><input id="cashAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
+            <div class="form-field"><label for="cashCategory">Kategorie</label><select id="cashCategory"><option value="Verkauf">Verkauf</option><option value="Einkauf">Einkauf</option><option value="Lohn">Lohn</option><option value="Strafe">Strafe</option><option value="Beleg">Beleg</option><option value="Sonstiges">Sonstiges</option></select></div>
             <div class="form-field cash-reason"><label for="cashReason">Begründung</label><input id="cashReason" type="text" placeholder="Warum wurde Geld ein- oder ausgezahlt?" /></div>
           </div>
           <div class="form-actions"><button id="saveCashBtn" class="primary-btn small-btn" type="button">Buchung speichern</button><button id="clearCashBtn" class="danger-btn small-btn" type="button">Buchhaltung leeren</button></div>
@@ -667,6 +726,7 @@
         <div class="detail-meta-box"><span>Bearbeitet</span><strong id="detailUpdatedAt">-</strong></div>
       </div>
       <div class="detail-actions compact-detail-actions"><button id="copyTelegramBtn" class="secondary-btn small-btn" type="button">Telegramm kopieren</button></div>
+      <div class="detail-section"><h3>Zusatzinfos</h3><div id="detailExtraInfo" class="detail-extra-grid"></div></div>
       <div class="detail-section"><h3>Beschreibung</h3><p id="detailDescription">-</p></div>
       <div class="detail-section"><h3>Bilder</h3><div id="detailImages" class="detail-image-grid"></div></div>
       <div class="detail-actions"><button id="editRecordBtn" class="primary-btn small-btn" type="button">Datensatz bearbeiten</button><button id="deleteRecordBtn" class="danger-btn small-btn" type="button">Datensatz löschen</button></div>

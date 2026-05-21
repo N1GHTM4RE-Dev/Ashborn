@@ -81,12 +81,6 @@
             <div class="archive-stat"><span>Gespeicherte Einträge</span><strong id="totalRecordsCount">0</strong></div>
             <div class="archive-stat"><span>Suchtreffer</span><strong id="filteredRecordsCount">0</strong></div>
             <div class="archive-stat"><span>Mit Bildern</span><strong id="imageRecordsCount">0</strong></div>
-            <div class="record-type-grid">
-              <div class="record-type-stat"><span>Personen</span><strong id="personRecordsCount">0</strong></div>
-              <div class="record-type-stat"><span>Routen</span><strong id="routeRecordsCount">0</strong></div>
-              <div class="record-type-stat"><span>Orte</span><strong id="locationRecordsCount">0</strong></div>
-              <div class="record-type-stat"><span>Gegenstände</span><strong id="objectRecordsCount">0</strong></div>
-            </div>
           </div>
           <div class="sidepanel-block sidepanel-note">
             <p class="section-kicker">HINWEIS</p>
@@ -106,13 +100,14 @@
           <div class="form-grid">
             <div class="form-field">
               <label for="recordName">Name *</label>
-              <input type="text" id="recordName" placeholder="Name der Person, Route, des Ortes oder Gegenstands" />
+              <input type="text" id="recordName" placeholder="Name der Person, Organisation, Route, des Ortes oder Gegenstands" />
             </div>
             <div class="form-field">
               <label for="recordType">Was?</label>
               <select id="recordType">
                 <option value="">Nicht festgelegt</option>
                 <option value="Person">Person</option>
+                <option value="Organisation">Organisation</option>
                 <option value="Route">Route</option>
                 <option value="Ort">Ort</option>
                 <option value="Gegenstand">Gegenstand</option>
@@ -168,6 +163,7 @@
         <div class="quick-filters">
           <button class="filter-btn active" data-record-filter="Alle" type="button">Alle</button>
           <button class="filter-btn" data-record-filter="Person" type="button">Person</button>
+          <button class="filter-btn" data-record-filter="Organisation" type="button">Organisation</button>
           <button class="filter-btn" data-record-filter="Route" type="button">Route</button>
           <button class="filter-btn" data-record-filter="Ort" type="button">Ort</button>
           <button class="filter-btn" data-record-filter="Gegenstand" type="button">Gegenstand</button>

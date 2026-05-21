@@ -1,6 +1,7 @@
 const SUPABASE_URL = "https://rclpgqrwcygjzqgeurie.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_2BWb4LK4GWC8-S4SVPIlvA_iX41QQqg";
 const IMAGE_BUCKET = "ashborn-images";
+const MASTER_LOGIN_EMAIL = "ashborn-system@ashborn.local";
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -21,7 +22,6 @@ const logoButton = $("logoButton");
 const landingLoginBtn = $("landingLoginBtn");
 const loginBox = $("loginBox");
 const closeLoginBtn = $("closeLoginBtn");
-const emailInput = $("emailInput");
 const passwordInput = $("passwordInput");
 const loginBtn = $("loginBtn");
 const loginError = $("loginError");
@@ -73,11 +73,6 @@ function bindEvents() {
     if (event.key === "Enter") login();
     if (event.key === "Escape") hideLogin();
   });
-  on(emailInput, "keydown", (event) => {
-    if (event.key === "Enter") login();
-    if (event.key === "Escape") hideLogin();
-  });
-
   on(logoutBtn, "click", logout);
 
   tabButtons.forEach((button) => {
@@ -160,7 +155,7 @@ function showLogin() {
   landingPage.classList.add("login-open");
   loginBox.classList.add("show");
   loginBox.setAttribute("aria-hidden", "false");
-  setTimeout(() => emailInput?.focus(), 120);
+  setTimeout(() => passwordInput?.focus(), 120);
 }
 
 function hideLogin() {
@@ -172,19 +167,25 @@ function hideLogin() {
 }
 
 async function login() {
-  const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
-  if (!email || !password) {
-    loginError.textContent = "Bitte E-Mail und Kennwort eintragen.";
+
+  if (!password) {
+    loginError.textContent = "Bitte Systemkennwort eintragen.";
+    passwordInput.focus();
     return;
   }
 
-  setBusy(true, "Login läuft...");
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  setBusy(true, "System wird entsiegelt...");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: MASTER_LOGIN_EMAIL,
+    password
+  });
+
   setBusy(false);
 
   if (error || !data.session?.user) {
-    loginError.textContent = "Login fehlgeschlagen. Prüfe E-Mail und Kennwort.";
+    loginError.textContent = "Falsches Systemkennwort.";
     passwordInput.value = "";
     passwordInput.focus();
     loginBox.classList.remove("shake");
@@ -194,6 +195,7 @@ async function login() {
   }
 
   sessionUser = data.session.user;
+
   playSmokeTransition(async () => {
     showSystem();
     hideLogin();

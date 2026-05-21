@@ -1039,19 +1039,23 @@ function renderCash() {
   const list = $("cashList");
   if (!list) return;
   list.innerHTML = visibleEntries.length
-    ? visibleEntries.map((entry) => `
-      <div class="price-row cash-row">
+    ? visibleEntries.map((entry) => {
+      const isStorno = String(entry.reason || "").trim().toUpperCase().startsWith("STORNO");
+      return `
+      <div class="price-row cash-row ${isStorno ? "cash-row-storno" : ""}">
         <div>
           <strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong>
           <span>${escapeHtml(entry.reason)}</span>
-          <small>Buchungs-ID: ${escapeHtml(String(entry.id || "").slice(0, 8))}</small>
+          <small>Buchungs-ID: ${escapeHtml(String(entry.id || "").slice(0, 8))}${isStorno ? " · Gegenbuchung" : ""}</small>
         </div>
         <div class="cash-row-actions">
           <div class="price-value ${entry.type === "auszahlung" ? "negative" : "positive"}">${entry.type === "auszahlung" ? "-" : "+"}${formatMoney(entry.amount)}</div>
-          <button class="secondary-btn mini-btn" data-reverse-cash="${escapeHtml(entry.id)}" type="button">Storno</button>
+          ${isStorno
+            ? `<span class="storno-badge">STORNIERT</span>`
+            : `<button class="danger-btn mini-btn cash-storno-btn" data-reverse-cash="${escapeHtml(entry.id)}" type="button">Buchung stornieren</button>`}
         </div>
-      </div>
-    `).join("")
+      </div>`;
+    }).join("")
     : `<div class="price-row"><div><strong>Keine Buchungen gefunden</strong><span>Ändere Suche, Filter oder Zeitraum.</span></div></div>`;
 }
 
@@ -1059,9 +1063,16 @@ async function reverseCashEntry(id) {
   if (!id || isBusy) return;
   const entry = cashCache.find((item) => item.id === id);
   if (!entry) return;
+  if (String(entry.reason || "").trim().toUpperCase().startsWith("STORNO")) {
+    alert("Diese Buchung ist bereits eine Storno-Gegenbuchung und kann nicht erneut storniert werden.");
+    return;
+  }
   const reverseType = entry.type === "einzahlung" ? "auszahlung" : "einzahlung";
   const label = entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung";
-  if (!confirm(`${label} über ${formatMoney(entry.amount)} wirklich stornieren?`)) return;
+  const reverseLabel = reverseType === "einzahlung" ? "Einzahlung" : "Auszahlung";
+  if (!confirm(`${label} über ${formatMoney(entry.amount)} wirklich stornieren?
+
+Es wird automatisch eine neue Gegenbuchung als ${reverseLabel} erstellt. Die ursprüngliche Buchung bleibt im Verlauf sichtbar.`)) return;
 
   try {
     setBusy(true, "Storno wird gespeichert...");

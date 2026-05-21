@@ -1,3111 +1,1445 @@
-:root {
-  --black: #050302;
-  --black-2: #090504;
-  --brown: #160b05;
-  --wood: #2b1208;
-  --leather: #1a100b;
-  --leather-2: #24140b;
-  --metal: #110d0a;
-
-  --gold: #c6923f;
-  --gold-2: #f2c76b;
-  --gold-3: #ffe3a0;
-  --gold-dark: #6b4714;
-  --parchment: #d8b56a;
-  --gold-metal:
-    repeating-linear-gradient(110deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 4px),
-    linear-gradient(
-      180deg,
-      #fff8d4 0%,
-      #f8dc86 16%,
-      #d99b35 34%,
-      #fff0a6 48%,
-      #c68121 64%,
-      #f4c767 82%,
-      #8d5717 100%
-    );
-  --gold-soft:
-    linear-gradient(
-      180deg,
-      #fff1b4 0%,
-      #eac264 36%,
-      #b8731d 68%,
-      #f2c76b 100%
-    );
-
-  --rust: #7a1f12;
-  --ember: #ff3b13;
-  --fire: #ff7a18;
-  --smoke: rgba(180, 160, 130, 0.18);
-
-  --text: #f4ead5;
-  --text-soft: rgba(244, 234, 213, 0.78);
-  --text-muted: rgba(244, 234, 213, 0.54);
-
-  --line: rgba(198, 146, 63, 0.3);
-  --line-strong: rgba(242, 199, 107, 0.64);
-
-  --panel: rgba(13, 7, 4, 0.88);
-  --panel-2: rgba(24, 13, 7, 0.92);
-
-  --shadow: 0 34px 100px rgba(0, 0, 0, 0.72);
-  --shadow-soft: 0 18px 54px rgba(0, 0, 0, 0.48);
-
-  --font-title: "Cinzel", Georgia, serif;
-  --font-brand: "Cinzel Decorative", "Cinzel", Georgia, serif;
-  --font-accent: "UnifrakturCook", "Cinzel Decorative", Georgia, serif;
-  --font-body: "Cormorant Garamond", Georgia, serif;
-
-  --radius-xl: 8px;
-  --radius-lg: 8px;
-  --radius-md: 6px;
-
-  --z-background: 0;
-  --z-effects: 1;
-  --z-content: 5;
-  --z-nav: 20;
-  --z-modal-backdrop: 90;
-  --z-modal: 100;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  min-height: 100%;
-  background: var(--black);
-}
-
-body {
-  position: relative;
-  min-height: 100vh;
-  margin: 0;
-  overflow-x: hidden;
-  isolation: isolate;
-  color: var(--text);
-  background: var(--black);
-  font-family: var(--font-body);
-  line-height: 1.55;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-.system-brand-text,
-.panel-header > div,
-.sidepanel-block {
-  min-width: 0;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button {
-  user-select: none;
-}
-
-button,
-input,
-textarea,
-select {
-  -webkit-tap-highlight-color: transparent;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
-::selection {
-  color: #160b05;
-  background: var(--gold-2);
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* =========================================================
-   BACKGROUND / EFFECT LAYERS
-========================================================= */
-
-.bg-scene {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-background);
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(5, 3, 2, 0.18), rgba(5, 3, 2, 0.74) 74%, var(--black) 100%),
-    url("./assets/background.png");
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.64) contrast(1.14) saturate(1.08);
-  transform: scale(1.035);
-  transform-origin: center;
-  will-change: transform;
-}
-
-.bg-vignette,
-.bg-smoke,
-.bg-embers {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-effects);
-  pointer-events: none;
-}
-
-.bg-vignette {
-  background:
-    radial-gradient(circle at 74% 22%, rgba(255, 122, 24, 0.18), transparent 26%),
-    radial-gradient(circle at 44% 48%, rgba(242, 199, 107, 0.08), transparent 28%),
-    radial-gradient(circle at center, transparent 34%, rgba(0, 0, 0, 0.9) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.82), transparent 24%, transparent 72%, rgba(0, 0, 0, 0.78)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 34%, rgba(0, 0, 0, 0.58));
-}
-
-.bg-smoke {
-  inset: -18%;
-  opacity: 0.56;
-  filter: blur(32px);
-  background:
-    radial-gradient(ellipse at 18% 76%, rgba(216, 181, 106, 0.11), transparent 34%),
-    radial-gradient(ellipse at 78% 22%, rgba(180, 160, 130, 0.09), transparent 36%),
-    radial-gradient(ellipse at 48% 54%, rgba(255, 255, 255, 0.055), transparent 40%);
-  animation: smokeDrift 32s ease-in-out infinite alternate;
-}
-
-.bg-smoke::before,
-.bg-smoke::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 8% 46%, rgba(255, 255, 255, 0.055), transparent 34%),
-    radial-gradient(ellipse at 88% 66%, rgba(216, 181, 106, 0.075), transparent 34%);
-  animation: smokeLayer 44s ease-in-out infinite alternate;
-}
-
-.bg-smoke::after {
-  opacity: 0.6;
-  animation-duration: 56s;
-  animation-direction: alternate-reverse;
-}
-
-.bg-embers {
-  overflow: hidden;
-  mix-blend-mode: screen;
-}
-
-.bg-embers::before,
-.bg-embers::after {
-  content: "";
-  position: absolute;
-  inset: -12%;
-  opacity: 0.32;
-  background-image:
-    radial-gradient(circle, rgba(255, 122, 24, 0.58) 0 1px, transparent 2px),
-    radial-gradient(circle, rgba(242, 199, 107, 0.34) 0 1px, transparent 2px),
-    radial-gradient(circle, rgba(255, 59, 19, 0.36) 0 1.5px, transparent 2.5px);
-  background-size: 210px 210px, 330px 330px, 470px 470px;
-  animation: emberField 40s linear infinite;
-}
-
-.bg-embers::after {
-  opacity: 0.2;
-  background-size: 170px 170px, 260px 260px, 390px 390px;
-  animation-duration: 58s;
-  animation-direction: reverse;
-}
-
-.ember-particle {
-  position: absolute;
-  bottom: -18px;
-  width: var(--ember-size, 3px);
-  height: var(--ember-size, 3px);
-  left: var(--ember-left, 50%);
-  border-radius: 50%;
-  background: var(--fire);
-  opacity: 0;
-  box-shadow:
-    0 0 10px rgba(255, 122, 24, 0.72),
-    0 0 22px rgba(255, 59, 19, 0.34);
-  animation: emberParticle var(--ember-duration, 8s) linear forwards;
-}
-
-.smoke-transition {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(216, 181, 106, 0.18), transparent 34%),
-    radial-gradient(ellipse at 30% 65%, rgba(255, 255, 255, 0.1), transparent 28%),
-    radial-gradient(ellipse at 70% 35%, rgba(122, 31, 18, 0.15), transparent 32%),
-    rgba(5, 3, 2, 0.18);
-  filter: blur(22px);
-}
-
-.smoke-transition.active {
-  animation: smokeTransition 900ms cubic-bezier(0.22, 0.8, 0.24, 1) forwards;
-}
-
-@keyframes smokeDrift {
-  from {
-    transform: translate3d(-1.4%, 0.8%, 0) scale(1);
-  }
-
-  to {
-    transform: translate3d(1.4%, -0.8%, 0) scale(1.045);
-  }
-}
-
-@keyframes smokeLayer {
-  from {
-    transform: translate3d(1%, -1%, 0) scale(1.02);
-  }
-
-  to {
-    transform: translate3d(-1%, 1%, 0) scale(1.08);
-  }
-}
-
-@keyframes emberField {
-  from {
-    transform: translate3d(0, 5%, 0) rotate(0deg);
-  }
-
-  to {
-    transform: translate3d(0, -7%, 0) rotate(5deg);
-  }
-}
-
-@keyframes emberParticle {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.6);
-  }
-
-  14% {
-    opacity: 0.9;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(var(--ember-drift, 24px), -56vh, 0) scale(0.14);
-  }
-}
-
-@keyframes smokeTransition {
-  0% {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-
-  38% {
-    opacity: 0.9;
-    transform: scale(1.04);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.12);
-  }
-}
-
-/* =========================================================
-   LANDING / LOGIN
-========================================================= */
-
-.landing-page,
-.akten-system {
-  position: relative;
-  z-index: var(--z-content);
-}
-
-.landing-page {
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
-  padding: clamp(34px, 5vw, 64px) 20px;
-}
-
-.landing-logo-frame {
-  position: relative;
-  z-index: var(--z-content);
-  display: grid;
-  justify-items: center;
-  width: min(940px, 94vw);
-  text-align: center;
-  transition:
-    opacity 260ms ease,
-    transform 260ms ease,
-    filter 260ms ease;
-}
-
-.landing-page.login-open .landing-logo-frame {
-  opacity: 0.2;
-  transform: scale(0.98);
-  filter: blur(1px);
-}
-
-.landing-logo-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(660px, 82vw);
-  aspect-ratio: 1;
-  border: 1px solid rgba(242, 199, 107, 0.18);
-  border-radius: 50%;
-  box-shadow:
-    0 0 86px rgba(198, 146, 63, 0.13),
-    inset 0 0 90px rgba(198, 146, 63, 0.06);
-  opacity: 0.78;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  animation: ringBreath 7s ease-in-out infinite;
-}
-
-.landing-logo-ring::before,
-.landing-logo-ring::after {
-  content: "";
-  position: absolute;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.landing-logo-ring::before {
-  inset: 9%;
-  border: 1px solid rgba(122, 31, 18, 0.28);
-}
-
-.landing-logo-ring::after {
-  inset: 20%;
-  border: 1px solid rgba(242, 199, 107, 0.1);
-}
-
-.landing-logo-button {
-  position: relative;
-  z-index: 2;
-  width: min(560px, 84vw);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.landing-logo-button::before {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: 5%;
-  height: 34%;
-  border-radius: 50%;
-  pointer-events: none;
-  background:
-    radial-gradient(circle, rgba(255, 122, 24, 0.22), transparent 64%),
-    radial-gradient(circle, rgba(122, 31, 18, 0.24), transparent 74%);
-  filter: blur(30px);
-  opacity: 0.92;
-  transition:
-    opacity 280ms ease,
-    transform 280ms ease;
-}
-
-.landing-logo {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-height: min(62vh, 620px);
-  object-fit: contain;
-  filter:
-    drop-shadow(0 0 22px rgba(242, 199, 107, 0.34))
-    drop-shadow(0 0 52px rgba(255, 59, 19, 0.2))
-    drop-shadow(0 34px 64px rgba(0, 0, 0, 0.82));
-  transform-origin: center;
-  animation: logoPulse 7s ease-in-out infinite;
-  transition:
-    transform 340ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 340ms ease;
-}
-
-.landing-logo-button:hover .landing-logo,
-.landing-logo-button:focus-visible .landing-logo {
-  transform: translateY(-6px) scale(1.032);
-  filter:
-    drop-shadow(0 0 28px rgba(255, 227, 160, 0.5))
-    drop-shadow(0 0 68px rgba(255, 59, 19, 0.32))
-    drop-shadow(0 38px 72px rgba(0, 0, 0, 0.86));
-}
-
-.landing-logo-button:hover::before,
-.landing-logo-button:focus-visible::before {
-  opacity: 1;
-  transform: scale(1.14);
-}
-
-.landing-copy {
-  position: relative;
-  z-index: 2;
-  margin-top: clamp(14px, 2.5vw, 26px);
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 8px;
-  color: #d0a352;
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.8),
-    0 0 10px rgba(242, 199, 107, 0.16);
-}
-
-.landing-title {
-  margin: 0;
-  color: #f2c76b;
-  background: var(--gold-metal);
-  background-blend-mode: overlay, normal;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-brand);
-  font-size: clamp(48px, 8vw, 112px);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: 0.02em;
-  text-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.9),
-    0 0 24px rgba(242, 199, 107, 0.32),
-    0 0 42px rgba(255, 59, 19, 0.18);
-  filter:
-    drop-shadow(0 2px 0 rgba(38, 16, 4, 0.86))
-    drop-shadow(0 0 16px rgba(242, 199, 107, 0.24));
-}
-
-.landing-subtitle {
-  max-width: 720px;
-  margin: 14px auto 0;
-  color: rgba(244, 234, 213, 0.86);
-  font-family: var(--font-title);
-  font-size: clamp(16px, 2.2vw, 24px);
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.88),
-    0 0 22px rgba(255, 122, 24, 0.2);
-}
-
-.landing-open-btn {
-  margin-top: 24px;
-}
-
-.login-box {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: var(--z-modal);
-  width: min(480px, calc(100vw - 28px));
-  padding: 34px 32px 28px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-xl);
-  opacity: 0;
-  pointer-events: none;
-  overflow: hidden;
-  transform: translate(-50%, -44%) scale(0.94);
-  background:
-    linear-gradient(180deg, rgba(29, 16, 8, 0.985), rgba(5, 3, 2, 0.99)),
-    radial-gradient(circle at top right, rgba(122, 31, 18, 0.18), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(198, 146, 63, 0.11), transparent 42%);
-  box-shadow:
-    0 0 0 9999px rgba(0, 0, 0, 0.58),
-    var(--shadow),
-    0 0 36px rgba(242, 199, 107, 0.14),
-    inset 0 1px 0 rgba(255, 232, 166, 0.08);
-  backdrop-filter: blur(16px) saturate(1.08);
-  transition:
-    opacity 340ms ease,
-    transform 340ms cubic-bezier(0.22, 0.8, 0.24, 1);
-}
-
-.login-box::before,
-.system-header::before,
-.panel::before,
-.archive-sidepanel::before,
-.archive-main::before,
-.detail-sheet::before,
-.status-box::before,
-.feature-card::before,
-.akten-card::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(198, 146, 63, 0.16);
-  pointer-events: none;
-}
-
-.login-box::after,
-.system-header::after,
-.panel::after,
-.archive-sidepanel::after,
-.archive-main::after,
-.detail-sheet::after,
-.status-box::after,
-.feature-card::after,
-.akten-card::after {
-  content: "";
-  position: absolute;
-  inset: -55%;
-  pointer-events: none;
-  opacity: 0.55;
-  background: linear-gradient(110deg, transparent 42%, rgba(255, 232, 166, 0.045), transparent 58%);
-  animation: premiumSheen 14s ease-in-out infinite;
-}
-
-.login-box.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.login-box.shake {
-  animation: loginShake 0.42s ease;
-}
-
-.close-login,
-.close-detail {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border: 1px solid rgba(242, 199, 107, 0.34);
-  border-radius: 50%;
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.52);
-  cursor: pointer;
-  font-size: 24px;
-  line-height: 1;
-  transition:
-    transform 200ms ease,
-    background 200ms ease,
-    box-shadow 200ms ease,
-    border-color 200ms ease;
-}
-
-.close-login:hover,
-.close-detail:hover {
-  transform: rotate(90deg) scale(1.05);
-  border-color: rgba(255, 122, 24, 0.54);
-  background: rgba(122, 31, 18, 0.24);
-  box-shadow: 0 0 22px rgba(255, 59, 19, 0.24);
-}
-
-.login-seal {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 18px;
-  border: 1px solid rgba(255, 227, 160, 0.32);
-  border-radius: 50%;
-  color: #190b04;
-  background:
-    radial-gradient(circle at 30% 22%, #ffe8aa, var(--gold-2) 42%, var(--gold) 64%, var(--gold-dark));
-  box-shadow:
-    inset 0 0 18px rgba(0, 0, 0, 0.28),
-    0 0 24px rgba(242, 199, 107, 0.18);
-}
-
-.login-seal span {
-  font-family: var(--font-accent);
-  font-size: 42px;
-  line-height: 1;
-}
-
-.login-box h1,
-.system-header h1,
-.panel h2,
-.archive-sidepanel h2,
-.archive-main h2,
-.detail-sheet h2,
-.status-box h2 {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  color: #f2c76b;
-  background: var(--gold-metal);
-  background-blend-mode: overlay, normal;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.012em;
-  text-transform: uppercase;
-  overflow-wrap: normal;
-  hyphens: auto;
-  text-shadow: none;
-  filter:
-    drop-shadow(0 2px 0 rgba(38, 16, 4, 0.9))
-    drop-shadow(0 0 14px rgba(242, 199, 107, 0.18));
-}
-
-.login-box h1 {
-  font-size: clamp(34px, 5vw, 50px);
-}
-
-.login-subtitle {
-  position: relative;
-  z-index: 2;
-  margin: 14px 0 24px;
-  color: var(--text-soft);
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.login-error,
-.save-info {
-  position: relative;
-  z-index: 2;
-  min-height: 26px;
-  margin-top: 14px;
-  color: #ffb49d;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-@keyframes ringBreath {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translate(-50%, -50%) scale(0.985);
-  }
-
-  50% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.025);
-  }
-}
-
-@keyframes logoPulse {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-
-  50% {
-    transform: translateY(-7px) scale(1.012);
-  }
-}
-
-@keyframes loginShake {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  18% {
-    transform: translate(calc(-50% - 10px), -50%) scale(1.01);
-  }
-
-  36% {
-    transform: translate(calc(-50% + 9px), -50%) scale(1.01);
-  }
-
-  54% {
-    transform: translate(calc(-50% - 7px), -50%) scale(1.01);
-  }
-
-  72% {
-    transform: translate(calc(-50% + 5px), -50%) scale(1.005);
-  }
-}
-
-@keyframes premiumSheen {
-  0%,
-  100% {
-    transform: translateX(-8%) rotate(0deg);
-  }
-
-  50% {
-    transform: translateX(8%) rotate(2deg);
-  }
-}
-
-/* =========================================================
-   BUTTONS / FORMS
-========================================================= */
-
-.primary-btn,
-.secondary-btn,
-.danger-btn,
-.tab-btn,
-.filter-btn,
-.status-choice {
-  position: relative;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 50px;
-  padding: 14px 20px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  cursor: pointer;
-  font-family: var(--font-title);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 1.1px;
-  text-align: center;
-  text-transform: uppercase;
-  transition:
-    transform 190ms ease,
-    filter 190ms ease,
-    box-shadow 190ms ease,
-    border-color 190ms ease;
-}
-
-.primary-btn {
-  border-color: rgba(255, 227, 160, 0.76);
-  color: #180c05;
-  background:
-    linear-gradient(180deg, #ffe7a3 0%, var(--gold-2) 38%, var(--gold) 62%, #704712 100%);
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.46),
-    0 0 28px rgba(242, 199, 107, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -2px 0 rgba(56, 28, 6, 0.36);
-}
-
-.secondary-btn,
-.filter-btn,
-.status-choice {
-  border-color: rgba(242, 199, 107, 0.28);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.88), rgba(5, 3, 2, 0.92)),
-    radial-gradient(circle at 50% 0%, rgba(198, 146, 63, 0.12), transparent 54%);
-  box-shadow:
-    0 14px 34px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255, 232, 166, 0.08);
-}
-
-.danger-btn {
-  border-color: rgba(255, 119, 96, 0.38);
-  color: #fff0e8;
-  background:
-    linear-gradient(180deg, #9d2a17, var(--rust) 56%, #3d0b05);
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.42),
-    0 0 24px rgba(255, 59, 19, 0.13);
-}
-
-.primary-btn::before,
-.secondary-btn::before,
-.danger-btn::before,
-.tab-btn::before,
-.filter-btn::before,
-.status-choice::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    linear-gradient(110deg, transparent 24%, rgba(255, 255, 255, 0.28), transparent 48%),
-    radial-gradient(circle at 50% 120%, rgba(255, 59, 19, 0.32), transparent 58%);
-  transform: translateX(-42%);
-  transition:
-    opacity 180ms ease,
-    transform 360ms ease;
-}
-
-.primary-btn:hover,
-.secondary-btn:hover,
-.danger-btn:hover,
-.tab-btn:hover,
-.filter-btn:hover,
-.status-choice:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.08);
-  border-color: rgba(255, 227, 160, 0.72);
-  box-shadow:
-    0 24px 54px rgba(0, 0, 0, 0.54),
-    0 0 30px rgba(255, 122, 24, 0.18),
-    0 0 22px rgba(242, 199, 107, 0.16);
-}
-
-.primary-btn:hover::before,
-.secondary-btn:hover::before,
-.danger-btn:hover::before,
-.tab-btn:hover::before,
-.filter-btn:hover::before,
-.status-choice:hover::before {
-  opacity: 1;
-  transform: translateX(42%);
-}
-
-.primary-btn:active,
-.secondary-btn:active,
-.danger-btn:active,
-.tab-btn:active,
-.filter-btn:active,
-.status-choice:active {
-  transform: translateY(-1px) scale(0.99);
-}
-
-.primary-btn:focus-visible,
-.secondary-btn:focus-visible,
-.danger-btn:focus-visible,
-.tab-btn:focus-visible,
-.filter-btn:focus-visible,
-.status-choice:focus-visible,
-.landing-logo-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid rgba(242, 199, 107, 0.86);
-  outline-offset: 3px;
-}
-
-.login-box .primary-btn {
-  width: 100%;
-}
-
-.small-btn {
-  width: auto;
-  min-width: 190px;
-}
-
-.login-field,
-.form-field {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 16px;
-}
-
-.login-field label,
-.form-field label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-}
-
-.login-field input,
-.form-field input,
-.form-field textarea,
-.form-field select,
-.search-input {
-  width: 100%;
-  min-height: 50px;
-  padding: 13px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  outline: none;
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(5, 3, 2, 0.92), rgba(22, 11, 5, 0.88)),
-    radial-gradient(circle at 100% 0%, rgba(198, 146, 63, 0.08), transparent 42%);
-  box-shadow:
-    inset 0 0 20px rgba(0, 0, 0, 0.56),
-    inset 0 1px 0 rgba(255, 232, 166, 0.05);
-  font-family: var(--font-body);
-  font-size: 18px;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
-}
-
-.form-field textarea {
-  min-height: 250px;
-  resize: vertical;
-  line-height: 1.55;
-}
-
-.login-field input::placeholder,
-.form-field input::placeholder,
-.form-field textarea::placeholder,
-.search-input::placeholder {
-  color: rgba(244, 234, 213, 0.34);
-}
-
-.login-field input:focus,
-.form-field input:focus,
-.form-field textarea:focus,
-.form-field select:focus,
-.search-input:focus {
-  border-color: rgba(242, 199, 107, 0.62);
-  box-shadow:
-    0 0 0 3px rgba(198, 146, 63, 0.12),
-    0 0 26px rgba(255, 122, 24, 0.1),
-    inset 0 0 20px rgba(0, 0, 0, 0.58);
-}
-
-/* =========================================================
-   SYSTEM VIEW
-========================================================= */
-
-.akten-system {
-  min-height: 100vh;
-  padding: 24px 0 34px;
-  animation: systemIn 520ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-.system-header,
-.system-tabs,
-.tab-content {
-  width: min(1340px, calc(100% - 32px));
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.system-header,
-.panel,
-.archive-sidepanel,
-.archive-main,
-.detail-sheet,
-.status-box,
-.feature-card,
-.akten-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(31, 16, 8, 0.9), rgba(5, 3, 2, 0.94)),
-    radial-gradient(circle at 88% 10%, rgba(122, 31, 18, 0.16), transparent 36%),
-    radial-gradient(circle at 8% 92%, rgba(198, 146, 63, 0.09), transparent 42%);
-  box-shadow:
-    var(--shadow),
-    inset 0 1px 0 rgba(255, 232, 166, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.78);
-  backdrop-filter: blur(14px) saturate(1.05);
-}
-
-.system-header {
-  z-index: 6;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 22px 24px;
-}
-
-.system-brand {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-width: 0;
-}
-
-.system-logo {
-  width: 108px;
-  max-width: 24vw;
-  object-fit: contain;
-  filter:
-    drop-shadow(0 0 16px rgba(242, 199, 107, 0.24))
-    drop-shadow(0 18px 26px rgba(0, 0, 0, 0.58));
-}
-
-.system-brand h1 {
-  font-size: clamp(29px, 2.45vw, 44px);
-  max-width: 980px;
-  line-height: 1.04;
-}
-
-.brand-word {
-  font-family: var(--font-brand);
-  font-weight: 700;
-  margin-right: 6px;
-  letter-spacing: 0.015em;
-}
-
-.system-subline {
-  position: relative;
-  z-index: 2;
-  margin: 8px 0 0;
-  color: var(--text-soft);
-  font-size: 18px;
-}
-
-.system-header-actions {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  padding: 9px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.34);
-  font-family: var(--font-title);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.logout-btn {
-  min-width: 190px;
-}
-
-.system-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-  margin-bottom: 22px;
-}
-
-.tab-btn {
-  min-height: 58px;
-  gap: 10px;
-  padding: 14px 18px;
-  border-color: rgba(198, 146, 63, 0.28);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.9), rgba(5, 3, 2, 0.94));
-  box-shadow: var(--shadow-soft);
-}
-
-.tab-btn.active,
-.filter-btn.active {
-  border-color: rgba(255, 227, 160, 0.78);
-  color: #190b04;
-  background:
-    linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.44),
-    0 0 26px rgba(242, 199, 107, 0.2);
-}
-
-.tab-seal,
-.search-icon {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 227, 160, 0.32);
-  border-radius: 50%;
-  color: #190b04;
-  background:
-    radial-gradient(circle at 30% 22%, #ffe8aa, var(--gold-2) 42%, var(--gold) 64%, var(--gold-dark));
-  box-shadow:
-    inset 0 0 18px rgba(0, 0, 0, 0.28),
-    0 0 24px rgba(242, 199, 107, 0.18);
-}
-
-.tab-seal {
-  width: 14px;
-  height: 14px;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-  animation: tabIn 280ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-.archive-layout {
-  display: grid;
-  grid-template-columns: 310px minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.archive-sidepanel,
-.archive-main,
-.panel {
-  padding: 22px;
-}
-
-.sidepanel-block + .sidepanel-block {
-  margin-top: 18px;
-}
-
-.archive-sidepanel h2,
-.panel h2,
-.archive-main h2 {
-  font-size: clamp(26px, 2vw, 36px);
-  line-height: 1.05;
-}
-
-.archive-sidepanel h2 {
-  font-size: clamp(24px, 1.55vw, 31px);
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.archive-stat {
-  position: relative;
-  z-index: 2;
-  margin-top: 14px;
-  padding: 16px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.18));
-}
-
-.archive-stat span,
-.detail-meta-box span {
-  display: block;
-  color: rgba(228, 194, 126, 0.68);
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.9px;
-  text-transform: uppercase;
-}
-
-.archive-stat strong,
-.detail-meta-box strong {
-  display: block;
-  margin-top: 6px;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: 32px;
-  line-height: 1;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
-}
-
-.sidepanel-note p {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 19px;
-  line-height: 1.55;
-}
-
-.panel-header {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.search-shell {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 14px;
-}
-
-.search-core {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid rgba(242, 199, 107, 0.2);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.035), rgba(0, 0, 0, 0.16));
-}
-
-.search-icon {
-  width: 38px;
-  height: 38px;
-  font-family: var(--font-title);
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.search-input {
-  min-height: 38px;
-  padding: 10px 4px;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.search-input:focus {
-  box-shadow: none;
-}
-
-.quick-filters {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.filter-btn {
-  min-height: 38px;
-  padding: 9px 13px;
-  font-size: 12px;
-}
-
-.akten-list {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 16px;
-}
-
-.akten-card {
-  width: 100%;
-  padding: 22px 20px 18px;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 220ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    filter 220ms ease;
-}
-
-.akten-card:hover,
-.feature-card:hover {
-  transform: translateY(-6px) perspective(900px) rotateX(1.5deg);
-  border-color: rgba(242, 199, 107, 0.58);
-  filter: brightness(1.06);
-  box-shadow:
-    0 30px 82px rgba(0, 0, 0, 0.68),
-    0 0 34px rgba(255, 122, 24, 0.16),
-    inset 0 1px 0 rgba(255, 232, 166, 0.12);
-}
-
-.akten-card:disabled {
-  cursor: default;
-  opacity: 0.9;
-}
-
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 10px;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: clamp(22px, 2.2vw, 32px);
-  font-weight: 800;
-  line-height: 1.08;
-  text-transform: uppercase;
-  text-shadow: none;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.84));
-}
-
-.akten-card p,
-.feature-card p,
-.system-text {
-  position: relative;
-  z-index: 2;
-  margin: 8px 0 0;
-  color: var(--text-soft);
-  font-size: 19px;
-  line-height: 1.55;
-}
-
-.akten-card .akten-preview {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-}
-
-.folder-chip-row {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.folder-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 5px 10px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.32);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.folder-chip.status-geheim {
-  border-color: rgba(255, 59, 19, 0.52);
-  color: #ffc0ad;
-}
-
-.folder-chip.status-beobachtung {
-  border-color: rgba(255, 122, 24, 0.5);
-  color: #ffd2aa;
-}
-
-.folder-chip.status-archiviert {
-  border-color: rgba(216, 181, 106, 0.3);
-  color: rgba(244, 234, 213, 0.82);
-}
-
-.form-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.form-actions,
-.detail-actions {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.feature-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.feature-card {
-  min-height: 180px;
-  padding: 22px;
-  transition:
-    transform 220ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    filter 220ms ease;
-}
-
-@keyframes systemIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.99);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes tabIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.995);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* =========================================================
-   MODALS
-========================================================= */
-
-.detail-modal,
-.status-modal {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  pointer-events: none;
-}
-
-.detail-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal-backdrop);
-  pointer-events: auto;
-  background:
-    radial-gradient(circle at center, rgba(198, 146, 63, 0.08), transparent 38%),
-    rgba(5, 3, 2, 0.82);
-  backdrop-filter: blur(9px);
-}
-
-.detail-sheet,
-.status-box {
-  position: relative;
-  z-index: var(--z-modal);
-  width: min(980px, calc(100vw - 24px));
-  max-height: calc(100vh - 40px);
-  overflow: auto;
-  padding: 28px;
-  pointer-events: auto;
-  animation: detailOpen 300ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-.status-box {
-  width: min(560px, calc(100vw - 24px));
-}
-
-.detail-topline {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 10px;
-  padding-right: 50px;
-}
-
-.detail-status-seal {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 140px;
-  min-height: 38px;
-  padding: 9px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background:
-    linear-gradient(180deg, rgba(198, 146, 63, 0.16), rgba(114, 80, 25, 0.14));
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.detail-status-seal.status-geheim,
-.status-choice.status-geheim {
-  border-color: rgba(255, 59, 19, 0.5);
-  color: #ffc0ad;
-  background: linear-gradient(180deg, rgba(122, 31, 18, 0.3), rgba(61, 11, 5, 0.2));
-}
-
-.detail-status-seal.status-beobachtung,
-.status-choice.status-beobachtung {
-  border-color: rgba(255, 122, 24, 0.5);
-  color: #ffd2aa;
-  background: linear-gradient(180deg, rgba(255, 122, 24, 0.18), rgba(122, 31, 18, 0.14));
-}
-
-.detail-status-seal.status-archiviert,
-.status-choice.status-archiviert {
-  border-color: rgba(216, 181, 106, 0.3);
-  color: rgba(244, 234, 213, 0.88);
-  background: linear-gradient(180deg, rgba(180, 160, 130, 0.1), rgba(5, 3, 2, 0.14));
-}
-
-.detail-sheet h2,
-.status-box h2 {
-  margin-bottom: 16px;
-  padding-right: 46px;
-  font-size: clamp(30px, 4vw, 54px);
-}
-
-.detail-meta-row {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.detail-meta-box {
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.18);
-  border-radius: var(--radius-md);
-  background: rgba(5, 3, 2, 0.3);
-}
-
-.detail-meta-box strong {
-  font-size: 22px;
-}
-
-.detail-section {
-  position: relative;
-  z-index: 2;
-}
-
-.detail-section + .detail-section {
-  margin-top: 18px;
-}
-
-.detail-section p,
-.detail-content {
-  margin: 0;
-  color: var(--text);
-  font-size: 20px;
-  line-height: 1.62;
-  white-space: pre-wrap;
-}
-
-.detail-actions {
-  margin-top: 24px;
-}
-
-.status-choice-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.status-choice {
-  width: 100%;
-  min-height: 56px;
-  padding: 16px;
-}
-
-@keyframes detailOpen {
-  from {
-    opacity: 0;
-    transform: translateY(22px) scale(0.965);
-  }
-
-  72% {
-    opacity: 1;
-    transform: translateY(-3px) scale(1.008);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* =========================================================
-   DESKTOP SYSTEM SCALE
-========================================================= */
-
-@media (min-width: 1100px) {
-  .akten-system {
-    padding: 36px 0 52px;
-  }
-
-  .system-header,
-  .system-tabs,
-  .tab-content {
-    width: min(1900px, calc(100% - 56px));
-  }
-
-  .system-header {
-    gap: 34px;
-    padding: 34px 38px;
-  }
-
-  .system-brand {
-    gap: 26px;
-  }
-
-  .system-logo {
-    width: 154px;
-  }
-
-  .system-brand h1 {
-    font-size: clamp(34px, 2.55vw, 50px);
-    max-width: 1040px;
-  }
-
-  .system-subline {
-    font-size: 22px;
-  }
-
-  .system-kicker,
-  .section-kicker {
-    font-size: 13px;
-    letter-spacing: 2.1px;
-  }
-
-  .system-header-actions {
-    gap: 16px;
-  }
-
-  .status-pill {
-    min-height: 58px;
-    padding: 13px 18px;
-    font-size: 14px;
-  }
-
-  .logout-btn {
-    min-width: 260px;
-  }
-
-  .system-tabs {
-    grid-template-columns: repeat(4, minmax(220px, 1fr));
-    gap: 18px;
-    margin-top: 26px;
-    margin-bottom: 32px;
-  }
-
-  .tab-btn {
-    min-height: 84px;
-    gap: 14px;
-    padding: 20px 24px;
-    font-size: 15px;
-  }
-
-  .tab-seal {
-    width: 20px;
-    height: 20px;
-  }
-
-  .archive-layout {
-    grid-template-columns: 455px minmax(0, 1fr);
-    gap: 30px;
-  }
-
-  .archive-sidepanel,
-  .archive-main,
-  .panel {
-    padding: 34px;
-  }
-
-  .panel-header {
-    margin-bottom: 28px;
-  }
-
-  .archive-sidepanel h2,
-  .panel h2,
-  .archive-main h2 {
-    font-size: clamp(30px, 2.1vw, 44px);
-    line-height: 1.06;
-  }
-
-  .archive-sidepanel h2 {
-    font-size: clamp(25px, 1.45vw, 32px);
-    line-height: 1.12;
-  }
-
-  .archive-stat {
-    margin-top: 20px;
-    padding: 24px;
-  }
-
-  .archive-stat span,
-  .detail-meta-box span {
-    font-size: 13px;
-  }
-
-  .archive-stat strong {
-    font-size: 40px;
-  }
-
-  .sidepanel-note p,
-  .akten-card p,
-  .feature-card p,
-  .system-text {
-    font-size: 22px;
-  }
-
-  .search-core {
-    gap: 14px;
-    padding: 16px 18px;
-  }
-
-  .search-icon {
-    width: 54px;
-    height: 54px;
-    font-size: 22px;
-  }
-
-  .search-input {
-    min-height: 56px;
-    font-size: 22px;
-  }
-
-  .quick-filters {
-    gap: 14px;
-    margin-bottom: 26px;
-  }
-
-  .filter-btn {
-    min-height: 52px;
-    padding: 12px 18px;
-    font-size: 13px;
-  }
-
-  .akten-list {
-    gap: 22px;
-  }
-
-  .akten-card {
-    padding: 32px 30px 26px;
-  }
-
-  .akten-card h3,
-  .feature-card h3,
-  .detail-section h3 {
-    font-size: clamp(26px, 1.9vw, 36px);
-    line-height: 1.08;
-  }
-
-  .folder-chip-row {
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-
-  .folder-chip {
-    min-height: 34px;
-    padding: 7px 14px;
-    font-size: 12px;
-  }
-
-  .form-grid {
-    gap: 24px;
-  }
-
-  .form-field {
-    margin-bottom: 24px;
-  }
-
-  .form-field label {
-    font-size: 13px;
-  }
-
-  .form-field input,
-  .form-field textarea,
-  .form-field select {
-    min-height: 68px;
-    padding: 18px;
-    font-size: 22px;
-  }
-
-  .form-field textarea {
-    min-height: 330px;
-  }
-
-  .akten-system .primary-btn,
-  .akten-system .secondary-btn,
-  .akten-system .danger-btn,
-  .detail-modal .primary-btn,
-  .detail-modal .secondary-btn,
-  .detail-modal .danger-btn,
-  .status-modal .status-choice {
-    min-height: 68px;
-    padding: 18px 26px;
-    font-size: 14px;
-  }
-
-  .akten-system .small-btn,
-  .detail-modal .small-btn {
-    min-width: 260px;
-  }
-
-  .feature-grid {
-    gap: 24px;
-  }
-
-  .feature-card {
-    min-height: 250px;
-    padding: 32px;
-  }
-
-  .detail-sheet {
-    width: min(1280px, calc(100vw - 48px));
-    padding: 42px;
-  }
-
-  .status-box {
-    width: min(720px, calc(100vw - 48px));
-    padding: 42px;
-  }
-
-  .detail-sheet h2,
-  .status-box h2 {
-    font-size: clamp(34px, 2.8vw, 54px);
-  }
-
-  .detail-meta-row {
-    gap: 20px;
-    margin-bottom: 28px;
-  }
-
-  .detail-meta-box {
-    padding: 24px;
-  }
-
-  .detail-meta-box strong {
-    font-size: 28px;
-  }
-
-  .detail-section p,
-  .detail-content {
-    font-size: 23px;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1040px) {
-  .archive-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 860px) {
-  .system-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .system-header-actions {
-    justify-content: flex-start;
-  }
-
-  .system-tabs {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-  }
-
-  .form-grid,
-  .detail-meta-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .landing-page {
-    padding: 28px 14px;
-  }
-
-  .landing-logo-button {
-    width: min(390px, 82vw);
-  }
-
-  .landing-title {
-    font-size: 48px;
-  }
-
-  .login-box {
-    padding: 28px 22px 24px;
-  }
-
-  .akten-system {
-    padding: 16px 0 24px;
-  }
-
-  .system-header,
-  .system-tabs,
-  .tab-content {
-    width: calc(100% - 24px);
-  }
-
-  .system-brand {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .system-logo {
-    width: 120px;
-    max-width: 54vw;
-  }
-
-  .system-tabs {
-    grid-template-columns: 1fr;
-  }
-
-  .small-btn,
-  .logout-btn,
-  .status-pill {
-    width: 100%;
-  }
-
-  .panel-header,
-  .detail-topline {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .detail-topline {
-    padding-right: 46px;
-  }
-
-  .detail-sheet,
-  .status-box {
-    padding: 22px;
-  }
-
-  .quick-filters {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 420px) {
-  .login-box h1,
-  .system-header h1,
-  .panel h2,
-  .archive-sidepanel h2,
-  .archive-main h2,
-  .detail-sheet h2,
-  .status-box h2 {
-    font-size: 30px;
-  }
-
-  .primary-btn,
-  .secondary-btn,
-  .danger-btn,
-  .tab-btn,
-  .filter-btn,
-  .status-choice {
-    width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* =========================================================
-   FINAL READABILITY + METALLIC GOLD OVERRIDE
-   This block intentionally sits last so it wins over all
-   previous responsive scale rules.
-========================================================= */
-
-.login-box h1,
-.system-header h1,
-.panel h2,
-.archive-sidepanel h2,
-.archive-main h2,
-.detail-sheet h2,
-.status-box h2,
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  color: #f6d47a !important;
-  background-image:
-    repeating-linear-gradient(
-      105deg,
-      rgba(255, 255, 255, 0.35) 0,
-      rgba(255, 255, 255, 0.35) 1px,
-      rgba(255, 255, 255, 0) 1px,
-      rgba(255, 255, 255, 0) 5px
-    ),
-    linear-gradient(
-      180deg,
-      #fffbe1 0%,
-      #ffe79d 14%,
-      #c88a28 32%,
-      #fff0a8 47%,
-      #a76316 62%,
-      #e0a33b 78%,
-      #6f3f0d 100%
-    ) !important;
-  background-blend-mode: overlay, normal !important;
-  background-clip: text !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  font-family: "Cinzel", Georgia, serif !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.01em !important;
-  text-shadow: none !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(30, 12, 2, 0.95))
-    drop-shadow(0 2px 0 rgba(79, 42, 7, 0.72))
-    drop-shadow(0 0 10px rgba(255, 202, 92, 0.22)) !important;
-}
-
-.system-header h1 {
-  font-size: clamp(32px, 2.2vw, 44px) !important;
-  line-height: 1.08 !important;
-  max-width: 880px !important;
-}
-
-.brand-word {
-  font-family: "Cinzel Decorative", "Cinzel", Georgia, serif !important;
-  font-weight: 700 !important;
-}
-
-.archive-main h2,
-.panel h2 {
-  font-size: clamp(28px, 1.85vw, 38px) !important;
-  line-height: 1.12 !important;
-}
-
-.archive-sidepanel h2 {
-  font-size: clamp(23px, 1.18vw, 28px) !important;
-  line-height: 1.16 !important;
-  max-width: 100% !important;
-  white-space: normal !important;
-  overflow-wrap: normal !important;
-  word-break: normal !important;
-}
-
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  font-size: clamp(24px, 1.55vw, 32px) !important;
-  line-height: 1.12 !important;
-}
-
-.detail-sheet h2,
-.status-box h2 {
-  font-size: clamp(32px, 2.2vw, 46px) !important;
-  line-height: 1.1 !important;
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker,
-.archive-stat span,
-.detail-meta-box span,
-.folder-chip,
-.tab-btn,
-.filter-btn,
-.status-pill,
-.primary-btn,
-.secondary-btn,
-.danger-btn,
-.status-choice {
-  font-family: "Cinzel", Georgia, serif !important;
-  font-weight: 700 !important;
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker {
-  color: #d8aa55 !important;
-  letter-spacing: 1.6px !important;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.9),
-    0 0 10px rgba(242, 199, 107, 0.2) !important;
-}
-
-.archive-stat span,
-.detail-meta-box span {
-  color: rgba(230, 197, 125, 0.72) !important;
-  font-size: 12px !important;
-  letter-spacing: 0.7px !important;
-}
-
-.archive-stat strong,
-.detail-meta-box strong {
-  color: #f6d47a !important;
-  background-image:
-    linear-gradient(180deg, #fff6c9 0%, #e9b955 38%, #9e5f13 68%, #f0c263 100%) !important;
-  background-clip: text !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  font-family: "Cinzel", Georgia, serif !important;
-  font-weight: 800 !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(30, 12, 2, 0.9))
-    drop-shadow(0 0 8px rgba(255, 202, 92, 0.18)) !important;
-}
-
-.tab-btn.active,
-.filter-btn.active,
-.primary-btn {
-  color: #211104 !important;
-  background:
-    linear-gradient(180deg, #fff6c9 0%, #e7b957 34%, #a66518 72%, #f2c76b 100%) !important;
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.5),
-    0 0 26px rgba(242, 199, 107, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.48),
-    inset 0 -2px 0 rgba(65, 32, 5, 0.42) !important;
-}
-
-/* =========================================================
-   BRIGHT GOLD READABILITY FIX
-   Keeps the current sizes but removes the dark dirty texture
-   from important text so it reads clearly on dark panels.
-========================================================= */
-
-.login-box h1,
-.system-header h1,
-.panel h2,
-.archive-sidepanel h2,
-.archive-main h2,
-.detail-sheet h2,
-.status-box h2,
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  color: #ffe28f !important;
-  background-image:
-    linear-gradient(
-      180deg,
-      #fff9cf 0%,
-      #ffe79a 24%,
-      #f4c564 48%,
-      #ffd978 66%,
-      #c98b2e 100%
-    ) !important;
-  background-blend-mode: normal !important;
-  background-clip: text !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  -webkit-text-stroke: 0.18px rgba(255, 239, 178, 0.34) !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(24, 9, 1, 0.9))
-    drop-shadow(0 0 7px rgba(255, 211, 105, 0.24)) !important;
-}
-
-.system-header h1,
-.archive-sidepanel h2,
-.archive-main h2,
-.panel h2 {
-  text-transform: uppercase !important;
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker {
-  color: #f0c56b !important;
-}
-
-.archive-stat span,
-.detail-meta-box span,
-.folder-chip {
-  color: rgba(255, 224, 147, 0.84) !important;
-}
-
-.archive-stat strong,
-.detail-meta-box strong {
-  background-image:
-    linear-gradient(180deg, #fff7c8 0%, #ffd879 42%, #d09130 100%) !important;
-  -webkit-text-stroke: 0.12px rgba(255, 239, 178, 0.26) !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(24, 9, 1, 0.86))
-    drop-shadow(0 0 8px rgba(255, 211, 105, 0.2)) !important;
-}
-
-.akten-card p,
-.feature-card p,
-.system-text,
-.sidepanel-note p,
-.detail-section p,
-.detail-content,
-.system-subline,
-.login-subtitle {
-  color: rgba(246, 232, 202, 0.88) !important;
-}
-
-.search-input {
-  color: rgba(246, 232, 202, 0.92) !important;
-}
-
-.search-input::placeholder,
-.login-field input::placeholder,
-.form-field input::placeholder,
-.form-field textarea::placeholder {
-  color: rgba(246, 232, 202, 0.5) !important;
-}
-
-/* =========================================================
-   ASHBORN VERWALTUNGSSYSTEM V2
-   Neue Module: Datenerfassung, Preislisten, Intern, Buchhaltung
-========================================================= */
-
-.ashborn-main-tabs {
-  grid-template-columns: repeat(6, minmax(145px, 1fr)) !important;
-}
-
-.ashborn-data-layout {
-  margin-bottom: 22px;
-}
-
-.ashborn-list-panel {
-  margin-top: 22px;
-}
-
-.field-hint {
-  position: relative;
-  z-index: 2;
-  margin: 8px 0 0;
-  color: var(--text-muted);
-  font-size: 16px;
-}
-
-.image-preview-grid,
-.detail-image-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.image-preview-item,
-.detail-image-grid a {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-md);
-  background: rgba(5, 3, 2, 0.5);
-  box-shadow: var(--shadow-soft);
-}
-
-.image-preview-item img,
-.detail-image-grid img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  filter: sepia(0.12) contrast(1.04) brightness(0.92);
-}
-
-.image-preview-item .mini-btn {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-}
-
-.card-actions {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.mini-btn {
-  min-width: auto !important;
-  min-height: 34px !important;
-  width: auto !important;
-  padding: 7px 12px !important;
-  font-size: 11px !important;
-  line-height: 1 !important;
-}
-
-.static-card {
-  cursor: default;
-}
-
-.static-card:hover {
-  transform: none;
-}
-
-.price-layout {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.price-form,
-.calculator-card {
-  position: relative;
-  z-index: 2;
-}
-
-.calculator-card {
-  padding: 20px;
-  border: 1px solid rgba(198, 146, 63, 0.26);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(24, 13, 7, 0.86), rgba(5, 3, 2, 0.88)),
-    radial-gradient(circle at 90% 0%, rgba(198, 146, 63, 0.12), transparent 42%);
-  box-shadow: var(--shadow-soft);
-}
-
-.calculator-card h3 {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 16px;
-  color: #f2c76b;
-  font-family: var(--font-title);
-  font-size: clamp(22px, 1.8vw, 30px);
-  text-transform: uppercase;
-}
-
-.calc-result {
-  display: grid;
-  gap: 6px;
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.32);
-  border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.28);
-}
-
-.calc-result span {
-  color: var(--text-muted);
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
-
-.calc-result strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 36px;
-  line-height: 1;
-}
-
-.price-list {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.price-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 14px;
-  align-items: center;
-  padding: 15px 16px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.2));
-}
-
-.price-row strong {
-  display: block;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 18px;
-  text-transform: uppercase;
-}
-
-.price-row span {
-  display: block;
-  margin-top: 4px;
-  color: var(--text-soft);
-  font-size: 17px;
-}
-
-.price-value {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 22px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.price-value.positive {
-  color: #b8ffca;
-}
-
-.price-value.negative {
-  color: #ffb49d;
-}
-
-.cash-overview,
-.cash-form-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 16px;
-}
-
-.cash-overview {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 22px;
-}
-
-.cash-form-grid {
-  grid-template-columns: minmax(180px, 0.45fr) minmax(180px, 0.45fr) minmax(0, 1.1fr);
-  align-items: start;
-}
-
-.cash-stat strong {
-  font-size: clamp(34px, 4vw, 54px);
-}
-
-.detail-image-grid {
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
-
-.detail-image-grid img {
-  height: 190px;
-  transition: transform 220ms ease, filter 220ms ease;
-}
-
-.detail-image-grid a:hover img {
-  transform: scale(1.04);
-  filter: sepia(0.06) contrast(1.1) brightness(1.03);
-}
-
-@media (max-width: 1120px) {
-  .ashborn-main-tabs {
-    grid-template-columns: repeat(3, minmax(160px, 1fr)) !important;
-  }
-
-  .price-layout,
-  .cash-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cash-overview {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 760px) {
-  .ashborn-main-tabs {
-    grid-template-columns: 1fr !important;
-  }
-
-  .price-row {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
-  .price-value {
-    font-size: 28px;
-  }
-
-  .image-preview-grid,
-  .detail-image-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .image-preview-grid,
-  .detail-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   ASHBORN V5: AktenSystem Ausbau
-========================================================= */
-.record-type-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.record-type-stat {
-  padding: 12px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.18));
-}
-
-.record-type-stat span {
-  display: block;
-  color: rgba(228, 194, 126, 0.68);
-  font-family: var(--font-title);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.record-type-stat strong {
-  display: block;
-  margin-top: 5px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 24px;
-  line-height: 1;
-}
-
-.record-toolbar {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 10px;
-  margin: 14px 0 18px;
-}
-
-.toolbar-field {
-  width: min(250px, 100%);
-  margin-bottom: 0;
-}
-
-.record-toolbar .small-btn {
-  min-width: 160px;
-  min-height: 50px;
-}
-
-.secondary-btn.active {
-  border-color: rgba(255, 227, 160, 0.78);
-  color: #190b04;
-  background: linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
-}
-
-.record-card {
-  text-align: left;
-}
-
-.record-card-main {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 132px minmax(0, 1fr);
-  gap: 18px;
-  align-items: stretch;
-  width: 100%;
-}
-
-.record-thumb {
-  display: grid;
-  place-items: center;
-  min-height: 132px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(242, 199, 107, 0.18), transparent 45%),
-    linear-gradient(180deg, rgba(5, 3, 2, 0.84), rgba(22, 11, 5, 0.92));
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.46);
-}
-
-.record-thumb img {
-  width: 100%;
-  height: 100%;
-  min-height: 132px;
-  object-fit: cover;
-  filter: saturate(1.05) contrast(1.06);
-  transition: transform 220ms ease, filter 220ms ease;
-}
-
-.record-card:hover .record-thumb img {
-  transform: scale(1.06);
-  filter: saturate(1.16) contrast(1.08) brightness(1.05);
-}
-
-.record-thumb span {
-  color: #190b04;
-  font-family: var(--font-brand);
-  font-size: 54px;
-  line-height: 1;
-  text-shadow: 0 1px 0 rgba(255, 240, 190, 0.55);
-  background: var(--gold-metal);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.record-card-body {
-  min-width: 0;
-}
-
-.compact-detail-actions {
-  justify-content: flex-start;
-  margin-top: 14px;
-  margin-bottom: 6px;
-}
-
-#copyTelegramBtn:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-  transform: none;
-}
-
-@media (max-width: 760px) {
-  .record-card-main {
-    grid-template-columns: 1fr;
-  }
-
-  .record-thumb {
-    min-height: 190px;
-  }
-
-  .record-thumb img {
-    min-height: 190px;
-  }
-
-  .record-toolbar,
-  .record-toolbar .small-btn,
-  .toolbar-field {
-    width: 100%;
-  }
-}
-
-/* =========================================================
-   PRICE LIST UPGRADE V7
-========================================================= */
-.price-form-head {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 16px;
-}
-
-.price-form-head h3 {
-  margin: 0;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: clamp(22px, 2vw, 30px);
-  line-height: 1.05;
-  text-transform: uppercase;
-}
-
-.compact-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.price-toolbar {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(190px, 240px) auto auto;
-  gap: 12px;
-  align-items: end;
-  margin: 20px 0 16px;
-}
-
-.price-search-shell {
-  margin: 0;
-}
-
-.enhanced-price-row {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 14px;
-}
-
-.price-main {
-  min-width: 0;
-}
-
-.price-main .folder-chip-row {
-  margin-bottom: 8px;
-}
-
-.price-actions {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.price-actions .mini-btn {
-  min-width: 116px;
-}
-
-.muted-result {
-  opacity: 0.82;
-  margin-bottom: 10px;
-}
-
-.muted-result strong {
-  font-size: 24px;
-}
-
-@media (max-width: 980px) {
-  .price-toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .enhanced-price-row {
-    grid-template-columns: 1fr;
-  }
-
-  .price-actions {
-    justify-content: stretch;
-  }
-
-  .price-actions .mini-btn {
-    flex: 1;
-  }
-}
-
-@media (max-width: 640px) {
-  .price-toolbar,
-  .compact-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   Buchhaltung Upgrade v8
-========================================================= */
-.enhanced-cash-overview {
-  grid-template-columns: repeat(5, minmax(160px, 1fr));
-}
-
-.cash-form-card {
-  position: relative;
-  z-index: 2;
-  margin: 22px 0;
-  padding: 20px;
-  border: 1px solid rgba(198, 146, 63, 0.26);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(24, 13, 7, 0.86), rgba(5, 3, 2, 0.9)),
-    radial-gradient(circle at 88% 0%, rgba(198, 146, 63, 0.12), transparent 42%);
-  box-shadow: var(--shadow-soft);
-}
-
-.cash-toolbar {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) 150px 170px 190px auto auto;
-  gap: 12px;
-  align-items: end;
-  margin: 18px 0;
-}
-
-.cash-search-shell {
-  margin-bottom: 0;
-}
-
-.cash-row {
-  align-items: center;
-}
-
-.cash-row small {
-  display: block;
-  margin-top: 6px;
-  color: rgba(244, 234, 213, 0.42);
-  font-family: var(--font-title);
-  font-size: 11px;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-}
-
-.cash-row-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-@media (max-width: 1180px) {
-  .enhanced-cash-overview {
-    grid-template-columns: repeat(2, minmax(160px, 1fr));
-  }
-
-  .cash-toolbar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .enhanced-cash-overview,
-  .cash-toolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .cash-row-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-
-/* =========================================================
-   BUCHHALTUNG STORNO UPGRADE
-========================================================= */
-.cash-storno-hint {
-  position: relative;
-  z-index: 2;
-  margin: 10px 0 16px;
-  padding: 12px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.22);
-  border-radius: var(--radius-md);
-  color: var(--text-soft);
-  background: rgba(5, 3, 2, 0.34);
-  font-size: 17px;
-}
-
-.cash-storno-hint strong {
-  color: var(--gold-2);
-}
-
-.cash-storno-btn {
-  white-space: nowrap;
-}
-
-.cash-row-storno {
-  border-color: rgba(242, 199, 107, 0.18);
-  opacity: 0.82;
-}
-
-.storno-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 7px 12px;
-  border: 1px solid rgba(242, 199, 107, 0.32);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.45);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-@media (max-width: 720px) {
-  .cash-storno-btn,
-  .storno-badge {
-    width: 100%;
-  }
-}
-
-
-/* =========================================================
-   ASHBORN INTERN UPGRADE V10
-========================================================= */
-.internal-toolbar {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(160px, 210px) minmax(180px, 230px) auto auto;
-  gap: 12px;
-  align-items: end;
-  margin: 20px 0 16px;
-}
-
-.internal-list {
-  margin-top: 10px;
-}
-
-.internal-card p {
-  white-space: pre-wrap;
-}
-
-@media (max-width: 1120px) {
-  .internal-toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 720px) {
-  .internal-toolbar {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   ASHBORN INTERN FIX V11
-   Sichtbare Bearbeiten/Kopieren/Löschen-Aktionen + bessere Übersicht
-========================================================= */
-.internal-panel-v11 .compact-header {
-  margin-bottom: 14px;
-}
-
-.internal-panel-v11 .compact-header h3,
-.internal-help-card-v11 h3,
-.internal-note-card-v11 h3 {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: clamp(22px, 1.8vw, 30px);
-  font-weight: 900;
-  line-height: 1.05;
-  text-transform: uppercase;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
-}
-
-.internal-overview-v11 {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
-  gap: 14px;
-  margin: 18px 0 20px;
-}
-
-.internal-workspace-v11 {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(270px, 360px);
-  gap: 18px;
-  align-items: stretch;
-}
-
-.internal-editor-card-v11,
-.internal-help-card-v11,
-.internal-note-card-v11 {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(198, 146, 63, 0.24);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(24, 13, 7, 0.82), rgba(5, 3, 2, 0.9)),
-    radial-gradient(circle at 92% 10%, rgba(122, 31, 18, 0.14), transparent 36%),
-    radial-gradient(circle at 8% 88%, rgba(198, 146, 63, 0.08), transparent 42%);
-  box-shadow:
-    0 18px 54px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 232, 166, 0.06);
-}
-
-.internal-editor-card-v11,
-.internal-help-card-v11 {
-  padding: 20px;
-}
-
-.internal-help-card-v11 p {
-  position: relative;
-  z-index: 2;
-  color: var(--text-soft);
-  font-size: 18px;
-  margin: 12px 0 18px;
-}
-
-.v11-toolbar {
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(198, 146, 63, 0.16);
-}
-
-.internal-grid-v11 {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 14px;
-  margin-top: 16px;
-}
-
-.internal-note-card-v11 {
-  padding: 18px;
-}
-
-.internal-chip-row-v11 {
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.internal-note-content-v11 {
-  position: relative;
-  z-index: 2;
-  min-height: 84px;
-  margin-top: 12px;
-  padding: 14px;
-  border: 1px solid rgba(198, 146, 63, 0.16);
-  border-radius: var(--radius-md);
-  color: var(--text-soft);
-  background: rgba(0, 0, 0, 0.2);
-  font-size: 18px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.internal-actions-v11 {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.internal-actions-v11 .mini-btn {
-  min-width: 118px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.empty-internal-v11 {
-  grid-column: 1 / -1;
-}
-
-@media (max-width: 980px) {
-  .internal-overview-v11 {
-    grid-template-columns: repeat(2, minmax(130px, 1fr));
-  }
-
-  .internal-workspace-v11 {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .internal-overview-v11,
-  .internal-grid-v11 {
-    grid-template-columns: 1fr;
-  }
-
-  .internal-actions-v11 .mini-btn {
-    flex: 1 1 100%;
-  }
+const SUPABASE_URL = "https://rclpgqrwcygjzqgeurie.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2BWb4LK4GWC8-S4SVPIlvA_iX41QQqg";
+const IMAGE_BUCKET = "ashborn-images";
+const MASTER_LOGIN_EMAIL = "ashborn-system@ashborn.local";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let sessionUser = null;
+let activeRecordFilter = "Alle";
+let activeRecordImageFilter = false;
+let recordSortMode = "newest";
+let currentRecordId = null;
+let pendingImages = [];
+let recordsCache = [];
+let sellPricesCache = [];
+let buyPricesCache = [];
+let internalCache = [];
+let internalSearchQuery = "";
+let internalCategoryFilter = "Alle";
+let internalSortMode = "newest";
+let cashCache = [];
+let cashTypeFilter = "Alle";
+let cashRangeFilter = "all";
+let cashSortMode = "newest";
+let cashSearchQuery = "";
+let isBusy = false;
+
+const $ = (id) => document.getElementById(id);
+const landingPage = $("landingPage");
+const logoButton = $("logoButton");
+const landingLoginBtn = $("landingLoginBtn");
+const loginBox = $("loginBox");
+const closeLoginBtn = $("closeLoginBtn");
+const passwordInput = $("passwordInput");
+const loginBtn = $("loginBtn");
+const loginError = $("loginError");
+const smokeTransition = $("smokeTransition");
+const aktenSystem = $("aktenSystem");
+const logoutBtn = $("logoutBtn");
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+const recordFilterButtons = document.querySelectorAll("[data-record-filter]");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const recordFields = {
+  id: $("recordId"),
+  name: $("recordName"),
+  type: $("recordType"),
+  location: $("recordLocation"),
+  telegram: $("recordTelegram"),
+  description: $("recordDescription"),
+  images: $("recordImages")
+};
+
+function on(element, eventName, handler) {
+  if (!element) return;
+  element.addEventListener(eventName, handler);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  startAmbientEmbers();
+  bindHeroParallax();
+  bindEvents();
+
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session?.user) {
+    sessionUser = data.session.user;
+    showSystem();
+    await loadAllData();
+  } else {
+    showLanding();
+  }
+});
+
+function bindEvents() {
+  on(logoButton, "click", showLogin);
+  on(landingLoginBtn, "click", showLogin);
+  on(closeLoginBtn, "click", hideLogin);
+  on(loginBtn, "click", login);
+
+  on(passwordInput, "keydown", (event) => {
+    if (event.key === "Enter") login();
+    if (event.key === "Escape") hideLogin();
+  });
+  on(logoutBtn, "click", logout);
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.tab));
+  });
+
+  recordFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeRecordFilter = button.dataset.recordFilter;
+      recordFilterButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.recordFilter === activeRecordFilter));
+      renderRecords();
+    });
+  });
+
+  on($("recordSearchInput"), "input", renderRecords);
+  on($("recordSortSelect"), "change", (event) => {
+    recordSortMode = event.target.value || "newest";
+    renderRecords();
+  });
+  on($("toggleImageFilterBtn"), "click", () => {
+    activeRecordImageFilter = !activeRecordImageFilter;
+    $("toggleImageFilterBtn").classList.toggle("active", activeRecordImageFilter);
+    $("toggleImageFilterBtn").textContent = activeRecordImageFilter ? "Alle Bilder anzeigen" : "Nur mit Bildern";
+    renderRecords();
+  });
+  on($("clearRecordSearchBtn"), "click", () => {
+    $("recordSearchInput").value = "";
+    activeRecordFilter = "Alle";
+    activeRecordImageFilter = false;
+    recordSortMode = "newest";
+    if ($("recordSortSelect")) $("recordSortSelect").value = "newest";
+    recordFilterButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.recordFilter === "Alle"));
+    if ($("toggleImageFilterBtn")) {
+      $("toggleImageFilterBtn").classList.remove("active");
+      $("toggleImageFilterBtn").textContent = "Nur mit Bildern";
+    }
+    renderRecords();
+  });
+  on($("exportRecordsCsvBtn"), "click", exportRecordsCsv);
+  on($("saveRecordBtn"), "click", saveRecord);
+  on($("resetRecordBtn"), "click", () => {
+    clearRecordForm();
+    setRecordMessage("Felder wurden geleert.", "neutral");
+  });
+  on($("cancelRecordEditBtn"), "click", () => {
+    clearRecordForm();
+    setRecordMessage("Bearbeitung wurde abgebrochen.", "neutral");
+  });
+  on(recordFields.images, "change", handleImageSelection);
+
+  on($("recordList"), "click", (event) => {
+    const editBtn = event.target.closest("[data-edit-record]");
+    const deleteBtn = event.target.closest("[data-delete-record]");
+    const card = event.target.closest(".akten-card");
+
+    if (editBtn) {
+      event.stopPropagation();
+      const record = recordsCache.find((item) => item.id === editBtn.dataset.editRecord);
+      if (record) loadRecordIntoForm(record);
+      return;
+    }
+
+    if (deleteBtn) {
+      event.stopPropagation();
+      deleteRecord(deleteBtn.dataset.deleteRecord);
+      return;
+    }
+
+    if (card && card.dataset.id && !card.disabled) {
+      const record = recordsCache.find((item) => item.id === card.dataset.id);
+      if (record) openDetail(record);
+    }
+  });
+
+  on($("detailBackdrop"), "click", closeDetail);
+  on($("closeDetailBtn"), "click", closeDetail);
+  on($("editRecordBtn"), "click", () => {
+    const record = recordsCache.find((item) => item.id === currentRecordId);
+    if (record) {
+      closeDetail();
+      loadRecordIntoForm(record);
+    }
+  });
+  on($("deleteRecordBtn"), "click", () => deleteRecord(currentRecordId));
+  on($("copyTelegramBtn"), "click", copyCurrentTelegram);
+
+  setupPriceModule("sell");
+  setupPriceModule("buy");
+  on($("saveInternalBtn"), "click", saveInternalNote);
+  on($("resetInternalBtn"), "click", () => {
+    clearInternalForm();
+    setInternalMessage("Felder wurden geleert.", "neutral");
+  });
+  on($("cancelInternalEditBtn"), "click", () => {
+    clearInternalForm();
+    setInternalMessage("Bearbeitung wurde abgebrochen.", "neutral");
+  });
+  on($("clearInternalBtn"), "click", clearInternalNotes);
+  on($("internalSearchInput"), "input", (event) => {
+    internalSearchQuery = event.target.value.trim().toLowerCase();
+    renderInternal();
+  });
+  on($("internalCategoryFilter"), "change", (event) => {
+    internalCategoryFilter = event.target.value || "Alle";
+    renderInternal();
+  });
+  on($("internalSortSelect"), "change", (event) => {
+    internalSortMode = event.target.value || "newest";
+    renderInternal();
+  });
+  on($("clearInternalSearchBtn"), "click", clearInternalSearch);
+  on($("exportInternalCsvBtn"), "click", exportInternalCsv);
+
+  document.querySelectorAll("[data-internal-overview-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      internalCategoryFilter = button.dataset.internalOverviewFilter || "Alle";
+      if ($("internalCategoryFilter")) $("internalCategoryFilter").value = internalCategoryFilter;
+      renderInternal();
+    });
+  });
+  on($("saveCashBtn"), "click", saveCashEntry);
+  on($("clearCashBtn"), "click", clearCashEntries);
+  on($("cashSearchInput"), "input", (event) => {
+    cashSearchQuery = event.target.value.trim().toLowerCase();
+    renderCash();
+  });
+  on($("cashTypeFilter"), "change", (event) => {
+    cashTypeFilter = event.target.value || "Alle";
+    renderCash();
+  });
+  on($("cashRangeFilter"), "change", (event) => {
+    cashRangeFilter = event.target.value || "all";
+    renderCash();
+  });
+  on($("cashSortSelect"), "change", (event) => {
+    cashSortMode = event.target.value || "newest";
+    renderCash();
+  });
+  on($("clearCashSearchBtn"), "click", () => {
+    cashSearchQuery = "";
+    cashTypeFilter = "Alle";
+    cashRangeFilter = "all";
+    cashSortMode = "newest";
+    if ($("cashSearchInput")) $("cashSearchInput").value = "";
+    if ($("cashTypeFilter")) $("cashTypeFilter").value = "Alle";
+    if ($("cashRangeFilter")) $("cashRangeFilter").value = "all";
+    if ($("cashSortSelect")) $("cashSortSelect").value = "newest";
+    renderCash();
+  });
+  on($("exportCashCsvBtn"), "click", exportCashCsv);
+  on($("cashList"), "click", (event) => {
+    const reverseBtn = event.target.closest("[data-reverse-cash]");
+    if (reverseBtn) reverseCashEntry(reverseBtn.dataset.reverseCash);
+  });
+  on($("clearAllDataBtn"), "click", clearAllData);
+  on($("exportDataBtn"), "click", exportData);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (!$("detailModal").classList.contains("hidden")) return closeDetail();
+    if (loginBox.classList.contains("show")) hideLogin();
+  });
+}
+
+function showLogin() {
+  loginError.textContent = "";
+  landingPage.classList.add("login-open");
+  loginBox.classList.add("show");
+  loginBox.setAttribute("aria-hidden", "false");
+  setTimeout(() => passwordInput?.focus(), 120);
+}
+
+function hideLogin() {
+  landingPage.classList.remove("login-open");
+  loginBox.classList.remove("show");
+  loginBox.setAttribute("aria-hidden", "true");
+  loginError.textContent = "";
+  if (passwordInput) passwordInput.value = "";
+}
+
+async function login() {
+  const password = passwordInput.value.trim();
+
+  if (!password) {
+    loginError.textContent = "Bitte Systemkennwort eintragen.";
+    passwordInput.focus();
+    return;
+  }
+
+  setBusy(true, "System wird entsiegelt...");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: MASTER_LOGIN_EMAIL,
+    password
+  });
+
+  setBusy(false);
+
+  if (error || !data.session?.user) {
+    loginError.textContent = "Falsches Systemkennwort.";
+    passwordInput.value = "";
+    passwordInput.focus();
+    loginBox.classList.remove("shake");
+    void loginBox.offsetWidth;
+    loginBox.classList.add("shake");
+    return;
+  }
+
+  sessionUser = data.session.user;
+
+  playSmokeTransition(async () => {
+    showSystem();
+    hideLogin();
+    await loadAllData();
+  });
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  sessionUser = null;
+  recordsCache = [];
+  sellPricesCache = [];
+  buyPricesCache = [];
+  internalCache = [];
+  cashCache = [];
+  closeDetail();
+  showLanding();
+  hideLogin();
+}
+
+function showSystem() {
+  landingPage.classList.add("hidden");
+  aktenSystem.classList.remove("hidden");
+}
+
+function showLanding() {
+  aktenSystem.classList.add("hidden");
+  landingPage.classList.remove("hidden");
+}
+
+function playSmokeTransition(callback) {
+  smokeTransition.classList.remove("active");
+  void smokeTransition.offsetWidth;
+  smokeTransition.classList.add("active");
+  setTimeout(callback, 320);
+  setTimeout(() => smokeTransition.classList.remove("active"), 920);
+}
+
+function switchTab(tabId) {
+  tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === tabId));
+  tabContents.forEach((content) => content.classList.toggle("active", content.id === tabId));
+}
+
+async function loadAllData() {
+  try {
+    setBusy(true, "Daten werden geladen...");
+    await Promise.all([
+      loadRecords(),
+      loadPriceItems("sell"),
+      loadPriceItems("buy"),
+      loadInternalNotes(),
+      loadCashEntries()
+    ]);
+    renderAll();
+  } catch (error) {
+    console.error(error);
+    alert(`Daten konnten nicht geladen werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function renderAll() {
+  renderRecords();
+  renderPriceModule("sell");
+  renderPriceModule("buy");
+  renderInternal();
+  renderCash();
+}
+
+async function loadRecords() {
+  const { data, error } = await supabaseClient
+    .from("ashborn_entries")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  recordsCache = await Promise.all((data || []).map(normalizeRecord));
+}
+
+async function normalizeRecord(row) {
+  const images = await withSignedImageUrls(Array.isArray(row.images) ? row.images : []);
+  return {
+    id: row.id,
+    name: row.name || "",
+    type: row.type || "",
+    location: row.find_location || "",
+    telegram: row.telegram_number || "",
+    description: row.description || "",
+    images,
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || ""
+  };
+}
+
+async function withSignedImageUrls(images) {
+  return Promise.all(images.map(async (image) => {
+    if (!image.path) return image;
+    const { data } = await supabaseClient.storage.from(IMAGE_BUCKET).createSignedUrl(image.path, 60 * 60 * 24);
+    return { ...image, src: data?.signedUrl || "" };
+  }));
+}
+
+async function saveRecord() {
+  if (isBusy) return;
+  const name = recordFields.name.value.trim();
+  if (!name) {
+    setRecordMessage("Bitte mindestens den Namen eintragen.", "error");
+    recordFields.name.focus();
+    return;
+  }
+
+  try {
+    setBusy(true, "Datensatz wird gespeichert...");
+    const id = recordFields.id.value.trim() || crypto.randomUUID();
+    const uploadedImages = await uploadPendingImages(id);
+    const payload = {
+      id,
+      name,
+      type: recordFields.type.value || null,
+      find_location: recordFields.location.value.trim() || null,
+      telegram_number: recordFields.telegram.value.trim() || null,
+      description: recordFields.description.value.trim() || null,
+      images: uploadedImages.map((image) => ({ name: image.name || "Bild", path: image.path })),
+      updated_at: new Date().toISOString()
+    };
+
+    if (!recordFields.id.value.trim()) {
+      payload.created_by = sessionUser?.id || null;
+    }
+
+    const { error } = await supabaseClient.from("ashborn_entries").upsert(payload, { onConflict: "id" });
+    if (error) throw error;
+
+    clearRecordForm();
+    setRecordMessage("Datensatz wurde in Supabase gespeichert.", "success");
+    await loadRecords();
+    renderRecords();
+  } catch (error) {
+    console.error(error);
+    setRecordMessage(`Speichern fehlgeschlagen: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function uploadPendingImages(recordId) {
+  const result = [];
+  for (const image of pendingImages) {
+    if (!image.file) {
+      result.push(image);
+      continue;
+    }
+    const extension = getFileExtension(image.file.name);
+    const safeName = sanitizeFileName(image.file.name.replace(/\.[^/.]+$/, ""));
+    const path = `${sessionUser.id}/${recordId}/${Date.now()}-${Math.random().toString(16).slice(2)}-${safeName}${extension}`;
+    const { error } = await supabaseClient.storage.from(IMAGE_BUCKET).upload(path, image.file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+    if (error) throw error;
+    result.push({ name: image.name || image.file.name, path });
+  }
+  return result;
+}
+
+function loadRecordIntoForm(record) {
+  recordFields.id.value = record.id || "";
+  recordFields.name.value = record.name || "";
+  recordFields.type.value = record.type || "";
+  recordFields.location.value = record.location || "";
+  recordFields.telegram.value = record.telegram || "";
+  recordFields.description.value = record.description || "";
+  pendingImages = Array.isArray(record.images) ? record.images.map((img) => ({ ...img })) : [];
+  $("dataFormTitle").textContent = "Daten bearbeiten";
+  $("recordSaveText").textContent = "Änderungen speichern";
+  $("cancelRecordEditBtn").classList.remove("hidden");
+  renderImagePreview();
+  switchTab("dataTab");
+  setRecordMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => recordFields.name.focus(), 80);
+}
+
+function clearRecordForm() {
+  recordFields.id.value = "";
+  recordFields.name.value = "";
+  recordFields.type.value = "";
+  recordFields.location.value = "";
+  recordFields.telegram.value = "";
+  recordFields.description.value = "";
+  recordFields.images.value = "";
+  pendingImages = [];
+  $("dataFormTitle").textContent = "Daten erfassen";
+  $("recordSaveText").textContent = "Daten speichern";
+  $("cancelRecordEditBtn").classList.add("hidden");
+  renderImagePreview();
+}
+
+async function handleImageSelection(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+  const images = await Promise.all(files.map(fileToPreviewImage));
+  pendingImages = [...pendingImages, ...images];
+  renderImagePreview();
+}
+
+function fileToPreviewImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({ name: file.name, src: reader.result, file });
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImagePreview() {
+  const preview = $("imagePreview");
+  if (!preview) return;
+  if (!pendingImages.length) {
+    preview.innerHTML = `<p class="field-hint">Noch keine Bilder ausgewählt.</p>`;
+    return;
+  }
+  preview.innerHTML = pendingImages.map((image, index) => `
+    <div class="image-preview-item">
+      ${image.src ? `<img src="${image.src}" alt="${escapeHtml(image.name || "Bild")}" />` : `<div class="image-placeholder">Bild</div>`}
+      <button type="button" class="danger-btn mini-btn" data-remove-image="${index}">Entfernen</button>
+    </div>
+  `).join("");
+  preview.querySelectorAll("[data-remove-image]").forEach((button) => {
+    button.addEventListener("click", () => {
+      pendingImages.splice(Number(button.dataset.removeImage), 1);
+      renderImagePreview();
+    });
+  });
+}
+
+function renderRecords() {
+  const list = $("recordList");
+  if (!list) return;
+  const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
+  const filtered = recordsCache
+    .filter((record) => {
+      const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
+      const hasImages = Array.isArray(record.images) && record.images.length > 0;
+      const matchesImages = !activeRecordImageFilter || hasImages;
+      const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.createdAt, record.updatedAt].join(" ").toLowerCase();
+      return matchesType && matchesImages && haystack.includes(query);
+    })
+    .sort(sortRecords);
+
+  setText("totalRecordsCount", recordsCache.length);
+  setText("filteredRecordsCount", filtered.length);
+  setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
+  if (!filtered.length) {
+    list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((record) => {
+    const firstImage = Array.isArray(record.images) ? record.images.find((img) => img.src) : null;
+    return `
+      <button class="akten-card record-card" type="button" data-id="${escapeHtml(record.id)}">
+        <div class="record-card-main">
+          <div class="record-thumb ${firstImage ? "has-image" : ""}">
+            ${firstImage ? `<img src="${firstImage.src}" alt="${escapeHtml(firstImage.name || record.name)}" />` : `<span>${escapeHtml((record.type || "A").slice(0, 1))}</span>`}
+          </div>
+          <div class="record-card-body">
+            <div class="folder-chip-row">
+              <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
+              <span class="folder-chip">${escapeHtml(record.updatedAt ? `Bearbeitet: ${record.updatedAt}` : `Erstellt: ${record.createdAt || "-"}`)}</span>
+              <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
+            </div>
+            <h3>${escapeHtml(record.name)}</h3>
+            <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
+            <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
+            <p class="akten-preview">${escapeHtml(record.description || "Keine Beschreibung")}</p>
+            <div class="card-actions">
+              <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
+              <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function sortRecords(a, b) {
+  if (recordSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+  if (recordSortMode === "name") return String(a.name || "").localeCompare(String(b.name || ""), "de");
+  if (recordSortMode === "type") return String(a.type || "").localeCompare(String(b.type || ""), "de") || String(a.name || "").localeCompare(String(b.name || ""), "de");
+  return new Date(b.updatedAtRaw || b.createdAtRaw || 0) - new Date(a.updatedAtRaw || a.createdAtRaw || 0);
+}
+
+function openDetail(record) {
+  currentRecordId = record.id;
+  setText("detailTitle", record.name || "-");
+  setText("detailType", record.type || "Nicht festgelegt");
+  setText("detailLocation", record.location || "-");
+  setText("detailTelegram", record.telegram || "-");
+  setText("detailDescription", record.description || "Keine Beschreibung eingetragen.");
+  setText("detailCreatedAt", record.createdAt || "-");
+  setText("detailUpdatedAt", record.updatedAt || "Noch nicht bearbeitet");
+  if ($("copyTelegramBtn")) $("copyTelegramBtn").disabled = !record.telegram;
+  const images = Array.isArray(record.images) ? record.images : [];
+  $("detailImages").innerHTML = images.length
+    ? images.map((img) => img.src ? `<a href="${img.src}" target="_blank" rel="noopener"><img src="${img.src}" alt="${escapeHtml(img.name || "Bild")}" /></a>` : "").join("")
+    : `<p class="system-text">Keine Bilder hinterlegt.</p>`;
+  $("detailModal").classList.remove("hidden");
+}
+
+function closeDetail() {
+  currentRecordId = null;
+  $("detailModal").classList.add("hidden");
+}
+
+async function deleteRecord(id) {
+  if (!id || isBusy) return;
+  const record = recordsCache.find((item) => item.id === id);
+  if (!record) return;
+  if (!confirm(`Datensatz "${record.name}" wirklich löschen?`)) return;
+
+  try {
+    setBusy(true, "Datensatz wird gelöscht...");
+    const paths = (record.images || []).map((img) => img.path).filter(Boolean);
+    if (paths.length) await supabaseClient.storage.from(IMAGE_BUCKET).remove(paths);
+    const { error } = await supabaseClient.from("ashborn_entries").delete().eq("id", id);
+    if (error) throw error;
+    closeDetail();
+    clearRecordForm();
+    await loadRecords();
+    renderRecords();
+  } catch (error) {
+    alert(`Löschen fehlgeschlagen: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function copyCurrentTelegram() {
+  const record = recordsCache.find((item) => item.id === currentRecordId);
+  if (!record?.telegram) return;
+  try {
+    await navigator.clipboard.writeText(record.telegram);
+    const btn = $("copyTelegramBtn");
+    if (!btn) return;
+    const oldText = btn.textContent;
+    btn.textContent = "Kopiert";
+    setTimeout(() => { btn.textContent = oldText; }, 1200);
+  } catch (error) {
+    alert(`Kopieren fehlgeschlagen: ${error.message || error}`);
+  }
+}
+
+function exportRecordsCsv() {
+  if (!recordsCache.length) {
+    alert("Keine Datensätze zum Exportieren vorhanden.");
+    return;
+  }
+  const headers = ["Name", "Was", "Wo finde ich es", "Telegramm Nummer", "Beschreibung", "Bilder", "Erstellt", "Bearbeitet"];
+  const rows = recordsCache.map((record) => [
+    record.name,
+    record.type,
+    record.location,
+    record.telegram,
+    record.description,
+    Array.isArray(record.images) ? record.images.length : 0,
+    record.createdAt,
+    record.updatedAt
+  ]);
+  const csv = [headers, ...rows]
+    .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(";"))
+    .join("\n");
+  downloadTextFile(`ashborn-datensaetze-${new Date().toISOString().slice(0, 10)}.csv`, csv, "text/csv;charset=utf-8");
+}
+
+
+function setupPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const label = type === "sell" ? "Verkaufs" : "Kauf";
+
+  on($(`${prefix}PriceForm`), "submit", (event) => {
+    event.preventDefault();
+    savePriceItem(type);
+  });
+  on($(`${prefix}CalculatorItem`), "change", () => updateCalculator(type));
+  on($(`${prefix}CalculatorQty`), "input", () => updateCalculator(type));
+  on($(`${prefix}CalculatorAdjust`), "input", () => updateCalculator(type));
+  on($(`${prefix}PriceSearchInput`), "input", () => renderPriceModule(type));
+  on($(`${prefix}PriceSortSelect`), "change", () => renderPriceModule(type));
+  on($(`clear${capitalize(prefix)}PriceSearchBtn`), "click", () => {
+    if ($(`${prefix}PriceSearchInput`)) $(`${prefix}PriceSearchInput`).value = "";
+    if ($(`${prefix}PriceSortSelect`)) $(`${prefix}PriceSortSelect`).value = "name";
+    renderPriceModule(type);
+  });
+  on($(`export${capitalize(prefix)}PricesCsvBtn`), "click", () => exportPriceCsv(type));
+  on($(`cancel${capitalize(prefix)}PriceEditBtn`), "click", () => {
+    clearPriceForm(type);
+    alert(`${label}artikel-Bearbeitung wurde abgebrochen.`);
+  });
+  on($(`clear${capitalize(prefix)}PricesBtn`), "click", () => clearPriceItems(type));
+}
+
+async function loadPriceItems(type) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { data, error } = await supabaseClient.from(table).select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  const normalized = (data || []).map((row) => ({
+    id: row.id,
+    name: row.item_name || "",
+    category: row.category || "",
+    unit: row.unit || "",
+    price: Number(row.price || 0),
+    note: row.note || "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+  if (type === "sell") sellPricesCache = normalized;
+  else buyPricesCache = normalized;
+}
+
+async function savePriceItem(type) {
+  if (isBusy) return;
+  const prefix = type === "sell" ? "sell" : "buy";
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const id = $(`${prefix}PriceId`)?.value.trim();
+  const name = $(`${prefix}ItemName`).value.trim();
+  const category = $(`${prefix}ItemCategory`)?.value.trim() || "";
+  const price = Number($(`${prefix}ItemPrice`).value || 0);
+  const unit = $(`${prefix}ItemUnit`).value.trim();
+  const note = $(`${prefix}ItemNote`).value.trim();
+
+  if (!name || price <= 0) {
+    alert("Bitte mindestens Artikel und Preis eintragen.");
+    return;
+  }
+
+  const payload = {
+    item_name: name,
+    category: category || null,
+    price,
+    unit: unit || null,
+    note: note || null,
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    setBusy(true, id ? "Preis wird aktualisiert..." : "Preis wird gespeichert...");
+    const request = id
+      ? supabaseClient.from(table).update(payload).eq("id", id)
+      : supabaseClient.from(table).insert(payload);
+    const { error } = await request;
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+  } catch (error) {
+    alert(`Preis konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisiblePriceItems(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = [...(type === "sell" ? sellPricesCache : buyPricesCache)];
+  const query = ($(`${prefix}PriceSearchInput`)?.value || "").trim().toLowerCase();
+  const sortMode = $(`${prefix}PriceSortSelect`)?.value || "name";
+
+  const filtered = query
+    ? items.filter((item) => [item.name, item.category, item.unit, item.note, String(item.price)].join(" ").toLowerCase().includes(query))
+    : items;
+
+  filtered.sort((a, b) => {
+    if (sortMode === "priceAsc") return a.price - b.price;
+    if (sortMode === "priceDesc") return b.price - a.price;
+    if (sortMode === "category") return `${a.category || "zzz"}${a.name}`.localeCompare(`${b.category || "zzz"}${b.name}`, "de");
+    if (sortMode === "newest") return String(b.createdAtRaw).localeCompare(String(a.createdAtRaw));
+    return a.name.localeCompare(b.name, "de");
+  });
+
+  return filtered;
+}
+
+function renderPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const allItems = type === "sell" ? sellPricesCache : buyPricesCache;
+  const items = getVisiblePriceItems(type);
+  const list = $(`${prefix}PriceList`);
+  const select = $(`${prefix}CalculatorItem`);
+  if (!list || !select) return;
+
+  const calculatorItems = [...allItems].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  select.innerHTML = calculatorItems.length
+    ? calculatorItems.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${formatMoney(item.price)}</option>`).join("")
+    : `<option value="">Keine Artikel vorhanden</option>`;
+
+  list.innerHTML = items.length
+    ? items.map((item) => `
+      <div class="price-row enhanced-price-row">
+        <div class="price-main">
+          <div class="folder-chip-row">
+            <span class="folder-chip">${escapeHtml(item.category || "Keine Kategorie")}</span>
+            <span class="folder-chip">${escapeHtml(item.unit || "Keine Einheit")}</span>
+          </div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <span>${item.note ? escapeHtml(item.note) : "Keine Notiz"}</span>
+        </div>
+        <div class="price-value">${formatMoney(item.price)}</div>
+        <div class="price-actions">
+          <button class="secondary-btn mini-btn" type="button" data-edit-price="${escapeHtml(item.id)}">Bearbeiten</button>
+          <button class="danger-btn mini-btn" type="button" data-delete-price="${escapeHtml(item.id)}">Löschen</button>
+        </div>
+      </div>
+    `).join("")
+    : `<div class="price-row"><div><strong>Keine Artikel gefunden</strong><span>Lege neue Artikel an oder ändere deine Suche.</span></div></div>`;
+
+  list.querySelectorAll("[data-edit-price]").forEach((button) => {
+    button.addEventListener("click", () => loadPriceIntoForm(type, button.dataset.editPrice));
+  });
+  list.querySelectorAll("[data-delete-price]").forEach((button) => {
+    button.addEventListener("click", () => deletePriceItem(type, button.dataset.deletePrice));
+  });
+  updateCalculator(type);
+}
+
+function loadPriceIntoForm(type, id) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
+  const item = items.find((entry) => entry.id === id);
+  if (!item) return;
+
+  $(`${prefix}PriceId`).value = item.id;
+  $(`${prefix}ItemName`).value = item.name;
+  if ($(`${prefix}ItemCategory`)) $(`${prefix}ItemCategory`).value = item.category || "";
+  $(`${prefix}ItemPrice`).value = item.price;
+  $(`${prefix}ItemUnit`).value = item.unit || "";
+  $(`${prefix}ItemNote`).value = item.note || "";
+
+  setText(`${prefix}PriceFormTitle`, type === "sell" ? "Verkaufsartikel bearbeiten" : "Kaufartikel bearbeiten");
+  setText(`${prefix}PriceSaveText`, "Änderungen speichern");
+  $(`cancel${capitalize(prefix)}PriceEditBtn`)?.classList.remove("hidden");
+  $(`${prefix}ItemName`)?.focus();
+}
+
+function clearPriceForm(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  $(`${prefix}PriceForm`)?.reset();
+  if ($(`${prefix}PriceId`)) $(`${prefix}PriceId`).value = "";
+  setText(`${prefix}PriceFormTitle`, type === "sell" ? "Verkaufsartikel anlegen" : "Kaufartikel anlegen");
+  setText(`${prefix}PriceSaveText`, "Artikel speichern");
+  $(`cancel${capitalize(prefix)}PriceEditBtn`)?.classList.add("hidden");
+}
+
+async function deletePriceItem(type, id) {
+  if (!id || isBusy) return;
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  if (!confirm("Diesen Artikel wirklich löschen?")) return;
+  try {
+    setBusy(true, "Preis wird gelöscht...");
+    const { error } = await supabaseClient.from(table).delete().eq("id", id);
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+  } catch (error) {
+    alert(`Preis konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearPriceItems(type) {
+  if (!confirm("Diese komplette Preisliste wirklich leeren?")) return;
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  try {
+    setBusy(true, "Preisliste wird geleert...");
+    const { error } = await supabaseClient.from(table).delete().not("id", "is", null);
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+  } catch (error) {
+    alert(`Preisliste konnte nicht geleert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function updateCalculator(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
+  const selectedId = $(`${prefix}CalculatorItem`)?.value;
+  const qty = Number($(`${prefix}CalculatorQty`)?.value || 0);
+  const adjustment = Number($(`${prefix}CalculatorAdjust`)?.value || 0);
+  const item = items.find((entry) => entry.id === selectedId);
+  if (!item) {
+    setText(`${prefix}CalculatorSingle`, "0 $");
+    setText(`${prefix}CalculatorResult`, "0 $");
+    return;
+  }
+  const adjustedSingle = item.price * (1 + adjustment / 100);
+  setText(`${prefix}CalculatorSingle`, formatMoney(adjustedSingle));
+  setText(`${prefix}CalculatorResult`, formatMoney(adjustedSingle * qty));
+}
+
+function exportPriceCsv(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = getVisiblePriceItems(type);
+  const rows = [["Artikel", "Kategorie", "Einheit", "Preis", "Notiz", "Erstellt"]];
+  items.forEach((item) => rows.push([item.name, item.category, item.unit, String(item.price).replace(".", ","), item.note, item.createdAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `ashborn_${prefix}_preisliste.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function loadInternalNotes() {
+  const { data, error } = await supabaseClient.from("internal_notes").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  internalCache = (data || []).map((row) => ({
+    id: row.id,
+    title: row.title || "",
+    content: row.content || "",
+    category: row.category || "Allgemein",
+    createdAtRaw: row.created_at,
+    updatedAtRaw: row.updated_at,
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+}
+
+async function saveInternalNote() {
+  if (isBusy) return;
+  const id = $("internalId")?.value.trim() || "";
+  const title = $("internalTitle")?.value.trim() || "";
+  const category = $("internalCategory")?.value || "Allgemein";
+  const content = $("internalContent")?.value.trim() || "";
+
+  if (!title) {
+    setInternalMessage("Bitte eine Überschrift eintragen.", "error");
+    return;
+  }
+
+  try {
+    setBusy(true, id ? "Information wird aktualisiert..." : "Information wird gespeichert...");
+
+    const payload = {
+      title,
+      category,
+      content: content || null,
+      updated_at: new Date().toISOString()
+    };
+
+    const result = id
+      ? await supabaseClient.from("internal_notes").update(payload).eq("id", id)
+      : await supabaseClient.from("internal_notes").insert({ ...payload, created_by: sessionUser?.id || null });
+
+    if (result.error) throw result.error;
+
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    setInternalMessage(id ? "Interne Information wurde aktualisiert." : "Interne Information wurde gespeichert.", "success");
+  } catch (error) {
+    setInternalMessage(`Information konnte nicht gespeichert werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisibleInternalNotes() {
+  let notes = [...internalCache];
+
+  if (internalCategoryFilter !== "Alle") {
+    notes = notes.filter((note) => String(note.category || "Allgemein") === internalCategoryFilter);
+  }
+
+  if (internalSearchQuery) {
+    notes = notes.filter((note) => [note.title, note.category, note.content, note.createdAt, note.updatedAt]
+      .join(" ")
+      .toLowerCase()
+      .includes(internalSearchQuery));
+  }
+
+  notes.sort((a, b) => {
+    if (internalSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+    if (internalSortMode === "title") return String(a.title || "").localeCompare(String(b.title || ""), "de");
+    if (internalSortMode === "category") return String(a.category || "").localeCompare(String(b.category || ""), "de");
+    return new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0);
+  });
+
+  return notes;
+}
+
+function renderInternal() {
+  const list = $("internalList");
+  if (!list) return;
+
+  const notes = getVisibleInternalNotes();
+  const total = internalCache.length;
+  const countByCategory = (category) => internalCache.filter((note) => String(note.category || "Allgemein") === category).length;
+
+  setText("internalTotalCount", String(total));
+  setText("internalRulesCount", String(countByCategory("Regeln")));
+  setText("internalRolesCount", String(countByCategory("Rollen")));
+  setText("internalMembersCount", String(countByCategory("Mitglieder")));
+  setText("internalPlansCount", String(countByCategory("Pläne")));
+  setText("internalAllianceCount", String(countByCategory("Bündnisse")));
+  setText("internalHintsCount", String(countByCategory("Hinweise")));
+  setText("internalVisibleCount", `${notes.length} sichtbar`);
+
+  document.querySelectorAll("[data-internal-overview-filter]").forEach((button) => {
+    button.classList.toggle("active", (button.dataset.internalOverviewFilter || "Alle") === internalCategoryFilter);
+  });
+
+  list.innerHTML = notes.length
+    ? notes.map((note) => {
+      const created = note.createdAt || "-";
+      const updated = note.updatedAt && note.updatedAt !== note.createdAt ? note.updatedAt : "";
+      const preview = note.content || "Keine zusätzliche Information hinterlegt.";
+      return `
+        <article class="internal-note-card-v11" data-internal-card="${escapeHtml(note.id)}">
+          <div class="folder-chip-row internal-chip-row-v11">
+            <span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span>
+            <span class="folder-chip">Erstellt: ${escapeHtml(created)}</span>
+            ${updated ? `<span class="folder-chip">Bearbeitet: ${escapeHtml(updated)}</span>` : ""}
+          </div>
+
+          <h3>${escapeHtml(note.title)}</h3>
+          <div class="internal-note-content-v11">${escapeHtml(preview)}</div>
+
+          <div class="internal-actions-v11">
+            <button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button>
+            <button class="secondary-btn mini-btn" data-copy-internal="${escapeHtml(note.id)}" type="button">Kopieren</button>
+            <button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button>
+          </div>
+        </article>
+      `;
+    }).join("")
+    : `<article class="internal-note-card-v11 empty-internal-v11"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Hinweise, Pläne oder Bündnisse an. Über Suche und Kategorie findest du sie später schnell wieder.</p></article>`;
+
+  list.querySelectorAll("[data-edit-internal]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const note = internalCache.find((entry) => entry.id === button.dataset.editInternal);
+      if (note) loadInternalIntoForm(note);
+    });
+  });
+
+  list.querySelectorAll("[data-copy-internal]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const note = internalCache.find((entry) => entry.id === button.dataset.copyInternal);
+      if (!note) return;
+      const text = [note.title, note.category ? `Kategorie: ${note.category}` : "", note.content || ""].filter(Boolean).join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        setInternalMessage("Interne Information wurde kopiert.", "success");
+      } catch (error) {
+        setInternalMessage("Kopieren wurde vom Browser blockiert.", "error");
+      }
+    });
+  });
+
+  list.querySelectorAll("[data-delete-internal]").forEach((button) => {
+    button.addEventListener("click", () => deleteInternalNote(button.dataset.deleteInternal));
+  });
+}
+
+function loadInternalIntoForm(note) {
+  if (!note) return;
+  $("internalId").value = note.id || "";
+  $("internalTitle").value = note.title || "";
+  $("internalCategory").value = note.category || "Allgemein";
+  $("internalContent").value = note.content || "";
+  setText("internalSaveButtonText", "Änderungen speichern");
+  setText("internalEditorTitle", "Interne Information bearbeiten");
+  $("cancelInternalEditBtn")?.classList.remove("hidden");
+  setInternalMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => $("internalTitle")?.focus(), 80);
+}
+
+function clearInternalForm() {
+  if ($("internalId")) $("internalId").value = "";
+  if ($("internalTitle")) $("internalTitle").value = "";
+  if ($("internalCategory")) $("internalCategory").value = "Allgemein";
+  if ($("internalContent")) $("internalContent").value = "";
+  setText("internalSaveButtonText", "Information speichern");
+  setText("internalEditorTitle", "Interne Information anlegen");
+  $("cancelInternalEditBtn")?.classList.add("hidden");
+}
+
+function setInternalMessage(message, type) {
+  const el = $("internalSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+function clearInternalSearch() {
+  internalSearchQuery = "";
+  internalCategoryFilter = "Alle";
+  internalSortMode = "newest";
+  if ($("internalSearchInput")) $("internalSearchInput").value = "";
+  if ($("internalCategoryFilter")) $("internalCategoryFilter").value = "Alle";
+  if ($("internalSortSelect")) $("internalSortSelect").value = "newest";
+  renderInternal();
+}
+
+function exportInternalCsv() {
+  const notes = getVisibleInternalNotes();
+  const rows = [["Überschrift", "Kategorie", "Information", "Erstellt", "Bearbeitet"]];
+  notes.forEach((note) => rows.push([note.title, note.category, note.content, note.createdAt, note.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_intern_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+async function deleteInternalNote(id) {
+  if (!id || isBusy) return;
+  if (!confirm("Diese interne Information wirklich löschen?")) return;
+  try {
+    setBusy(true, "Information wird gelöscht...");
+    const { error } = await supabaseClient.from("internal_notes").delete().eq("id", id);
+    if (error) throw error;
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    setInternalMessage("Interne Information wurde gelöscht.", "success");
+  } catch (error) {
+    setInternalMessage(`Information konnte nicht gelöscht werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearInternalNotes() {
+  if (!confirm("Alle internen Informationen löschen?")) return;
+  try {
+    setBusy(true, "Interne Informationen werden gelöscht...");
+    const { error } = await supabaseClient.from("internal_notes").delete().not("id", "is", null);
+    if (error) throw error;
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    setInternalMessage("Interne Informationen wurden gelöscht.", "success");
+  } catch (error) {
+    setInternalMessage(`Interne Informationen konnten nicht gelöscht werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function loadCashEntries() {
+  const { data, error } = await supabaseClient.from("accounting_transactions").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  cashCache = (data || []).map((row) => ({
+    id: row.id,
+    type: row.transaction_type,
+    amount: Number(row.amount || 0),
+    reason: row.reason || "",
+    createdAtRaw: row.created_at,
+    createdAt: formatDate(row.created_at)
+  }));
+}
+
+async function saveCashEntry() {
+  if (isBusy) return;
+  const type = $("cashType").value === "withdraw" ? "auszahlung" : "einzahlung";
+  const amount = Number($("cashAmount").value || 0);
+  const reason = $("cashReason").value.trim();
+  if (amount <= 0) return alert("Bitte einen Betrag größer als 0 eintragen.");
+  if (!reason) return alert("Bitte eine Begründung eintragen.");
+  try {
+    setBusy(true, "Buchung wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({
+      transaction_type: type,
+      amount,
+      reason,
+      created_by: sessionUser?.id || null
+    });
+    if (error) throw error;
+    $("cashAmount").value = "";
+    $("cashReason").value = "";
+    await loadCashEntries();
+    renderCash();
+  } catch (error) {
+    alert(`Buchung konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisibleCashEntries() {
+  const now = Date.now();
+  const rangeDays = cashRangeFilter === "7" ? 7 : cashRangeFilter === "30" ? 30 : cashRangeFilter === "90" ? 90 : null;
+  let entries = [...cashCache];
+
+  entries = entries.filter((entry) => {
+    const matchesType = cashTypeFilter === "Alle" || entry.type === cashTypeFilter;
+    const haystack = [entry.type, entry.amount, entry.reason, entry.createdAt].join(" ").toLowerCase();
+    const matchesSearch = !cashSearchQuery || haystack.includes(cashSearchQuery);
+    let matchesRange = true;
+
+    if (rangeDays) {
+      const time = new Date(entry.createdAtRaw || entry.createdAt).getTime();
+      matchesRange = Number.isFinite(time) && now - time <= rangeDays * 24 * 60 * 60 * 1000;
+    }
+
+    return matchesType && matchesSearch && matchesRange;
+  });
+
+  entries.sort((a, b) => {
+    if (cashSortMode === "oldest") return new Date(a.createdAtRaw) - new Date(b.createdAtRaw);
+    if (cashSortMode === "amountAsc") return Number(a.amount || 0) - Number(b.amount || 0);
+    if (cashSortMode === "amountDesc") return Number(b.amount || 0) - Number(a.amount || 0);
+    return new Date(b.createdAtRaw) - new Date(a.createdAtRaw);
+  });
+
+  return entries;
+}
+
+function renderCash() {
+  const deposits = cashCache.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const withdraws = cashCache.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const visibleEntries = getVisibleCashEntries();
+  const visibleDeposits = visibleEntries.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const visibleWithdraws = visibleEntries.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+  setText("currentBalance", formatMoney(deposits - withdraws));
+  setText("depositTotal", formatMoney(deposits));
+  setText("withdrawTotal", formatMoney(withdraws));
+  setText("cashBookingCount", String(cashCache.length));
+  setText("cashFilteredBalance", formatMoney(visibleDeposits - visibleWithdraws));
+
+  const list = $("cashList");
+  if (!list) return;
+  list.innerHTML = visibleEntries.length
+    ? visibleEntries.map((entry) => {
+      const isStorno = String(entry.reason || "").trim().toUpperCase().startsWith("STORNO");
+      return `
+      <div class="price-row cash-row ${isStorno ? "cash-row-storno" : ""}">
+        <div>
+          <strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong>
+          <span>${escapeHtml(entry.reason)}</span>
+          <small>Buchungs-ID: ${escapeHtml(String(entry.id || "").slice(0, 8))}${isStorno ? " · Gegenbuchung" : ""}</small>
+        </div>
+        <div class="cash-row-actions">
+          <div class="price-value ${entry.type === "auszahlung" ? "negative" : "positive"}">${entry.type === "auszahlung" ? "-" : "+"}${formatMoney(entry.amount)}</div>
+          ${isStorno
+            ? `<span class="storno-badge">STORNIERT</span>`
+            : `<button class="danger-btn mini-btn cash-storno-btn" data-reverse-cash="${escapeHtml(entry.id)}" type="button">Buchung stornieren</button>`}
+        </div>
+      </div>`;
+    }).join("")
+    : `<div class="price-row"><div><strong>Keine Buchungen gefunden</strong><span>Ändere Suche, Filter oder Zeitraum.</span></div></div>`;
+}
+
+async function reverseCashEntry(id) {
+  if (!id || isBusy) return;
+  const entry = cashCache.find((item) => item.id === id);
+  if (!entry) return;
+  if (String(entry.reason || "").trim().toUpperCase().startsWith("STORNO")) {
+    alert("Diese Buchung ist bereits eine Storno-Gegenbuchung und kann nicht erneut storniert werden.");
+    return;
+  }
+  const reverseType = entry.type === "einzahlung" ? "auszahlung" : "einzahlung";
+  const label = entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung";
+  const reverseLabel = reverseType === "einzahlung" ? "Einzahlung" : "Auszahlung";
+  if (!confirm(`${label} über ${formatMoney(entry.amount)} wirklich stornieren?
+
+Es wird automatisch eine neue Gegenbuchung als ${reverseLabel} erstellt. Die ursprüngliche Buchung bleibt im Verlauf sichtbar.`)) return;
+
+  try {
+    setBusy(true, "Storno wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({
+      transaction_type: reverseType,
+      amount: Number(entry.amount || 0),
+      reason: `STORNO zu ${label} vom ${entry.createdAt}: ${entry.reason}`,
+      created_by: sessionUser?.id || null
+    });
+    if (error) throw error;
+    await loadCashEntries();
+    renderCash();
+  } catch (error) {
+    alert(`Storno konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function exportCashCsv() {
+  const entries = getVisibleCashEntries();
+  if (!entries.length) return alert("Keine Buchungen zum Exportieren vorhanden.");
+  const rows = [["Datum", "Art", "Betrag", "Begründung", "Buchungs-ID"]];
+  entries.forEach((entry) => rows.push([
+    entry.createdAt,
+    entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+    String(entry.amount).replace(".", ","),
+    entry.reason,
+    entry.id
+  ]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn-buchhaltung-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + csv, "text/csv;charset=utf-8");
+}
+
+async function clearCashEntries() {
+  if (!confirm("Buchhaltung wirklich leeren?")) return;
+  try {
+    setBusy(true, "Buchhaltung wird geleert...");
+    const { error } = await supabaseClient.from("accounting_transactions").delete().not("id", "is", null);
+    if (error) throw error;
+    await loadCashEntries();
+    renderCash();
+  } catch (error) {
+    alert(`Buchhaltung konnte nicht geleert werden. Eventuell fehlt noch die Delete-Policy: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearAllData() {
+  if (!confirm("Wirklich ALLE Ashborn-Daten in Supabase löschen?")) return;
+  try {
+    setBusy(true, "Systemdaten werden gelöscht...");
+    const tables = ["ashborn_entries", "price_sale", "price_purchase", "internal_notes", "accounting_transactions"];
+    for (const table of tables) {
+      const { error } = await supabaseClient.from(table).delete().not("id", "is", null);
+      if (error) throw error;
+    }
+    recordsCache = [];
+    sellPricesCache = [];
+    buyPricesCache = [];
+    internalCache = [];
+    cashCache = [];
+    clearRecordForm();
+    renderAll();
+  } catch (error) {
+    alert(`Nicht alles konnte gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function downloadTextFile(filename, content, mimeType = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportData() {
+  const data = {
+    records: recordsCache,
+    sellPrices: sellPricesCache,
+    buyPrices: buyPricesCache,
+    internal: internalCache,
+    cash: cashCache,
+    exportedAt: new Date().toISOString()
+  };
+  downloadTextFile(`ashborn-export-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
+}
+
+function setBusy(state, message = "") {
+  isBusy = state;
+  if (loginBtn) loginBtn.disabled = state;
+  const saveRecordBtn = $("saveRecordBtn");
+  if (saveRecordBtn) saveRecordBtn.disabled = state;
+  if (message) console.log(message);
+}
+
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = String(value);
+}
+
+function setRecordMessage(message, type) {
+  const el = $("recordSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#039;", '"': "&quot;" }[char]));
+}
+
+function formatMoney(value) {
+  const number = Number(value || 0);
+  return `${number.toLocaleString("de-DE", { maximumFractionDigits: 2 })} $`;
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  return new Date(value).toLocaleString("de-DE");
+}
+
+function capitalize(value) {
+  return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+}
+
+function createStatusClass(value) {
+  const normalized = String(value || "").toLowerCase();
+  if (normalized.includes("person")) return "status-geheim";
+  if (normalized.includes("organisation")) return "status-beobachtung";
+  if (normalized.includes("route")) return "status-beobachtung";
+  if (normalized.includes("ort")) return "status-archiviert";
+  return "";
+}
+
+function sanitizeFileName(value) {
+  return String(value || "bild").toLowerCase().replace(/[^a-z0-9-_]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "bild";
+}
+
+function getFileExtension(filename) {
+  const match = String(filename || "").match(/\.[a-zA-Z0-9]+$/);
+  return match ? match[0].toLowerCase() : ".jpg";
+}
+
+function startAmbientEmbers() {
+  const emberLayer = document.querySelector(".bg-embers");
+  if (!emberLayer || prefersReducedMotion) return;
+  setInterval(() => {
+    const ember = document.createElement("span");
+    ember.className = "ember-particle";
+    ember.style.setProperty("--ember-left", `${Math.random() * 100}%`);
+    ember.style.setProperty("--ember-size", `${2 + Math.random() * 4}px`);
+    ember.style.setProperty("--ember-duration", `${6 + Math.random() * 7}s`);
+    ember.style.setProperty("--ember-drift", `${-40 + Math.random() * 80}px`);
+    emberLayer.appendChild(ember);
+    setTimeout(() => ember.remove(), 14000);
+  }, 620);
+}
+
+function bindHeroParallax() {
+  const scene = document.querySelector(".bg-scene");
+  if (!scene || prefersReducedMotion) return;
+  window.addEventListener("pointermove", (event) => {
+    const x = (event.clientX / window.innerWidth - 0.5) * 1.6;
+    const y = (event.clientY / window.innerHeight - 0.5) * 1.6;
+    scene.style.transform = `scale(1.035) translate3d(${x}%, ${y}%, 0)`;
+  }, { passive: true });
 }

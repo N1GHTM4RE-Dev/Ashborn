@@ -2268,3 +2268,278 @@ select:focus-visible {
 .form-field textarea::placeholder {
   color: rgba(246, 232, 202, 0.5) !important;
 }
+
+/* =========================================================
+   ASHBORN VERWALTUNGSSYSTEM V2
+   Neue Module: Datenerfassung, Preislisten, Intern, Buchhaltung
+========================================================= */
+
+.ashborn-main-tabs {
+  grid-template-columns: repeat(6, minmax(145px, 1fr)) !important;
+}
+
+.ashborn-data-layout {
+  margin-bottom: 22px;
+}
+
+.ashborn-list-panel {
+  margin-top: 22px;
+}
+
+.field-hint {
+  position: relative;
+  z-index: 2;
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.image-preview-grid,
+.detail-image-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.image-preview-item,
+.detail-image-grid a {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(242, 199, 107, 0.28);
+  border-radius: var(--radius-md);
+  background: rgba(5, 3, 2, 0.5);
+  box-shadow: var(--shadow-soft);
+}
+
+.image-preview-item img,
+.detail-image-grid img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  filter: sepia(0.12) contrast(1.04) brightness(0.92);
+}
+
+.image-preview-item .mini-btn {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+}
+
+.card-actions {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.mini-btn {
+  min-width: auto !important;
+  min-height: 34px !important;
+  width: auto !important;
+  padding: 7px 12px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.static-card {
+  cursor: default;
+}
+
+.static-card:hover {
+  transform: none;
+}
+
+.price-layout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.price-form,
+.calculator-card {
+  position: relative;
+  z-index: 2;
+}
+
+.calculator-card {
+  padding: 20px;
+  border: 1px solid rgba(198, 146, 63, 0.26);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(24, 13, 7, 0.86), rgba(5, 3, 2, 0.88)),
+    radial-gradient(circle at 90% 0%, rgba(198, 146, 63, 0.12), transparent 42%);
+  box-shadow: var(--shadow-soft);
+}
+
+.calculator-card h3 {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 16px;
+  color: #f2c76b;
+  font-family: var(--font-title);
+  font-size: clamp(22px, 1.8vw, 30px);
+  text-transform: uppercase;
+}
+
+.calc-result {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid rgba(242, 199, 107, 0.32);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.calc-result span {
+  color: var(--text-muted);
+  font-family: var(--font-title);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.calc-result strong {
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: 36px;
+  line-height: 1;
+}
+
+.price-list {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.price-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 15px 16px;
+  border: 1px solid rgba(198, 146, 63, 0.22);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.2));
+}
+
+.price-row strong {
+  display: block;
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.price-row span {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-soft);
+  font-size: 17px;
+}
+
+.price-value {
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: 22px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.price-value.positive {
+  color: #b8ffca;
+}
+
+.price-value.negative {
+  color: #ffb49d;
+}
+
+.cash-overview,
+.cash-form-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 16px;
+}
+
+.cash-overview {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 22px;
+}
+
+.cash-form-grid {
+  grid-template-columns: minmax(180px, 0.45fr) minmax(180px, 0.45fr) minmax(0, 1.1fr);
+  align-items: start;
+}
+
+.cash-stat strong {
+  font-size: clamp(34px, 4vw, 54px);
+}
+
+.detail-image-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.detail-image-grid img {
+  height: 190px;
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.detail-image-grid a:hover img {
+  transform: scale(1.04);
+  filter: sepia(0.06) contrast(1.1) brightness(1.03);
+}
+
+@media (max-width: 1120px) {
+  .ashborn-main-tabs {
+    grid-template-columns: repeat(3, minmax(160px, 1fr)) !important;
+  }
+
+  .price-layout,
+  .cash-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cash-overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .ashborn-main-tabs {
+    grid-template-columns: 1fr !important;
+  }
+
+  .price-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .price-value {
+    font-size: 28px;
+  }
+
+  .image-preview-grid,
+  .detail-image-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-preview-grid,
+  .detail-image-grid {
+    grid-template-columns: 1fr;
+  }
+}

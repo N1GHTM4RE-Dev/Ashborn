@@ -448,10 +448,70 @@
     </div>
 
     <div id="settingsTab" class="tab-content">
-      <section class="panel">
-        <div class="panel-header"><div><p class="section-kicker">SYSTEMKAMMER</p><h2>Verwaltung</h2></div></div>
-        <p class="system-text">Diese Version ist mit Supabase verbunden. Daten werden zentral gespeichert und sind nur für eingeloggte Benutzer sichtbar.</p>
-        <div class="form-actions"><button id="exportDataBtn" class="secondary-btn small-btn" type="button">Daten exportieren</button><button id="clearAllDataBtn" class="danger-btn small-btn" type="button">Systemdaten löschen</button></div>
+      <section class="panel system-dashboard-panel">
+        <div class="panel-header system-panel-header">
+          <div>
+            <p class="section-kicker">SYSTEMKAMMER</p>
+            <h2>Systemzentrale</h2>
+          </div>
+          <div class="status-pill" id="systemConnectionStatus">Supabase verbunden</div>
+        </div>
+
+        <div class="system-overview-grid compact-overview">
+          <button class="system-overview-card" type="button" data-system-open="dataTab">
+            <span>Datensätze</span>
+            <strong id="sysRecordsCount">0</strong>
+          </button>
+          <button class="system-overview-card" type="button" data-system-open="sellTab">
+            <span>Verkauf</span>
+            <strong id="sysSellCount">0</strong>
+          </button>
+          <button class="system-overview-card" type="button" data-system-open="buyTab">
+            <span>Kauf</span>
+            <strong id="sysBuyCount">0</strong>
+          </button>
+          <button class="system-overview-card" type="button" data-system-open="internTab">
+            <span>Intern</span>
+            <strong id="sysInternalCount">0</strong>
+          </button>
+          <button class="system-overview-card" type="button" data-system-open="cashTab">
+            <span>Buchungen</span>
+            <strong id="sysCashCount">0</strong>
+          </button>
+          <button class="system-overview-card balance-card" type="button" data-system-open="cashTab">
+            <span>Kontostand</span>
+            <strong id="sysBalanceValue">0 $</strong>
+          </button>
+        </div>
+
+        <div class="system-info-grid">
+          <article class="system-info-card">
+            <p class="section-kicker">STATUS</p>
+            <h3>Letzte Aktualisierung</h3>
+            <p id="sysLastUpdate">Noch keine Daten geladen.</p>
+          </article>
+
+          <article class="system-info-card">
+            <p class="section-kicker">DATENBANK</p>
+            <h3>Supabase Projekt</h3>
+            <p id="sysProjectUrl">-</p>
+          </article>
+        </div>
+
+        <div class="system-action-grid">
+          <button id="reloadAllDataBtn" class="secondary-btn small-btn" type="button">Daten neu laden</button>
+          <button id="exportDataBtn" class="secondary-btn small-btn" type="button">JSON Backup</button>
+          <button id="exportAllCsvBtn" class="secondary-btn small-btn" type="button">Gesamt CSV</button>
+        </div>
+
+        <div class="danger-zone compact-danger-zone">
+          <div>
+            <p class="section-kicker">GEFAHRENBEREICH</p>
+            <h3>Systemdaten löschen</h3>
+            <p>Dieser Vorgang löscht Datensätze, Preislisten, interne Informationen und Buchungen aus Supabase. Zur Sicherheit musst du danach <strong>ASHBORN</strong> bestätigen.</p>
+          </div>
+          <button id="clearAllDataBtn" class="danger-btn small-btn" type="button">Alles löschen</button>
+        </div>
       </section>
     </div>
   </section>

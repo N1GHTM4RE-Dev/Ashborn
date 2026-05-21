@@ -64,7 +64,8 @@
     </header>
 
     <nav class="system-tabs ashborn-main-tabs" aria-label="Navigation">
-      <button class="tab-btn active" data-tab="dataTab" type="button"><span class="tab-seal"></span><span>Großes Aktensystem</span></button>
+      <button class="tab-btn active" data-tab="dashboardTab" type="button"><span class="tab-seal"></span><span>Dashboard</span></button>
+      <button class="tab-btn" data-tab="dataTab" type="button"><span class="tab-seal"></span><span>Großes Aktensystem</span></button>
       <button class="tab-btn" data-tab="sellTab" type="button"><span class="tab-seal"></span><span>Preisliste Verkauf</span></button>
       <button class="tab-btn" data-tab="buyTab" type="button"><span class="tab-seal"></span><span>Preisliste Kauf</span></button>
       <button class="tab-btn" data-tab="internTab" type="button"><span class="tab-seal"></span><span>Ashborn Intern</span></button>
@@ -72,7 +73,144 @@
       <button class="tab-btn" data-tab="settingsTab" type="button"><span class="tab-seal"></span><span>System</span></button>
     </nav>
 
-    <div id="dataTab" class="tab-content active">
+
+    <div id="dashboardTab" class="tab-content active">
+      <section class="panel dashboard-panel">
+        <div class="panel-header dashboard-header">
+          <div>
+            <p class="section-kicker">KOMMANDOZENTRALE</p>
+            <h2>Ashborn Dashboard</h2>
+            <p class="dashboard-subline">Alle wichtigen Zahlen, Schnellzugriffe und letzten Aktivitäten auf einen Blick.</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <div class="status-pill" id="dashboardStatusPill">System verbunden</div>
+            <button id="dashboardReloadBtn" class="secondary-btn small-btn" type="button">Daten neu laden</button>
+          </div>
+        </div>
+
+        <div class="dashboard-hero-grid">
+          <button class="dashboard-metric-card primary-dashboard-card" type="button" data-dashboard-open="cashTab">
+            <span>Momentaner Kontostand</span>
+            <strong id="dashBalanceValue">0 $</strong>
+            <small>Zur Buchhaltung wechseln</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="dataTab">
+            <span>Datensätze</span>
+            <strong id="dashRecordsCount">0</strong>
+            <small id="dashImageCount">0 mit Bildern</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="sellTab">
+            <span>Verkaufspreise</span>
+            <strong id="dashSellCount">0</strong>
+            <small>Preisliste Verkauf</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="buyTab">
+            <span>Kaufpreise</span>
+            <strong id="dashBuyCount">0</strong>
+            <small>Preisliste Kauf</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="internTab">
+            <span>Intern</span>
+            <strong id="dashInternalCount">0</strong>
+            <small>Interne Informationen</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="cashTab">
+            <span>Buchungen</span>
+            <strong id="dashCashCount">0</strong>
+            <small id="dashCashMovement">0 $ Bewegung</small>
+          </button>
+        </div>
+
+        <article class="dashboard-card dashboard-global-search-card">
+          <div class="dashboard-card-head">
+            <div>
+              <p class="section-kicker">GLOBALE SUCHE</p>
+              <h3>Alles durchsuchen</h3>
+              <p class="dashboard-subline">Durchsucht Datensätze, Verkauf, Kauf, Ashborn Intern und Buchhaltung gleichzeitig.</p>
+            </div>
+            <div class="folder-chip" id="dashboardGlobalSearchCount">0 Treffer</div>
+          </div>
+
+          <div class="dashboard-global-search-shell">
+            <div class="search-core dashboard-global-search-core">
+              <span class="search-icon">A</span>
+              <input
+                type="text"
+                id="dashboardGlobalSearchInput"
+                class="search-input"
+                placeholder="Name, Ort, Telegramm, Artikel, Preis, interne Info, Buchungsgrund..."
+              />
+            </div>
+            <button id="dashboardGlobalSearchClearBtn" class="secondary-btn small-btn" type="button">Suche leeren</button>
+          </div>
+
+          <div id="dashboardGlobalSearchResults" class="dashboard-global-search-results">
+            <p class="system-text">Gib etwas ein, um alle Bereiche gleichzeitig zu durchsuchen.</p>
+          </div>
+        </article>
+
+        <div class="dashboard-content-grid">
+          <article class="dashboard-card dashboard-quick-card">
+            <div class="dashboard-card-head">
+              <div>
+                <p class="section-kicker">SCHNELLZUGRIFF</p>
+                <h3>Bereiche öffnen</h3>
+              </div>
+            </div>
+            <div class="dashboard-action-list">
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="dataTab">Daten erfassen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="sellTab">Verkauf öffnen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="buyTab">Kauf öffnen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="internTab">Intern öffnen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="cashTab">Buchhaltung öffnen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="settingsTab">System öffnen</button>
+            </div>
+          </article>
+
+          <article class="dashboard-card">
+            <div class="dashboard-card-head">
+              <div>
+                <p class="section-kicker">LETZTE AKTIVITÄTEN</p>
+                <h3>Aktueller Verlauf</h3>
+              </div>
+            </div>
+            <div id="dashboardRecentList" class="dashboard-recent-list"></div>
+          </article>
+
+          <article class="dashboard-card">
+            <div class="dashboard-card-head">
+              <div>
+                <p class="section-kicker">DATENLAGE</p>
+                <h3>Verteilung</h3>
+              </div>
+            </div>
+            <div class="dashboard-breakdown">
+              <div><span>Personen</span><strong id="dashPersonCount">0</strong></div>
+              <div><span>Organisationen</span><strong id="dashOrgCount">0</strong></div>
+              <div><span>Routen</span><strong id="dashRouteCount">0</strong></div>
+              <div><span>Orte</span><strong id="dashPlaceCount">0</strong></div>
+              <div><span>Gegenstände</span><strong id="dashObjectCount">0</strong></div>
+            </div>
+          </article>
+
+          <article class="dashboard-card">
+            <div class="dashboard-card-head">
+              <div>
+                <p class="section-kicker">FINANZEN</p>
+                <h3>Buchhaltung kurz</h3>
+              </div>
+            </div>
+            <div class="dashboard-finance-grid">
+              <div><span>Einzahlungen</span><strong id="dashIncomeValue">0 $</strong></div>
+              <div><span>Auszahlungen</span><strong id="dashExpenseValue">0 $</strong></div>
+              <div><span>Letzte Buchung</span><strong id="dashLastCashDate">-</strong></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div id="dataTab" class="tab-content">
       <div class="archive-layout ashborn-data-layout">
         <aside class="archive-sidepanel">
           <div class="sidepanel-block">

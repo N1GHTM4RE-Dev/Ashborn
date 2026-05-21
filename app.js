@@ -16,6 +16,10 @@ let sellPricesCache = [];
 let buyPricesCache = [];
 let internalCache = [];
 let cashCache = [];
+let cashTypeFilter = "Alle";
+let cashRangeFilter = "all";
+let cashSortMode = "newest";
+let cashSearchQuery = "";
 let isBusy = false;
 
 const $ = (id) => document.getElementById(id);
@@ -167,6 +171,38 @@ function bindEvents() {
   on($("clearInternalBtn"), "click", clearInternalNotes);
   on($("saveCashBtn"), "click", saveCashEntry);
   on($("clearCashBtn"), "click", clearCashEntries);
+  on($("cashSearchInput"), "input", (event) => {
+    cashSearchQuery = event.target.value.trim().toLowerCase();
+    renderCash();
+  });
+  on($("cashTypeFilter"), "change", (event) => {
+    cashTypeFilter = event.target.value || "Alle";
+    renderCash();
+  });
+  on($("cashRangeFilter"), "change", (event) => {
+    cashRangeFilter = event.target.value || "all";
+    renderCash();
+  });
+  on($("cashSortSelect"), "change", (event) => {
+    cashSortMode = event.target.value || "newest";
+    renderCash();
+  });
+  on($("clearCashSearchBtn"), "click", () => {
+    cashSearchQuery = "";
+    cashTypeFilter = "Alle";
+    cashRangeFilter = "all";
+    cashSortMode = "newest";
+    if ($("cashSearchInput")) $("cashSearchInput").value = "";
+    if ($("cashTypeFilter")) $("cashTypeFilter").value = "Alle";
+    if ($("cashRangeFilter")) $("cashRangeFilter").value = "all";
+    if ($("cashSortSelect")) $("cashSortSelect").value = "newest";
+    renderCash();
+  });
+  on($("exportCashCsvBtn"), "click", exportCashCsv);
+  on($("cashList"), "click", (event) => {
+    const reverseBtn = event.target.closest("[data-reverse-cash]");
+    if (reverseBtn) reverseCashEntry(reverseBtn.dataset.reverseCash);
+  });
   on($("clearAllDataBtn"), "click", clearAllData);
   on($("exportDataBtn"), "click", exportData);
 
@@ -926,6 +962,7 @@ async function loadCashEntries() {
     type: row.transaction_type,
     amount: Number(row.amount || 0),
     reason: row.reason || "",
+    createdAtRaw: row.created_at,
     createdAt: formatDate(row.created_at)
   }));
 }
@@ -957,17 +994,106 @@ async function saveCashEntry() {
   }
 }
 
+function getVisibleCashEntries() {
+  const now = Date.now();
+  const rangeDays = cashRangeFilter === "7" ? 7 : cashRangeFilter === "30" ? 30 : cashRangeFilter === "90" ? 90 : null;
+  let entries = [...cashCache];
+
+  entries = entries.filter((entry) => {
+    const matchesType = cashTypeFilter === "Alle" || entry.type === cashTypeFilter;
+    const haystack = [entry.type, entry.amount, entry.reason, entry.createdAt].join(" ").toLowerCase();
+    const matchesSearch = !cashSearchQuery || haystack.includes(cashSearchQuery);
+    let matchesRange = true;
+
+    if (rangeDays) {
+      const time = new Date(entry.createdAtRaw || entry.createdAt).getTime();
+      matchesRange = Number.isFinite(time) && now - time <= rangeDays * 24 * 60 * 60 * 1000;
+    }
+
+    return matchesType && matchesSearch && matchesRange;
+  });
+
+  entries.sort((a, b) => {
+    if (cashSortMode === "oldest") return new Date(a.createdAtRaw) - new Date(b.createdAtRaw);
+    if (cashSortMode === "amountAsc") return Number(a.amount || 0) - Number(b.amount || 0);
+    if (cashSortMode === "amountDesc") return Number(b.amount || 0) - Number(a.amount || 0);
+    return new Date(b.createdAtRaw) - new Date(a.createdAtRaw);
+  });
+
+  return entries;
+}
+
 function renderCash() {
   const deposits = cashCache.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const withdraws = cashCache.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const visibleEntries = getVisibleCashEntries();
+  const visibleDeposits = visibleEntries.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const visibleWithdraws = visibleEntries.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
   setText("currentBalance", formatMoney(deposits - withdraws));
   setText("depositTotal", formatMoney(deposits));
   setText("withdrawTotal", formatMoney(withdraws));
+  setText("cashBookingCount", String(cashCache.length));
+  setText("cashFilteredBalance", formatMoney(visibleDeposits - visibleWithdraws));
+
   const list = $("cashList");
   if (!list) return;
-  list.innerHTML = cashCache.length
-    ? cashCache.map((entry) => `<div class="price-row"><div><strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong><span>${escapeHtml(entry.reason)}</span></div><div class="price-value ${entry.type === "auszahlung" ? "negative" : "positive"}">${entry.type === "auszahlung" ? "-" : "+"}${formatMoney(entry.amount)}</div></div>`).join("")
-    : `<div class="price-row"><div><strong>Noch keine Buchungen</strong><span>Einzahlungen und Auszahlungen erscheinen hier.</span></div></div>`;
+  list.innerHTML = visibleEntries.length
+    ? visibleEntries.map((entry) => `
+      <div class="price-row cash-row">
+        <div>
+          <strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong>
+          <span>${escapeHtml(entry.reason)}</span>
+          <small>Buchungs-ID: ${escapeHtml(String(entry.id || "").slice(0, 8))}</small>
+        </div>
+        <div class="cash-row-actions">
+          <div class="price-value ${entry.type === "auszahlung" ? "negative" : "positive"}">${entry.type === "auszahlung" ? "-" : "+"}${formatMoney(entry.amount)}</div>
+          <button class="secondary-btn mini-btn" data-reverse-cash="${escapeHtml(entry.id)}" type="button">Storno</button>
+        </div>
+      </div>
+    `).join("")
+    : `<div class="price-row"><div><strong>Keine Buchungen gefunden</strong><span>Ändere Suche, Filter oder Zeitraum.</span></div></div>`;
+}
+
+async function reverseCashEntry(id) {
+  if (!id || isBusy) return;
+  const entry = cashCache.find((item) => item.id === id);
+  if (!entry) return;
+  const reverseType = entry.type === "einzahlung" ? "auszahlung" : "einzahlung";
+  const label = entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung";
+  if (!confirm(`${label} über ${formatMoney(entry.amount)} wirklich stornieren?`)) return;
+
+  try {
+    setBusy(true, "Storno wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({
+      transaction_type: reverseType,
+      amount: Number(entry.amount || 0),
+      reason: `STORNO zu ${label} vom ${entry.createdAt}: ${entry.reason}`,
+      created_by: sessionUser?.id || null
+    });
+    if (error) throw error;
+    await loadCashEntries();
+    renderCash();
+  } catch (error) {
+    alert(`Storno konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function exportCashCsv() {
+  const entries = getVisibleCashEntries();
+  if (!entries.length) return alert("Keine Buchungen zum Exportieren vorhanden.");
+  const rows = [["Datum", "Art", "Betrag", "Begründung", "Buchungs-ID"]];
+  entries.forEach((entry) => rows.push([
+    entry.createdAt,
+    entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+    String(entry.amount).replace(".", ","),
+    entry.reason,
+    entry.id
+  ]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn-buchhaltung-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + csv, "text/csv;charset=utf-8");
 }
 
 async function clearCashEntries() {

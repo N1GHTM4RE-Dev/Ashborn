@@ -296,17 +296,33 @@
     <div id="cashTab" class="tab-content">
       <section class="panel">
         <div class="panel-header"><div><p class="section-kicker">BUCHHALTUNG</p><h2>Ashborn Buchhaltung</h2></div></div>
-        <div class="cash-overview">
+        <div class="cash-overview enhanced-cash-overview">
           <div class="archive-stat cash-stat"><span>Momentaner Kontostand</span><strong id="currentBalance">0 $</strong></div>
-          <div class="archive-stat"><span>Einzahlungen</span><strong id="depositTotal">0 $</strong></div>
-          <div class="archive-stat"><span>Auszahlungen</span><strong id="withdrawTotal">0 $</strong></div>
+          <div class="archive-stat"><span>Einzahlungen gesamt</span><strong id="depositTotal">0 $</strong></div>
+          <div class="archive-stat"><span>Auszahlungen gesamt</span><strong id="withdrawTotal">0 $</strong></div>
+          <div class="archive-stat"><span>Buchungen</span><strong id="cashBookingCount">0</strong></div>
+          <div class="archive-stat"><span>Gefilterter Saldo</span><strong id="cashFilteredBalance">0 $</strong></div>
         </div>
-        <div class="cash-form-grid">
-          <div class="form-field"><label for="cashType">Aktion</label><select id="cashType"><option value="deposit">Einzahlung</option><option value="withdraw">Auszahlung</option></select></div>
-          <div class="form-field"><label for="cashAmount">Betrag</label><input id="cashAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
-          <div class="form-field cash-reason"><label for="cashReason">Begründung</label><input id="cashReason" type="text" placeholder="Warum wurde Geld ein- oder ausgezahlt?" /></div>
+
+        <div class="cash-form-card">
+          <p class="section-kicker">NEUE BUCHUNG</p>
+          <div class="cash-form-grid">
+            <div class="form-field"><label for="cashType">Aktion</label><select id="cashType"><option value="deposit">Einzahlung</option><option value="withdraw">Auszahlung</option></select></div>
+            <div class="form-field"><label for="cashAmount">Betrag</label><input id="cashAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
+            <div class="form-field cash-reason"><label for="cashReason">Begründung</label><input id="cashReason" type="text" placeholder="Warum wurde Geld ein- oder ausgezahlt?" /></div>
+          </div>
+          <div class="form-actions"><button id="saveCashBtn" class="primary-btn small-btn" type="button">Buchung speichern</button><button id="clearCashBtn" class="danger-btn small-btn" type="button">Buchhaltung leeren</button></div>
         </div>
-        <div class="form-actions"><button id="saveCashBtn" class="primary-btn small-btn" type="button">Buchung speichern</button><button id="clearCashBtn" class="danger-btn small-btn" type="button">Buchhaltung leeren</button></div>
+
+        <div class="cash-toolbar">
+          <div class="search-shell price-search-shell cash-search-shell"><div class="search-core"><span class="search-icon">A</span><input type="text" id="cashSearchInput" class="search-input" placeholder="Buchhaltung nach Begründung, Betrag oder Datum durchsuchen..." /></div></div>
+          <div class="form-field toolbar-field"><label for="cashTypeFilter">Art</label><select id="cashTypeFilter"><option value="Alle">Alle</option><option value="einzahlung">Einzahlungen</option><option value="auszahlung">Auszahlungen</option></select></div>
+          <div class="form-field toolbar-field"><label for="cashRangeFilter">Zeitraum</label><select id="cashRangeFilter"><option value="all">Alle</option><option value="7">Letzte 7 Tage</option><option value="30">Letzte 30 Tage</option><option value="90">Letzte 90 Tage</option></select></div>
+          <div class="form-field toolbar-field"><label for="cashSortSelect">Sortierung</label><select id="cashSortSelect"><option value="newest">Neueste zuerst</option><option value="oldest">Älteste zuerst</option><option value="amountDesc">Betrag absteigend</option><option value="amountAsc">Betrag aufsteigend</option></select></div>
+          <button id="clearCashSearchBtn" class="secondary-btn small-btn" type="button">Filter leeren</button>
+          <button id="exportCashCsvBtn" class="secondary-btn small-btn" type="button">Buchhaltung CSV</button>
+        </div>
+
         <div id="cashList" class="price-list"></div>
       </section>
     </div>

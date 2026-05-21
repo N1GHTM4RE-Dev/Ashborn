@@ -3927,3 +3927,64 @@ select:focus-visible {
     gap: 5px;
   }
 }
+
+/* =========================================================
+   DROPDOWN FIX v16.1
+   Native select/dropdown colors for Opera/Chrome/Edge
+========================================================= */
+select,
+.form-field select,
+.toolbar-field select {
+  color: #ffe8aa !important;
+  background-color: #090504 !important;
+  background-image:
+    linear-gradient(180deg, rgba(43, 18, 8, 0.96), rgba(5, 3, 2, 0.98)),
+    radial-gradient(circle at 100% 0%, rgba(198, 146, 63, 0.16), transparent 44%) !important;
+  border-color: rgba(242, 199, 107, 0.44) !important;
+  box-shadow:
+    inset 0 0 22px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(198, 146, 63, 0.08) !important;
+  color-scheme: dark;
+}
+
+select:hover,
+.form-field select:hover,
+.toolbar-field select:hover {
+  border-color: rgba(255, 227, 160, 0.72) !important;
+  box-shadow:
+    inset 0 0 22px rgba(0, 0, 0, 0.74),
+    0 0 22px rgba(242, 199, 107, 0.12) !important;
+}
+
+select:focus,
+.form-field select:focus,
+.toolbar-field select:focus {
+  color: #fff0bf !important;
+  background-color: #120702 !important;
+  border-color: rgba(255, 227, 160, 0.82) !important;
+}
+
+select option,
+select optgroup {
+  color: #f4ead5 !important;
+  background: #120702 !important;
+  background-color: #120702 !important;
+}
+
+select option:checked,
+select option:hover,
+select option:focus {
+  color: #160b05 !important;
+  background: #d8a84d !important;
+  background-color: #d8a84d !important;
+}
+
+select option:disabled {
+  color: rgba(244, 234, 213, 0.42) !important;
+  background: #090504 !important;
+}
+
+select[multiple] option {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(198, 146, 63, 0.12);
+}

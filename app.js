@@ -15,6 +15,9 @@ let recordsCache = [];
 let sellPricesCache = [];
 let buyPricesCache = [];
 let internalCache = [];
+let internalSearchQuery = "";
+let internalCategoryFilter = "Alle";
+let internalSortMode = "newest";
 let cashCache = [];
 let cashTypeFilter = "Alle";
 let cashRangeFilter = "all";
@@ -168,7 +171,29 @@ function bindEvents() {
   setupPriceModule("sell");
   setupPriceModule("buy");
   on($("saveInternalBtn"), "click", saveInternalNote);
+  on($("resetInternalBtn"), "click", () => {
+    clearInternalForm();
+    setInternalMessage("Felder wurden geleert.", "neutral");
+  });
+  on($("cancelInternalEditBtn"), "click", () => {
+    clearInternalForm();
+    setInternalMessage("Bearbeitung wurde abgebrochen.", "neutral");
+  });
   on($("clearInternalBtn"), "click", clearInternalNotes);
+  on($("internalSearchInput"), "input", (event) => {
+    internalSearchQuery = event.target.value.trim().toLowerCase();
+    renderInternal();
+  });
+  on($("internalCategoryFilter"), "change", (event) => {
+    internalCategoryFilter = event.target.value || "Alle";
+    renderInternal();
+  });
+  on($("internalSortSelect"), "change", (event) => {
+    internalSortMode = event.target.value || "newest";
+    renderInternal();
+  });
+  on($("clearInternalSearchBtn"), "click", clearInternalSearch);
+  on($("exportInternalCsvBtn"), "click", exportInternalCsv);
   on($("saveCashBtn"), "click", saveCashEntry);
   on($("clearCashBtn"), "click", clearCashEntries);
   on($("cashSearchInput"), "input", (event) => {
@@ -886,54 +911,175 @@ function exportPriceCsv(type) {
 async function loadInternalNotes() {
   const { data, error } = await supabaseClient.from("internal_notes").select("*").order("created_at", { ascending: false });
   if (error) throw error;
-  internalCache = (data || []).map((row) => ({ id: row.id, title: row.title || "", content: row.content || "", category: row.category || "", createdAt: formatDate(row.created_at) }));
+  internalCache = (data || []).map((row) => ({
+    id: row.id,
+    title: row.title || "",
+    content: row.content || "",
+    category: row.category || "Allgemein",
+    createdAtRaw: row.created_at,
+    updatedAtRaw: row.updated_at,
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
 }
 
 async function saveInternalNote() {
   if (isBusy) return;
-  const title = $("internalTitle").value.trim();
-  const content = $("internalContent").value.trim();
-  if (!title && !content) return alert("Bitte Überschrift oder Information eintragen.");
+  const id = $("internalId")?.value.trim() || "";
+  const title = $("internalTitle")?.value.trim() || "";
+  const category = $("internalCategory")?.value || "Allgemein";
+  const content = $("internalContent")?.value.trim() || "";
+
+  if (!title) {
+    setInternalMessage("Bitte eine Überschrift eintragen.", "error");
+    return;
+  }
+
   try {
-    setBusy(true, "Information wird gespeichert...");
-    const { error } = await supabaseClient.from("internal_notes").insert({
-      title: title || "Interne Information",
+    setBusy(true, id ? "Information wird aktualisiert..." : "Information wird gespeichert...");
+
+    const payload = {
+      title,
+      category,
       content: content || null,
-      created_by: sessionUser?.id || null
-    });
-    if (error) throw error;
-    $("internalTitle").value = "";
-    $("internalContent").value = "";
+      updated_at: new Date().toISOString()
+    };
+
+    const result = id
+      ? await supabaseClient.from("internal_notes").update(payload).eq("id", id)
+      : await supabaseClient.from("internal_notes").insert({ ...payload, created_by: sessionUser?.id || null });
+
+    if (result.error) throw result.error;
+
+    clearInternalForm();
     await loadInternalNotes();
     renderInternal();
+    setInternalMessage(id ? "Interne Information wurde aktualisiert." : "Interne Information wurde gespeichert.", "success");
   } catch (error) {
-    alert(`Information konnte nicht gespeichert werden: ${error.message || error}`);
+    setInternalMessage(`Information konnte nicht gespeichert werden: ${error.message || error}`, "error");
   } finally {
     setBusy(false);
   }
 }
 
+function getVisibleInternalNotes() {
+  let notes = [...internalCache];
+
+  if (internalCategoryFilter !== "Alle") {
+    notes = notes.filter((note) => String(note.category || "Allgemein") === internalCategoryFilter);
+  }
+
+  if (internalSearchQuery) {
+    notes = notes.filter((note) => [note.title, note.category, note.content, note.createdAt, note.updatedAt]
+      .join(" ")
+      .toLowerCase()
+      .includes(internalSearchQuery));
+  }
+
+  notes.sort((a, b) => {
+    if (internalSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+    if (internalSortMode === "title") return String(a.title || "").localeCompare(String(b.title || ""), "de");
+    if (internalSortMode === "category") return String(a.category || "").localeCompare(String(b.category || ""), "de");
+    return new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0);
+  });
+
+  return notes;
+}
+
 function renderInternal() {
   const list = $("internalList");
   if (!list) return;
-  list.innerHTML = internalCache.length
-    ? internalCache.map((note) => `<article class="akten-card static-card"><div class="folder-chip-row"><span class="folder-chip">${escapeHtml(note.createdAt)}</span></div><h3>${escapeHtml(note.title)}</h3><p>${escapeHtml(note.content || "Keine Beschreibung")}</p><div class="card-actions"><button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button></div></article>`).join("")
-    : `<article class="akten-card static-card"><h3>Noch keine internen Informationen</h3><p>Hier kannst du später Regeln, Hinweise oder wichtige Ashborn-Infos sammeln.</p></article>`;
+
+  const notes = getVisibleInternalNotes();
+
+  list.innerHTML = notes.length
+    ? notes.map((note) => `
+      <article class="akten-card static-card internal-card">
+        <div class="folder-chip-row">
+          <span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span>
+          <span class="folder-chip">${escapeHtml(note.updatedAt ? `Bearbeitet: ${note.updatedAt}` : `Erstellt: ${note.createdAt}`)}</span>
+        </div>
+        <h3>${escapeHtml(note.title)}</h3>
+        <p>${escapeHtml(note.content || "Keine zusätzliche Information hinterlegt.")}</p>
+        <div class="card-actions price-actions">
+          <button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button>
+          <button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button>
+        </div>
+      </article>
+    `).join("")
+    : `<article class="akten-card static-card"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Hinweise, Pläne oder Bündnisse an. Über Suche und Kategorie findest du sie später schnell wieder.</p></article>`;
+
+  list.querySelectorAll("[data-edit-internal]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const note = internalCache.find((entry) => entry.id === button.dataset.editInternal);
+      if (note) loadInternalIntoForm(note);
+    });
+  });
+
   list.querySelectorAll("[data-delete-internal]").forEach((button) => {
     button.addEventListener("click", () => deleteInternalNote(button.dataset.deleteInternal));
   });
 }
 
+function loadInternalIntoForm(note) {
+  if (!note) return;
+  $("internalId").value = note.id || "";
+  $("internalTitle").value = note.title || "";
+  $("internalCategory").value = note.category || "Allgemein";
+  $("internalContent").value = note.content || "";
+  setText("internalSaveButtonText", "Änderungen speichern");
+  $("cancelInternalEditBtn")?.classList.remove("hidden");
+  setInternalMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => $("internalTitle")?.focus(), 80);
+}
+
+function clearInternalForm() {
+  if ($("internalId")) $("internalId").value = "";
+  if ($("internalTitle")) $("internalTitle").value = "";
+  if ($("internalCategory")) $("internalCategory").value = "Allgemein";
+  if ($("internalContent")) $("internalContent").value = "";
+  setText("internalSaveButtonText", "Information speichern");
+  $("cancelInternalEditBtn")?.classList.add("hidden");
+}
+
+function setInternalMessage(message, type) {
+  const el = $("internalSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+function clearInternalSearch() {
+  internalSearchQuery = "";
+  internalCategoryFilter = "Alle";
+  internalSortMode = "newest";
+  if ($("internalSearchInput")) $("internalSearchInput").value = "";
+  if ($("internalCategoryFilter")) $("internalCategoryFilter").value = "Alle";
+  if ($("internalSortSelect")) $("internalSortSelect").value = "newest";
+  renderInternal();
+}
+
+function exportInternalCsv() {
+  const notes = getVisibleInternalNotes();
+  const rows = [["Überschrift", "Kategorie", "Information", "Erstellt", "Bearbeitet"]];
+  notes.forEach((note) => rows.push([note.title, note.category, note.content, note.createdAt, note.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_intern_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
 async function deleteInternalNote(id) {
   if (!id || isBusy) return;
+  if (!confirm("Diese interne Information wirklich löschen?")) return;
   try {
     setBusy(true, "Information wird gelöscht...");
     const { error } = await supabaseClient.from("internal_notes").delete().eq("id", id);
     if (error) throw error;
+    clearInternalForm();
     await loadInternalNotes();
     renderInternal();
+    setInternalMessage("Interne Information wurde gelöscht.", "success");
   } catch (error) {
-    alert(`Information konnte nicht gelöscht werden: ${error.message || error}`);
+    setInternalMessage(`Information konnte nicht gelöscht werden: ${error.message || error}`, "error");
   } finally {
     setBusy(false);
   }
@@ -945,10 +1091,12 @@ async function clearInternalNotes() {
     setBusy(true, "Interne Informationen werden gelöscht...");
     const { error } = await supabaseClient.from("internal_notes").delete().not("id", "is", null);
     if (error) throw error;
+    clearInternalForm();
     await loadInternalNotes();
     renderInternal();
+    setInternalMessage("Interne Informationen wurden gelöscht.", "success");
   } catch (error) {
-    alert(`Interne Informationen konnten nicht gelöscht werden: ${error.message || error}`);
+    setInternalMessage(`Interne Informationen konnten nicht gelöscht werden: ${error.message || error}`, "error");
   } finally {
     setBusy(false);
   }

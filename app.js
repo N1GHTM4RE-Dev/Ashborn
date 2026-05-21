@@ -380,8 +380,10 @@ function renderAll() {
   renderPriceModule("buy");
   renderInternal();
   renderCash();
+  renderCashEnhancements();
   renderSystemDashboard();
   renderDashboard();
+  renderDashboardEnhancements();
 }
 
 function renderSystemDashboard() {
@@ -1484,6 +1486,7 @@ async function saveCashEntry() {
     $("cashReason").value = "";
     await loadCashEntries();
     renderCash();
+    renderCashEnhancements();
   } catch (error) {
     alert(`Buchung konnte nicht gespeichert werden: ${error.message || error}`);
   } finally {
@@ -1588,6 +1591,7 @@ Es wird automatisch eine neue Gegenbuchung als ${reverseLabel} erstellt. Die urs
     if (error) throw error;
     await loadCashEntries();
     renderCash();
+    renderCashEnhancements();
   } catch (error) {
     alert(`Storno konnte nicht gespeichert werden: ${error.message || error}`);
   } finally {
@@ -1618,6 +1622,7 @@ async function clearCashEntries() {
     if (error) throw error;
     await loadCashEntries();
     renderCash();
+    renderCashEnhancements();
   } catch (error) {
     alert(`Buchhaltung konnte nicht geleert werden. Eventuell fehlt noch die Delete-Policy: ${error.message || error}`);
   } finally {
@@ -1910,6 +1915,7 @@ async function saveRecord() {
     await loadRecords();
     renderRecords();
     renderDashboard();
+    renderDashboardEnhancements();
   } catch (error) {
     console.error(error);
     setRecordMessage(`Speichern fehlgeschlagen: ${error.message || error}`, "error");
@@ -2128,6 +2134,7 @@ async function savePriceItem(type) {
     await loadPriceItems(type);
     renderPriceModule(type);
     renderDashboard();
+    renderDashboardEnhancements();
   } catch (error) {
     alert(`Preis konnte nicht gespeichert werden: ${error.message || error}`);
   } finally { setBusy(false); }
@@ -2207,6 +2214,7 @@ async function createReceiptFromCart(type) {
     priceCarts[type] = [];
     await loadCashEntries();
     renderCash();
+    renderCashEnhancements();
     renderCart(type);
     alert("Beleg wurde in die Buchhaltung übernommen.");
   } catch (error) {
@@ -2345,7 +2353,7 @@ async function saveCashEntry() {
     const { error } = await supabaseClient.from("accounting_transactions").insert({ transaction_type: type, amount, reason, category, created_by: sessionUser?.id || null });
     if (error) throw error;
     $("cashAmount").value = ""; $("cashReason").value = "";
-    await loadCashEntries(); renderCash(); renderDashboard();
+    await loadCashEntries(); renderCash(); renderCashEnhancements(); renderDashboard(); renderDashboardEnhancements();
   } catch (error) { alert(`Buchung konnte nicht gespeichert werden: ${error.message || error}`); } finally { setBusy(false); }
 }
 
@@ -2365,13 +2373,14 @@ function renderCashMonthlyOverview(entries = cashCache) {
   box.innerHTML = rows.length ? rows.map(([month, data]) => `<div><span>${month}</span><strong>${formatMoney(data.income - data.expense)}</strong><small>Einnahmen ${formatMoney(data.income)} · Ausgaben ${formatMoney(data.expense)} · ${data.count} Buchungen</small></div>`).join("") : `<p class="system-text">Noch keine Monatsdaten.</p>`;
 }
 
-const baseRenderCashV16 = renderCash;
-function renderCash() {
-  baseRenderCashV16();
+function renderCashEnhancements() {
   renderCashMonthlyOverview(cashCache);
-  document.querySelectorAll(".cash-row .price-main .folder-chip-row").forEach((row, index) => {
+  document.querySelectorAll(".cash-row").forEach((row, index) => {
     const entry = getVisibleCashEntries()[index];
-    if (entry && entry.category && !row.textContent.includes(entry.category)) row.insertAdjacentHTML("beforeend", `<span class="folder-chip">${escapeHtml(entry.category)}</span>`);
+    const title = row.querySelector("strong");
+    if (entry && entry.category && title && !title.textContent.includes(entry.category)) {
+      title.insertAdjacentText("beforeend", ` · ${entry.category}`);
+    }
   });
 }
 
@@ -2391,9 +2400,7 @@ function renderDashboardCharts() {
     ${counts.map(([label,value])=>`<div class="mini-chart-line"><span>${label}</span><div><i style="width:${(value/maxCount)*100}%"></i></div><strong>${value}</strong></div>`).join("")}`;
 }
 
-const baseRenderDashboardV16 = renderDashboard;
-function renderDashboard() {
-  baseRenderDashboardV16();
+function renderDashboardEnhancements() {
   renderDashboardCharts();
 }
 

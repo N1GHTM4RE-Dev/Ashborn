@@ -1,16 +1,18 @@
-const SYSTEM_PASSWORD = "Zwerg";
-const SESSION_KEY = "ashborn_logged_in";
-const STORAGE = {
-  records: "ashborn_records_v2",
-  sellPrices: "ashborn_sell_prices_v1",
-  buyPrices: "ashborn_buy_prices_v1",
-  internal: "ashborn_internal_v1",
-  cash: "ashborn_cash_v1"
-};
+const SUPABASE_URL = "https://rclpgqrwcygjzqgeurie.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2BWb4LK4GWC8-S4SVPIlvA_iX41QQqg";
+const IMAGE_BUCKET = "ashborn-images";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let activeRecordFilter = "Alle";
 let currentRecordId = null;
 let pendingImages = [];
+let recordsCache = [];
+let sellPricesCache = [];
+let buyPricesCache = [];
+let internalCache = [];
+let cashCache = [];
+let currentUser = null;
 
 const $ = (id) => document.getElementById(id);
 const landingPage = $("landingPage");
@@ -18,6 +20,7 @@ const logoButton = $("logoButton");
 const landingLoginBtn = $("landingLoginBtn");
 const loginBox = $("loginBox");
 const closeLoginBtn = $("closeLoginBtn");
+const emailInput = $("emailInput");
 const passwordInput = $("passwordInput");
 const loginBtn = $("loginBtn");
 const loginError = $("loginError");
@@ -44,13 +47,21 @@ function on(element, eventName, handler) {
   element.addEventListener(eventName, handler);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (sessionStorage.getItem(SESSION_KEY) === "true") {
+window.addEventListener("unhandledrejection", (event) => {
+  console.error(event.reason);
+  showGlobalError("Es ist ein Datenbankfehler aufgetreten. Bitte Konsole prüfen.");
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data } = await sb.auth.getSession();
+  currentUser = data.session?.user || null;
+
+  if (currentUser) {
     landingPage.classList.add("hidden");
     aktenSystem.classList.remove("hidden");
+    await loadAllData();
   }
 
-  renderAll();
   startAmbientEmbers();
   bindHeroParallax();
 });
@@ -63,9 +74,14 @@ on(passwordInput, "keydown", (event) => {
   if (event.key === "Enter") login();
   if (event.key === "Escape") hideLogin();
 });
+on(emailInput, "keydown", (event) => {
+  if (event.key === "Enter") login();
+  if (event.key === "Escape") hideLogin();
+});
 
-on(logoutBtn, "click", () => {
-  sessionStorage.removeItem(SESSION_KEY);
+on(logoutBtn, "click", async () => {
+  await sb.auth.signOut();
+  currentUser = null;
   closeDetail();
   aktenSystem.classList.add("hidden");
   landingPage.classList.remove("hidden");
@@ -105,7 +121,7 @@ on($("recordList"), "click", (event) => {
 
   if (editBtn) {
     event.stopPropagation();
-    const record = getRecords().find((item) => item.id === editBtn.dataset.editRecord);
+    const record = recordsCache.find((item) => item.id === editBtn.dataset.editRecord);
     if (record) loadRecordIntoForm(record);
     return;
   }
@@ -117,7 +133,7 @@ on($("recordList"), "click", (event) => {
   }
 
   if (card && card.dataset.id && !card.disabled) {
-    const record = getRecords().find((item) => item.id === card.dataset.id);
+    const record = recordsCache.find((item) => item.id === card.dataset.id);
     if (record) openDetail(record);
   }
 });
@@ -125,7 +141,7 @@ on($("recordList"), "click", (event) => {
 on($("detailBackdrop"), "click", closeDetail);
 on($("closeDetailBtn"), "click", closeDetail);
 on($("editRecordBtn"), "click", () => {
-  const record = getRecords().find((item) => item.id === currentRecordId);
+  const record = recordsCache.find((item) => item.id === currentRecordId);
   if (record) {
     closeDetail();
     loadRecordIntoForm(record);
@@ -142,18 +158,10 @@ document.addEventListener("keydown", (event) => {
 setupPriceModule("sell");
 setupPriceModule("buy");
 on($("saveInternalBtn"), "click", saveInternalNote);
-on($("clearInternalBtn"), "click", () => {
-  if (!confirm("Alle internen Informationen löschen?")) return;
-  localStorage.removeItem(STORAGE.internal);
-  renderInternal();
-});
+on($("clearInternalBtn"), "click", clearInternalNotes);
 on($("saveCashBtn"), "click", saveCashEntry);
-on($("clearCashBtn"), "click", () => {
-  if (!confirm("Buchhaltung wirklich leeren?")) return;
-  localStorage.removeItem(STORAGE.cash);
-  renderCash();
-});
-on($("clearAllDataBtn"), "click", clearAllData);
+on($("clearCashBtn"), "click", () => alert("Aus Sicherheitsgründen wird die Buchhaltung nicht geleert. Erstelle stattdessen eine Gegenbuchung."));
+on($("clearAllDataBtn"), "click", clearSystemData);
 on($("exportDataBtn"), "click", exportData);
 
 function showLogin() {
@@ -161,7 +169,7 @@ function showLogin() {
   landingPage.classList.add("login-open");
   loginBox.classList.add("show");
   loginBox.setAttribute("aria-hidden", "false");
-  setTimeout(() => passwordInput.focus(), 120);
+  setTimeout(() => emailInput?.focus(), 120);
 }
 
 function hideLogin() {
@@ -169,28 +177,44 @@ function hideLogin() {
   loginBox.classList.remove("show");
   loginBox.setAttribute("aria-hidden", "true");
   loginError.textContent = "";
-  passwordInput.value = "";
+  if (passwordInput) passwordInput.value = "";
 }
 
-function login() {
+async function login() {
+  const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
-  if (password === SYSTEM_PASSWORD) {
-    loginError.textContent = "";
-    sessionStorage.setItem(SESSION_KEY, "true");
-    playSmokeTransition(() => {
-      landingPage.classList.add("hidden");
-      aktenSystem.classList.remove("hidden");
-      hideLogin();
-      renderAll();
-    });
+
+  if (!email || !password) {
+    loginError.textContent = "Bitte E-Mail und Kennwort eintragen.";
     return;
   }
-  loginError.textContent = "Falsches Kennwort.";
-  passwordInput.value = "";
-  passwordInput.focus();
-  loginBox.classList.remove("shake");
-  void loginBox.offsetWidth;
-  loginBox.classList.add("shake");
+
+  loginBtn.disabled = true;
+  loginError.textContent = "Zugang wird geprüft...";
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  loginBtn.disabled = false;
+
+  if (error) {
+    loginError.textContent = "Login fehlgeschlagen. Prüfe E-Mail und Kennwort.";
+    passwordInput.value = "";
+    passwordInput.focus();
+    loginBox.classList.remove("shake");
+    void loginBox.offsetWidth;
+    loginBox.classList.add("shake");
+    return;
+  }
+
+  currentUser = data.user;
+  loginError.textContent = "";
+  await loadAllData();
+
+  playSmokeTransition(() => {
+    landingPage.classList.add("hidden");
+    aktenSystem.classList.remove("hidden");
+    hideLogin();
+    renderAll();
+  });
 }
 
 function playSmokeTransition(callback) {
@@ -206,6 +230,11 @@ function switchTab(tabId) {
   tabContents.forEach((content) => content.classList.toggle("active", content.id === tabId));
 }
 
+async function loadAllData() {
+  await Promise.all([loadRecords(), loadPrices("sell"), loadPrices("buy"), loadInternal(), loadCash()]);
+  renderAll();
+}
+
 function renderAll() {
   renderRecords();
   renderPriceModule("sell");
@@ -214,7 +243,27 @@ function renderAll() {
   renderCash();
 }
 
-function saveRecord() {
+async function loadRecords() {
+  const { data, error } = await sb.from("ashborn_entries").select("*").order("created_at", { ascending: false });
+  if (error) return showGlobalError(error.message);
+  recordsCache = (data || []).map(dbRecordToUi);
+}
+
+function dbRecordToUi(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type || "",
+    location: row.find_location || "",
+    telegram: row.telegram_number || "",
+    description: row.description || "",
+    images: Array.isArray(row.images) ? row.images : [],
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at && row.updated_at !== row.created_at ? formatDate(row.updated_at) : ""
+  };
+}
+
+async function saveRecord() {
   const name = recordFields.name.value.trim();
   if (!name) {
     setRecordMessage("Bitte mindestens den Namen eintragen.", "error");
@@ -222,37 +271,54 @@ function saveRecord() {
     return;
   }
 
-  const records = getRecords();
   const id = recordFields.id.value.trim();
+  setRecordMessage("Speichere Daten...", "neutral");
+
+  const uploadedImages = await uploadPendingImages(id || crypto.randomUUID());
+  const allImages = pendingImages.filter((img) => img.path).concat(uploadedImages);
+
   const payload = {
     name,
-    type: recordFields.type.value,
-    location: recordFields.location.value.trim(),
-    telegram: recordFields.telegram.value.trim(),
-    description: recordFields.description.value.trim(),
-    images: pendingImages,
-    updatedAt: new Date().toLocaleString("de-DE")
+    type: recordFields.type.value || null,
+    find_location: recordFields.location.value.trim() || null,
+    telegram_number: recordFields.telegram.value.trim() || null,
+    description: recordFields.description.value.trim() || null,
+    images: allImages,
+    updated_at: new Date().toISOString(),
+    created_by: currentUser?.id || null
   };
 
-  if (id) {
-    const index = records.findIndex((item) => item.id === id);
-    if (index === -1) {
-      setRecordMessage("Dieser Datensatz konnte nicht gefunden werden.", "error");
-      return;
-    }
-    records[index] = { ...records[index], ...payload };
-    saveRecords(records);
-    clearRecordForm();
-    setRecordMessage("Datensatz wurde aktualisiert.", "success");
-    renderRecords();
+  const result = id
+    ? await sb.from("ashborn_entries").update(payload).eq("id", id)
+    : await sb.from("ashborn_entries").insert(payload);
+
+  if (result.error) {
+    setRecordMessage(result.error.message, "error");
     return;
   }
 
-  records.unshift({ id: createId(), ...payload, createdAt: new Date().toLocaleString("de-DE") });
-  saveRecords(records);
+  await loadRecords();
   clearRecordForm();
-  setRecordMessage("Datensatz wurde gespeichert.", "success");
+  setRecordMessage(id ? "Datensatz wurde aktualisiert." : "Datensatz wurde gespeichert.", "success");
   renderRecords();
+}
+
+async function uploadPendingImages(recordId) {
+  const files = pendingImages.filter((img) => img.file instanceof File);
+  const uploaded = [];
+
+  for (const image of files) {
+    const safeName = image.file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `${recordId}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+    const { error } = await sb.storage.from(IMAGE_BUCKET).upload(path, image.file, { upsert: false });
+    if (error) {
+      setRecordMessage(`Bild konnte nicht hochgeladen werden: ${error.message}`, "error");
+      continue;
+    }
+    uploaded.push({ name: image.file.name, path });
+  }
+
+  return uploaded;
 }
 
 function loadRecordIntoForm(record) {
@@ -262,7 +328,7 @@ function loadRecordIntoForm(record) {
   recordFields.location.value = record.location || "";
   recordFields.telegram.value = record.telegram || "";
   recordFields.description.value = record.description || "";
-  pendingImages = Array.isArray(record.images) ? record.images : [];
+  pendingImages = Array.isArray(record.images) ? [...record.images] : [];
   $("dataFormTitle").textContent = "Daten bearbeiten";
   $("recordSaveText").textContent = "Änderungen speichern";
   $("cancelRecordEditBtn").classList.remove("hidden");
@@ -290,20 +356,16 @@ function clearRecordForm() {
 function handleImageSelection(event) {
   const files = Array.from(event.target.files || []);
   if (!files.length) return;
-
-  Promise.all(files.map(fileToDataUrl)).then((images) => {
-    pendingImages = [...pendingImages, ...images];
-    renderImagePreview();
-  });
+  const previews = files.map((file) => ({ name: file.name, file, preview: URL.createObjectURL(file) }));
+  pendingImages = [...pendingImages, ...previews];
+  renderImagePreview();
 }
 
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve({ name: file.name, src: reader.result });
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+async function getSignedImageUrl(path) {
+  if (!path) return "";
+  const { data, error } = await sb.storage.from(IMAGE_BUCKET).createSignedUrl(path, 60 * 60);
+  if (error) return "";
+  return data.signedUrl;
 }
 
 function renderImagePreview() {
@@ -314,33 +376,41 @@ function renderImagePreview() {
     return;
   }
   preview.innerHTML = pendingImages.map((image, index) => `
-    <div class="image-preview-item">
-      <img src="${image.src}" alt="${escapeHtml(image.name || "Bild")}" />
+    <div class="image-preview-item" data-image-preview-index="${index}">
+      <div class="image-loading">Bild wird geladen...</div>
       <button type="button" class="danger-btn mini-btn" data-remove-image="${index}">Entfernen</button>
     </div>
   `).join("");
   preview.querySelectorAll("[data-remove-image]").forEach((button) => {
     button.addEventListener("click", () => {
-      pendingImages.splice(Number(button.dataset.removeImage), 1);
+      const removed = pendingImages.splice(Number(button.dataset.removeImage), 1)[0];
+      if (removed?.preview) URL.revokeObjectURL(removed.preview);
       renderImagePreview();
     });
+  });
+  pendingImages.forEach(async (image, index) => {
+    const box = preview.querySelector(`[data-image-preview-index="${index}"]`);
+    if (!box) return;
+    const src = image.preview || await getSignedImageUrl(image.path);
+    box.querySelector(".image-loading").outerHTML = src
+      ? `<img src="${src}" alt="${escapeHtml(image.name || "Bild")}" />`
+      : `<div class="image-loading">Bild nicht verfügbar</div>`;
   });
 }
 
 function renderRecords() {
   const list = $("recordList");
   if (!list) return;
-  const records = getRecords();
   const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
-  const filtered = records.filter((record) => {
+  const filtered = recordsCache.filter((record) => {
     const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
     const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.createdAt, record.updatedAt].join(" ").toLowerCase();
     return matchesType && haystack.includes(query);
   });
 
-  setText("totalRecordsCount", records.length);
+  setText("totalRecordsCount", recordsCache.length);
   setText("filteredRecordsCount", filtered.length);
-  setText("imageRecordsCount", records.filter((item) => Array.isArray(item.images) && item.images.length).length);
+  setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
 
   if (!filtered.length) {
     list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
@@ -366,7 +436,7 @@ function renderRecords() {
   `).join("");
 }
 
-function openDetail(record) {
+async function openDetail(record) {
   currentRecordId = record.id;
   setText("detailTitle", record.name || "-");
   setText("detailType", record.type || "Nicht festgelegt");
@@ -374,9 +444,15 @@ function openDetail(record) {
   setText("detailTelegram", record.telegram || "-");
   setText("detailDescription", record.description || "Keine Beschreibung eingetragen.");
   const images = Array.isArray(record.images) ? record.images : [];
-  $("detailImages").innerHTML = images.length
-    ? images.map((img) => `<a href="${img.src}" target="_blank" rel="noopener"><img src="${img.src}" alt="${escapeHtml(img.name || "Bild")}" /></a>`).join("")
-    : `<p class="system-text">Keine Bilder hinterlegt.</p>`;
+  $("detailImages").innerHTML = images.length ? `<p class="system-text">Bilder werden geladen...</p>` : `<p class="system-text">Keine Bilder hinterlegt.</p>`;
+  if (images.length) {
+    const html = [];
+    for (const img of images) {
+      const src = await getSignedImageUrl(img.path);
+      if (src) html.push(`<a href="${src}" target="_blank" rel="noopener"><img src="${src}" alt="${escapeHtml(img.name || "Bild")}" /></a>`);
+    }
+    $("detailImages").innerHTML = html.length ? html.join("") : `<p class="system-text">Bilder konnten nicht geladen werden.</p>`;
+  }
   $("detailModal").classList.remove("hidden");
 }
 
@@ -385,12 +461,14 @@ function closeDetail() {
   $("detailModal").classList.add("hidden");
 }
 
-function deleteRecord(id) {
+async function deleteRecord(id) {
   if (!id) return;
-  const record = getRecords().find((item) => item.id === id);
+  const record = recordsCache.find((item) => item.id === id);
   if (!record) return;
   if (!confirm(`Datensatz "${record.name}" wirklich löschen?`)) return;
-  saveRecords(getRecords().filter((item) => item.id !== id));
+  const { error } = await sb.from("ashborn_entries").delete().eq("id", id);
+  if (error) return alert(error.message);
+  await loadRecords();
   closeDetail();
   clearRecordForm();
   renderRecords();
@@ -404,35 +482,38 @@ function setupPriceModule(type) {
   });
   on($(`${prefix}CalculatorItem`), "change", () => updateCalculator(type));
   on($(`${prefix}CalculatorQty`), "input", () => updateCalculator(type));
-  on($(`clear${capitalize(prefix)}PricesBtn`), "click", () => {
-    if (!confirm("Diese Preisliste wirklich leeren?")) return;
-    localStorage.removeItem(type === "sell" ? STORAGE.sellPrices : STORAGE.buyPrices);
-    renderPriceModule(type);
-  });
+  on($(`clear${capitalize(prefix)}PricesBtn`), "click", () => clearPrices(type));
 }
 
-function savePriceItem(type) {
+async function loadPrices(type) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { data, error } = await sb.from(table).select("*").order("created_at", { ascending: false });
+  if (error) return showGlobalError(error.message);
+  const mapped = (data || []).map((row) => ({ id: row.id, name: row.item_name, category: row.category || "", price: Number(row.price || 0), unit: row.unit || "", note: row.note || "", createdAt: formatDate(row.created_at) }));
+  if (type === "sell") sellPricesCache = mapped;
+  else buyPricesCache = mapped;
+}
+
+async function savePriceItem(type) {
   const prefix = type === "sell" ? "sell" : "buy";
+  const table = type === "sell" ? "price_sale" : "price_purchase";
   const name = $(`${prefix}ItemName`).value.trim();
   const price = Number($(`${prefix}ItemPrice`).value || 0);
   const unit = $(`${prefix}ItemUnit`).value.trim();
   const note = $(`${prefix}ItemNote`).value.trim();
 
-  if (!name || price <= 0) {
-    alert("Bitte Artikel und Preis eintragen.");
-    return;
-  }
+  if (!name || price <= 0) return alert("Bitte Artikel und Preis eintragen.");
 
-  const items = getPriceItems(type);
-  items.unshift({ id: createId(), name, price, unit, note, createdAt: new Date().toLocaleString("de-DE") });
-  savePriceItems(type, items);
+  const { error } = await sb.from(table).insert({ item_name: name, price, unit: unit || null, note: note || null });
+  if (error) return alert(error.message);
   $(`${prefix}PriceForm`).reset();
+  await loadPrices(type);
   renderPriceModule(type);
 }
 
 function renderPriceModule(type) {
   const prefix = type === "sell" ? "sell" : "buy";
-  const items = getPriceItems(type);
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
   const list = $(`${prefix}PriceList`);
   const select = $(`${prefix}CalculatorItem`);
   if (!list || !select) return;
@@ -452,94 +533,129 @@ function renderPriceModule(type) {
     : `<div class="price-row"><div><strong>Noch keine Artikel</strong><span>Lege jetzt die erste Position an.</span></div></div>`;
 
   list.querySelectorAll("[data-delete-price]").forEach((button) => {
-    button.addEventListener("click", () => {
-      savePriceItems(type, items.filter((item) => item.id !== button.dataset.deletePrice));
-      renderPriceModule(type);
-    });
+    button.addEventListener("click", () => deletePrice(type, button.dataset.deletePrice));
   });
   updateCalculator(type);
 }
 
+async function deletePrice(type, id) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { error } = await sb.from(table).delete().eq("id", id);
+  if (error) return alert(error.message);
+  await loadPrices(type);
+  renderPriceModule(type);
+}
+
+async function clearPrices(type) {
+  if (!confirm("Diese Preisliste wirklich leeren?")) return;
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { error } = await sb.from(table).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  if (error) return alert(error.message);
+  await loadPrices(type);
+  renderPriceModule(type);
+}
+
 function updateCalculator(type) {
   const prefix = type === "sell" ? "sell" : "buy";
-  const items = getPriceItems(type);
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
   const selectedId = $(`${prefix}CalculatorItem`)?.value;
   const qty = Number($(`${prefix}CalculatorQty`)?.value || 0);
   const item = items.find((entry) => entry.id === selectedId);
   setText(`${prefix}CalculatorResult`, item ? formatMoney(item.price * qty) : "0 $");
 }
 
-function saveInternalNote() {
+async function loadInternal() {
+  const { data, error } = await sb.from("internal_notes").select("*").order("created_at", { ascending: false });
+  if (error) return showGlobalError(error.message);
+  internalCache = (data || []).map((row) => ({ id: row.id, title: row.title, content: row.content || "", createdAt: formatDate(row.created_at) }));
+}
+
+async function saveInternalNote() {
   const title = $("internalTitle").value.trim();
   const content = $("internalContent").value.trim();
   if (!title && !content) return alert("Bitte Überschrift oder Information eintragen.");
-  const notes = readJson(STORAGE.internal, []);
-  notes.unshift({ id: createId(), title: title || "Interne Information", content, createdAt: new Date().toLocaleString("de-DE") });
-  writeJson(STORAGE.internal, notes);
+  const { error } = await sb.from("internal_notes").insert({ title: title || "Interne Information", content: content || null, created_by: currentUser?.id || null });
+  if (error) return alert(error.message);
   $("internalTitle").value = "";
   $("internalContent").value = "";
+  await loadInternal();
   renderInternal();
 }
 
 function renderInternal() {
   const list = $("internalList");
   if (!list) return;
-  const notes = readJson(STORAGE.internal, []);
-  list.innerHTML = notes.length
-    ? notes.map((note) => `<article class="akten-card static-card"><div class="folder-chip-row"><span class="folder-chip">${escapeHtml(note.createdAt)}</span></div><h3>${escapeHtml(note.title)}</h3><p>${escapeHtml(note.content || "Keine Beschreibung")}</p><div class="card-actions"><button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button></div></article>`).join("")
+  list.innerHTML = internalCache.length
+    ? internalCache.map((note) => `<article class="akten-card static-card"><div class="folder-chip-row"><span class="folder-chip">${escapeHtml(note.createdAt)}</span></div><h3>${escapeHtml(note.title)}</h3><p>${escapeHtml(note.content || "Keine Beschreibung")}</p><div class="card-actions"><button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button></div></article>`).join("")
     : `<article class="akten-card static-card"><h3>Noch keine internen Informationen</h3><p>Hier kannst du später Regeln, Hinweise oder wichtige Ashborn-Infos sammeln.</p></article>`;
   list.querySelectorAll("[data-delete-internal]").forEach((button) => {
-    button.addEventListener("click", () => {
-      writeJson(STORAGE.internal, notes.filter((note) => note.id !== button.dataset.deleteInternal));
-      renderInternal();
-    });
+    button.addEventListener("click", () => deleteInternalNote(button.dataset.deleteInternal));
   });
 }
 
-function saveCashEntry() {
-  const type = $("cashType").value;
+async function deleteInternalNote(id) {
+  const { error } = await sb.from("internal_notes").delete().eq("id", id);
+  if (error) return alert(error.message);
+  await loadInternal();
+  renderInternal();
+}
+
+async function clearInternalNotes() {
+  if (!confirm("Alle internen Informationen löschen?")) return;
+  const { error } = await sb.from("internal_notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  if (error) return alert(error.message);
+  await loadInternal();
+  renderInternal();
+}
+
+async function loadCash() {
+  const { data, error } = await sb.from("accounting_transactions").select("*").order("created_at", { ascending: false });
+  if (error) return showGlobalError(error.message);
+  cashCache = (data || []).map((row) => ({ id: row.id, type: row.transaction_type, amount: Number(row.amount || 0), reason: row.reason || "", createdAt: formatDate(row.created_at) }));
+}
+
+async function saveCashEntry() {
+  const uiType = $("cashType").value;
   const amount = Number($("cashAmount").value || 0);
   const reason = $("cashReason").value.trim();
   if (amount <= 0) return alert("Bitte einen Betrag größer als 0 eintragen.");
   if (!reason) return alert("Bitte eine Begründung eintragen.");
-  const entries = readJson(STORAGE.cash, []);
-  entries.unshift({ id: createId(), type, amount, reason, createdAt: new Date().toLocaleString("de-DE") });
-  writeJson(STORAGE.cash, entries);
+  const transaction_type = uiType === "deposit" ? "einzahlung" : "auszahlung";
+  const { error } = await sb.from("accounting_transactions").insert({ transaction_type, amount, reason: reason || null, created_by: currentUser?.id || null });
+  if (error) return alert(error.message);
   $("cashAmount").value = "";
   $("cashReason").value = "";
+  await loadCash();
   renderCash();
 }
 
 function renderCash() {
-  const entries = readJson(STORAGE.cash, []);
-  const deposits = entries.filter((e) => e.type === "deposit").reduce((sum, e) => sum + Number(e.amount || 0), 0);
-  const withdraws = entries.filter((e) => e.type === "withdraw").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const deposits = cashCache.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const withdraws = cashCache.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
   setText("currentBalance", formatMoney(deposits - withdraws));
   setText("depositTotal", formatMoney(deposits));
   setText("withdrawTotal", formatMoney(withdraws));
   const list = $("cashList");
   if (!list) return;
-  list.innerHTML = entries.length
-    ? entries.map((entry) => `<div class="price-row"><div><strong>${entry.type === "deposit" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong><span>${escapeHtml(entry.reason)}</span></div><div class="price-value ${entry.type === "withdraw" ? "negative" : "positive"}">${entry.type === "withdraw" ? "-" : "+"}${formatMoney(entry.amount)}</div></div>`).join("")
+  list.innerHTML = cashCache.length
+    ? cashCache.map((entry) => `<div class="price-row"><div><strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong><span>${escapeHtml(entry.reason)}</span></div><div class="price-value ${entry.type === "auszahlung" ? "negative" : "positive"}">${entry.type === "auszahlung" ? "-" : "+"}${formatMoney(entry.amount)}</div></div>`).join("")
     : `<div class="price-row"><div><strong>Noch keine Buchungen</strong><span>Einzahlungen und Auszahlungen erscheinen hier.</span></div></div>`;
 }
 
-function clearAllData() {
-  if (!confirm("Wirklich ALLE lokalen Ashborn-Daten löschen?")) return;
-  Object.values(STORAGE).forEach((key) => localStorage.removeItem(key));
+async function clearSystemData() {
+  if (!confirm("Wirklich Datensätze, Preislisten und interne Infos löschen? Buchhaltung bleibt erhalten.")) return;
+  await Promise.all([
+    sb.from("ashborn_entries").delete().neq("id", "00000000-0000-0000-0000-000000000000"),
+    sb.from("price_sale").delete().neq("id", "00000000-0000-0000-0000-000000000000"),
+    sb.from("price_purchase").delete().neq("id", "00000000-0000-0000-0000-000000000000"),
+    sb.from("internal_notes").delete().neq("id", "00000000-0000-0000-0000-000000000000")
+  ]);
   clearRecordForm();
-  renderAll();
+  await loadAllData();
 }
 
 function exportData() {
-  const data = {
-    records: getRecords(),
-    sellPrices: getPriceItems("sell"),
-    buyPrices: getPriceItems("buy"),
-    internal: readJson(STORAGE.internal, []),
-    cash: readJson(STORAGE.cash, []),
-    exportedAt: new Date().toISOString()
-  };
+  const data = { records: recordsCache, sellPrices: sellPricesCache, buyPrices: buyPricesCache, internal: internalCache, cash: cashCache, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -549,19 +665,6 @@ function exportData() {
   URL.revokeObjectURL(url);
 }
 
-function getRecords() { return readJson(STORAGE.records, []); }
-function saveRecords(records) { writeJson(STORAGE.records, records); }
-function getPriceItems(type) { return readJson(type === "sell" ? STORAGE.sellPrices : STORAGE.buyPrices, []); }
-function savePriceItems(type, items) { writeJson(type === "sell" ? STORAGE.sellPrices : STORAGE.buyPrices, items); }
-function readJson(key, fallback) {
-  try {
-    const value = JSON.parse(localStorage.getItem(key));
-    return Array.isArray(value) ? value : fallback;
-  } catch (_) {
-    return fallback;
-  }
-}
-function writeJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 function setText(id, value) { const el = $(id); if (el) el.textContent = String(value); }
 function setRecordMessage(message, type) {
   const el = $("recordSaveInfo");
@@ -569,13 +672,17 @@ function setRecordMessage(message, type) {
   el.textContent = message;
   el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
 }
-function createId() { return `ash_${Date.now()}_${Math.random().toString(16).slice(2)}`; }
+function showGlobalError(message) { console.error(message); }
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#039;", '"': "&quot;" }[char]));
 }
 function formatMoney(value) {
   const number = Number(value || 0);
   return `${number.toLocaleString("de-DE", { maximumFractionDigits: 2 })} $`;
+}
+function formatDate(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleString("de-DE");
 }
 function capitalize(value) { return String(value).charAt(0).toUpperCase() + String(value).slice(1); }
 function createStatusClass(value) {

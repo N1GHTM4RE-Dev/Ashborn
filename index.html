@@ -39,8 +39,12 @@
       <h1>Systemzugang</h1>
       <p class="login-subtitle">Interner Zugang zur Ashborn-Verwaltung. Nur freigegebene Mitglieder mit Systemkennwort erhalten Zutritt.</p>
       <div class="login-field">
+        <label for="emailInput">Benutzer E-Mail</label>
+        <input type="email" id="emailInput" placeholder="name@ashborn.de" autocomplete="username" />
+      </div>
+      <div class="login-field">
         <label for="passwordInput">Systemkennwort</label>
-        <input type="password" id="passwordInput" placeholder="Kennwort eingeben" autocomplete="off" />
+        <input type="password" id="passwordInput" placeholder="Kennwort eingeben" autocomplete="current-password" />
       </div>
       <button id="loginBtn" class="primary-btn" type="button"><span>System entsiegeln</span></button>
       <div id="loginError" class="login-error"></div>
@@ -84,7 +88,7 @@
           </div>
           <div class="sidepanel-block sidepanel-note">
             <p class="section-kicker">HINWEIS</p>
-            <p>Pflichtfeld ist nur der Name. Alles andere kann später ergänzt werden. Bilder werden aktuell lokal im Browser gespeichert.</p>
+            <p>Pflichtfeld ist nur der Name. Alles andere kann später ergänzt werden. Bilder werden jetzt im privaten Supabase-Bucket gespeichert.</p>
           </div>
         </aside>
 
@@ -133,7 +137,7 @@
           <div class="form-field">
             <label for="recordImages">Bilder hinzufügen</label>
             <input type="file" id="recordImages" accept="image/*" multiple />
-            <p class="field-hint">Mehrere Bilder möglich. Für GitHub Pages werden sie lokal im Browser gespeichert.</p>
+            <p class="field-hint">Mehrere Bilder möglich. Die Bilder werden beim Speichern in Supabase Storage hochgeladen.</p>
             <div id="imagePreview" class="image-preview-grid"></div>
           </div>
 
@@ -254,8 +258,8 @@
     <div id="settingsTab" class="tab-content">
       <section class="panel">
         <div class="panel-header"><div><p class="section-kicker">SYSTEMKAMMER</p><h2>Verwaltung</h2></div></div>
-        <p class="system-text">Diese Version speichert weiterhin lokal im Browser. Für echte gemeinsame Nutzung brauchen wir später eine Datenbank wie Firebase oder Supabase mit Benutzerkonten.</p>
-        <div class="form-actions"><button id="exportDataBtn" class="secondary-btn small-btn" type="button">Daten exportieren</button><button id="clearAllDataBtn" class="danger-btn small-btn" type="button">Alle lokalen Daten löschen</button></div>
+        <p class="system-text">Diese Version ist mit Supabase verbunden. Daten werden zentral gespeichert und sind nur für eingeloggte Benutzer sichtbar.</p>
+        <div class="form-actions"><button id="exportDataBtn" class="secondary-btn small-btn" type="button">Daten exportieren</button><button id="clearAllDataBtn" class="danger-btn small-btn" type="button">Systemdaten löschen</button></div>
       </section>
     </div>
   </section>
@@ -276,6 +280,7 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./app.js" defer></script>
 </body>
 </html>

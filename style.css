@@ -2543,3 +2543,156 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   ASHBORN V5: AktenSystem Ausbau
+========================================================= */
+.record-type-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.record-type-stat {
+  padding: 12px;
+  border: 1px solid rgba(198, 146, 63, 0.22);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.18));
+}
+
+.record-type-stat span {
+  display: block;
+  color: rgba(228, 194, 126, 0.68);
+  font-family: var(--font-title);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.record-type-stat strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.record-toolbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+
+.toolbar-field {
+  width: min(250px, 100%);
+  margin-bottom: 0;
+}
+
+.record-toolbar .small-btn {
+  min-width: 160px;
+  min-height: 50px;
+}
+
+.secondary-btn.active {
+  border-color: rgba(255, 227, 160, 0.78);
+  color: #190b04;
+  background: linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
+}
+
+.record-card {
+  text-align: left;
+}
+
+.record-card-main {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.record-thumb {
+  display: grid;
+  place-items: center;
+  min-height: 132px;
+  border: 1px solid rgba(242, 199, 107, 0.24);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(242, 199, 107, 0.18), transparent 45%),
+    linear-gradient(180deg, rgba(5, 3, 2, 0.84), rgba(22, 11, 5, 0.92));
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.46);
+}
+
+.record-thumb img {
+  width: 100%;
+  height: 100%;
+  min-height: 132px;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.06);
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.record-card:hover .record-thumb img {
+  transform: scale(1.06);
+  filter: saturate(1.16) contrast(1.08) brightness(1.05);
+}
+
+.record-thumb span {
+  color: #190b04;
+  font-family: var(--font-brand);
+  font-size: 54px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 240, 190, 0.55);
+  background: var(--gold-metal);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.record-card-body {
+  min-width: 0;
+}
+
+.compact-detail-actions {
+  justify-content: flex-start;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+#copyTelegramBtn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .record-card-main {
+    grid-template-columns: 1fr;
+  }
+
+  .record-thumb {
+    min-height: 190px;
+  }
+
+  .record-thumb img {
+    min-height: 190px;
+  }
+
+  .record-toolbar,
+  .record-toolbar .small-btn,
+  .toolbar-field {
+    width: 100%;
+  }
+}

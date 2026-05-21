@@ -477,11 +477,6 @@ function renderRecords() {
   setText("totalRecordsCount", recordsCache.length);
   setText("filteredRecordsCount", filtered.length);
   setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
-  setText("personRecordsCount", recordsCache.filter((item) => item.type === "Person").length);
-  setText("routeRecordsCount", recordsCache.filter((item) => item.type === "Route").length);
-  setText("locationRecordsCount", recordsCache.filter((item) => item.type === "Ort").length);
-  setText("objectRecordsCount", recordsCache.filter((item) => item.type === "Gegenstand").length);
-
   if (!filtered.length) {
     list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
     return;
@@ -954,6 +949,7 @@ function capitalize(value) {
 function createStatusClass(value) {
   const normalized = String(value || "").toLowerCase();
   if (normalized.includes("person")) return "status-geheim";
+  if (normalized.includes("organisation")) return "status-beobachtung";
   if (normalized.includes("route")) return "status-beobachtung";
   if (normalized.includes("ort")) return "status-archiviert";
   return "";

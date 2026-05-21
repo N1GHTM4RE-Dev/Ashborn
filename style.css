@@ -2180,3 +2180,91 @@ select:focus-visible {
     inset 0 1px 0 rgba(255, 255, 255, 0.48),
     inset 0 -2px 0 rgba(65, 32, 5, 0.42) !important;
 }
+
+/* =========================================================
+   BRIGHT GOLD READABILITY FIX
+   Keeps the current sizes but removes the dark dirty texture
+   from important text so it reads clearly on dark panels.
+========================================================= */
+
+.login-box h1,
+.system-header h1,
+.panel h2,
+.archive-sidepanel h2,
+.archive-main h2,
+.detail-sheet h2,
+.status-box h2,
+.akten-card h3,
+.feature-card h3,
+.detail-section h3 {
+  color: #ffe28f !important;
+  background-image:
+    linear-gradient(
+      180deg,
+      #fff9cf 0%,
+      #ffe79a 24%,
+      #f4c564 48%,
+      #ffd978 66%,
+      #c98b2e 100%
+    ) !important;
+  background-blend-mode: normal !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 0.18px rgba(255, 239, 178, 0.34) !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(24, 9, 1, 0.9))
+    drop-shadow(0 0 7px rgba(255, 211, 105, 0.24)) !important;
+}
+
+.system-header h1,
+.archive-sidepanel h2,
+.archive-main h2,
+.panel h2 {
+  text-transform: uppercase !important;
+}
+
+.landing-kicker,
+.login-kicker,
+.section-kicker,
+.system-kicker {
+  color: #f0c56b !important;
+}
+
+.archive-stat span,
+.detail-meta-box span,
+.folder-chip {
+  color: rgba(255, 224, 147, 0.84) !important;
+}
+
+.archive-stat strong,
+.detail-meta-box strong {
+  background-image:
+    linear-gradient(180deg, #fff7c8 0%, #ffd879 42%, #d09130 100%) !important;
+  -webkit-text-stroke: 0.12px rgba(255, 239, 178, 0.26) !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(24, 9, 1, 0.86))
+    drop-shadow(0 0 8px rgba(255, 211, 105, 0.2)) !important;
+}
+
+.akten-card p,
+.feature-card p,
+.system-text,
+.sidepanel-note p,
+.detail-section p,
+.detail-content,
+.system-subline,
+.login-subtitle {
+  color: rgba(246, 232, 202, 0.88) !important;
+}
+
+.search-input {
+  color: rgba(246, 232, 202, 0.92) !important;
+}
+
+.search-input::placeholder,
+.login-field input::placeholder,
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: rgba(246, 232, 202, 0.5) !important;
+}

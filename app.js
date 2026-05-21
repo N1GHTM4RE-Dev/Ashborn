@@ -1770,3 +1770,679 @@ function bindHeroParallax() {
     scene.style.transform = `scale(1.035) translate3d(${x}%, ${y}%, 0)`;
   }, { passive: true });
 }
+
+/* =========================================================
+   ASHBORN FEATURE PACK v16
+   Favoriten, Wichtigkeit, Tags, ToDos/Kontakte, Verknüpfungen,
+   Warenkorb/Belege, Buchhaltung Kategorien, Monatsübersicht, Charts
+========================================================= */
+
+const FEATURE_INTERNAL_CATEGORIES = ["Allgemein", "Regeln", "Rollen", "Mitglieder", "Pläne", "Bündnisse", "Hinweise", "Aufgaben", "Kontakte"];
+const priceCarts = { sell: [], buy: [] };
+
+function getElValue(id, fallback = "") {
+  const el = $(id);
+  if (!el) return fallback;
+  if (el.type === "checkbox") return !!el.checked;
+  return String(el.value ?? fallback);
+}
+
+function setElValue(id, value = "") {
+  const el = $(id);
+  if (!el) return;
+  if (el.type === "checkbox") el.checked = !!value;
+  else el.value = value ?? "";
+}
+
+function csvTagsToArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).map(String);
+  return String(value || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean);
+}
+
+function tagsToText(tags) {
+  return Array.isArray(tags) ? tags.join(", ") : String(tags || "");
+}
+
+function selectedValues(id) {
+  const el = $(id);
+  if (!el) return [];
+  return Array.from(el.selectedOptions || []).map((option) => option.value).filter(Boolean);
+}
+
+function setSelectedValues(id, values) {
+  const wanted = new Set(Array.isArray(values) ? values : []);
+  const el = $(id);
+  if (!el) return;
+  Array.from(el.options || []).forEach((option) => { option.selected = wanted.has(option.value); });
+}
+
+function safeJsonArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function buildRelatedOptions(currentId = "") {
+  const select = $("recordRelatedIds");
+  if (!select) return;
+  const options = recordsCache
+    .filter((entry) => entry.id !== currentId)
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "de"));
+  select.innerHTML = options.map((entry) => `<option value="${escapeHtml(entry.id)}">${escapeHtml(entry.name)} (${escapeHtml(entry.type || "Datensatz")})</option>`).join("");
+}
+
+async function normalizeRecord(row) {
+  const images = await withSignedImageUrls(Array.isArray(row.images) ? row.images : []);
+  return {
+    id: row.id,
+    name: row.name || "",
+    type: row.type || "",
+    location: row.find_location || "",
+    telegram: row.telegram_number || "",
+    description: row.description || "",
+    images,
+    favorite: !!row.favorite,
+    importance: row.importance || "Normal",
+    tags: safeJsonArray(row.tags),
+    relatedIds: safeJsonArray(row.related_ids),
+    relationStatus: row.relation_status || "",
+    orgMembers: row.org_members || "",
+    routeInfo: row.route_info || "",
+    placeInfo: row.place_info || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || ""
+  };
+}
+
+function checkRecordDuplicates(name, telegram, currentId = "") {
+  const n = String(name || "").trim().toLowerCase();
+  const t = String(telegram || "").trim().toLowerCase();
+  const duplicates = recordsCache.filter((entry) => entry.id !== currentId && (
+    (n && String(entry.name || "").trim().toLowerCase() === n) ||
+    (t && String(entry.telegram || "").trim().toLowerCase() === t)
+  ));
+  if (!duplicates.length) return true;
+  return confirm(`Möglicher Duplikat-Treffer gefunden:\n\n${duplicates.map((d) => `• ${d.name} (${d.type || "ohne Art"})`).join("\n")}\n\nTrotzdem speichern?`);
+}
+
+async function saveRecord() {
+  if (isBusy) return;
+  const name = recordFields.name.value.trim();
+  if (!name) {
+    setRecordMessage("Bitte mindestens den Namen eintragen.", "error");
+    recordFields.name.focus();
+    return;
+  }
+
+  const currentId = recordFields.id.value.trim();
+  const telegram = recordFields.telegram.value.trim();
+  if (!checkRecordDuplicates(name, telegram, currentId)) return;
+
+  try {
+    setBusy(true, "Datensatz wird gespeichert...");
+    const id = currentId || crypto.randomUUID();
+    const uploadedImages = await uploadPendingImages(id);
+    const payload = {
+      id,
+      name,
+      type: recordFields.type.value || null,
+      find_location: recordFields.location.value.trim() || null,
+      telegram_number: telegram || null,
+      description: recordFields.description.value.trim() || null,
+      images: uploadedImages.map((image) => ({ name: image.name || "Bild", path: image.path })),
+      favorite: getElValue("recordFavorite", false),
+      importance: getElValue("recordImportance", "Normal") || "Normal",
+      tags: csvTagsToArray(getElValue("recordTags", "")),
+      related_ids: selectedValues("recordRelatedIds"),
+      relation_status: getElValue("recordRelationStatus", "") || null,
+      org_members: getElValue("recordOrgMembers", "").trim() || null,
+      route_info: getElValue("recordRouteInfo", "").trim() || null,
+      place_info: getElValue("recordPlaceInfo", "").trim() || null,
+      updated_at: new Date().toISOString()
+    };
+    if (!currentId) payload.created_by = sessionUser?.id || null;
+
+    const { error } = await supabaseClient.from("ashborn_entries").upsert(payload, { onConflict: "id" });
+    if (error) throw error;
+
+    clearRecordForm();
+    setRecordMessage("Datensatz wurde gespeichert.", "success");
+    await loadRecords();
+    renderRecords();
+    renderDashboard();
+  } catch (error) {
+    console.error(error);
+    setRecordMessage(`Speichern fehlgeschlagen: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function loadRecordIntoForm(record) {
+  buildRelatedOptions(record.id || "");
+  recordFields.id.value = record.id || "";
+  recordFields.name.value = record.name || "";
+  recordFields.type.value = record.type || "";
+  recordFields.location.value = record.location || "";
+  recordFields.telegram.value = record.telegram || "";
+  recordFields.description.value = record.description || "";
+  setElValue("recordFavorite", !!record.favorite);
+  setElValue("recordImportance", record.importance || "Normal");
+  setElValue("recordRelationStatus", record.relationStatus || "");
+  setElValue("recordTags", tagsToText(record.tags));
+  setSelectedValues("recordRelatedIds", record.relatedIds || []);
+  setElValue("recordOrgMembers", record.orgMembers || "");
+  setElValue("recordRouteInfo", record.routeInfo || "");
+  setElValue("recordPlaceInfo", record.placeInfo || "");
+  pendingImages = Array.isArray(record.images) ? record.images.map((img) => ({ ...img })) : [];
+  $("dataFormTitle").textContent = "Daten bearbeiten";
+  $("recordSaveText").textContent = "Änderungen speichern";
+  $("cancelRecordEditBtn").classList.remove("hidden");
+  renderImagePreview();
+  switchTab("dataTab");
+  setRecordMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => recordFields.name.focus(), 80);
+}
+
+function clearRecordForm() {
+  recordFields.id.value = "";
+  recordFields.name.value = "";
+  recordFields.type.value = "";
+  recordFields.location.value = "";
+  recordFields.telegram.value = "";
+  recordFields.description.value = "";
+  recordFields.images.value = "";
+  setElValue("recordFavorite", false);
+  setElValue("recordImportance", "Normal");
+  setElValue("recordRelationStatus", "");
+  setElValue("recordTags", "");
+  setSelectedValues("recordRelatedIds", []);
+  setElValue("recordOrgMembers", "");
+  setElValue("recordRouteInfo", "");
+  setElValue("recordPlaceInfo", "");
+  pendingImages = [];
+  buildRelatedOptions("");
+  $("dataFormTitle").textContent = "Daten erfassen";
+  $("recordSaveText").textContent = "Daten speichern";
+  $("cancelRecordEditBtn").classList.add("hidden");
+  renderImagePreview();
+}
+
+function renderRecords() {
+  buildRelatedOptions(recordFields.id?.value || "");
+  const list = $("recordList");
+  if (!list) return;
+  const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
+  const filtered = recordsCache
+    .filter((record) => {
+      const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
+      const hasImages = Array.isArray(record.images) && record.images.length > 0;
+      const matchesImages = !activeRecordImageFilter || hasImages;
+      const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.importance, record.relationStatus, tagsToText(record.tags), record.orgMembers, record.routeInfo, record.placeInfo, record.createdAt, record.updatedAt].join(" ").toLowerCase();
+      return matchesType && matchesImages && haystack.includes(query);
+    })
+    .sort(sortRecords);
+
+  setText("totalRecordsCount", recordsCache.length);
+  setText("filteredRecordsCount", filtered.length);
+  setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
+  if (!filtered.length) {
+    list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((record) => {
+    const firstImage = Array.isArray(record.images) ? record.images.find((img) => img.src) : null;
+    return `
+      <button class="akten-card record-card ${record.favorite ? "favorite-card" : ""}" type="button" data-id="${escapeHtml(record.id)}">
+        <div class="record-card-main">
+          <div class="record-thumb ${firstImage ? "has-image" : ""}">
+            ${firstImage ? `<img src="${firstImage.src}" alt="${escapeHtml(firstImage.name || record.name)}" />` : `<span>${escapeHtml((record.type || "A").slice(0, 1))}</span>`}
+          </div>
+          <div class="record-card-body">
+            <div class="folder-chip-row">
+              ${record.favorite ? `<span class="folder-chip gold-chip">★ Favorit</span>` : ""}
+              <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
+              <span class="folder-chip ${createStatusClass(record.importance)}">${escapeHtml(record.importance || "Normal")}</span>
+              ${record.relationStatus ? `<span class="folder-chip">${escapeHtml(record.relationStatus)}</span>` : ""}
+              <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
+            </div>
+            <h3>${escapeHtml(record.name)}</h3>
+            <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
+            <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
+            ${record.tags?.length ? `<p class="tag-row">${record.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</p>` : ""}
+            <p class="akten-preview">${escapeHtml(record.description || record.orgMembers || record.routeInfo || record.placeInfo || "Keine Beschreibung")}</p>
+            <div class="card-actions">
+              <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
+              <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function openDetail(record) {
+  currentRecordId = record.id;
+  setText("detailTitle", record.name || "-");
+  setText("detailType", record.type || "Nicht festgelegt");
+  setText("detailLocation", record.location || "-");
+  setText("detailTelegram", record.telegram || "-");
+  setText("detailCreatedAt", record.createdAt || "-");
+  setText("detailUpdatedAt", record.updatedAt || "-");
+  setText("detailDescription", record.description || "Keine Beschreibung hinterlegt.");
+  const relatedNames = (record.relatedIds || []).map((id) => recordsCache.find((entry) => entry.id === id)?.name).filter(Boolean);
+  const extra = $("detailExtraInfo");
+  if (extra) {
+    extra.innerHTML = [
+      ["Favorit", record.favorite ? "Ja" : "Nein"],
+      ["Wichtigkeit", record.importance || "Normal"],
+      ["Tags", tagsToText(record.tags) || "-"],
+      ["Beziehungsstatus", record.relationStatus || "-"],
+      ["Verknüpft", relatedNames.join(", ") || "-"],
+      ["Mitglieder", record.orgMembers || "-"],
+      ["Route", record.routeInfo || "-"],
+      ["Ort", record.placeInfo || "-"]
+    ].map(([a,b]) => `<div><span>${escapeHtml(a)}</span><strong>${escapeHtml(b)}</strong></div>`).join("");
+  }
+  const imageBox = $("detailImages");
+  if (imageBox) {
+    imageBox.innerHTML = Array.isArray(record.images) && record.images.length
+      ? record.images.map((image, index) => `
+        <div class="detail-image-item">
+          ${image.src ? `<img src="${image.src}" alt="${escapeHtml(image.name || "Bild")}" />` : `<div class="image-placeholder">Bild</div>`}
+          <button class="danger-btn mini-btn" type="button" data-delete-detail-image="${index}">Bild löschen</button>
+        </div>`).join("")
+      : `<p class="system-text">Keine Bilder vorhanden.</p>`;
+    imageBox.querySelectorAll("[data-delete-detail-image]").forEach((button) => {
+      button.addEventListener("click", () => deleteDetailImage(Number(button.dataset.deleteDetailImage)));
+    });
+  }
+  $("detailModal").classList.remove("hidden");
+}
+
+async function deleteDetailImage(index) {
+  const record = recordsCache.find((entry) => entry.id === currentRecordId);
+  if (!record || !Array.isArray(record.images) || !record.images[index]) return;
+  if (!confirm("Dieses Bild wirklich aus dem Datensatz entfernen?")) return;
+  const image = record.images[index];
+  const nextImages = record.images.filter((_, i) => i !== index).map((img) => ({ name: img.name || "Bild", path: img.path }));
+  try {
+    setBusy(true, "Bild wird gelöscht...");
+    if (image.path) await supabaseClient.storage.from(IMAGE_BUCKET).remove([image.path]);
+    const { error } = await supabaseClient.from("ashborn_entries").update({ images: nextImages, updated_at: new Date().toISOString() }).eq("id", record.id);
+    if (error) throw error;
+    await loadRecords();
+    const updated = recordsCache.find((entry) => entry.id === record.id);
+    if (updated) openDetail(updated);
+    renderRecords();
+  } catch (error) {
+    alert(`Bild konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function loadPriceItems(type) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { data, error } = await supabaseClient.from(table).select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  const normalized = (data || []).map((row) => ({
+    id: row.id,
+    name: row.item_name || "",
+    category: row.category || "",
+    unit: row.unit || "",
+    price: Number(row.price || 0),
+    note: row.note || "",
+    favorite: !!row.favorite,
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+  if (type === "sell") sellPricesCache = normalized;
+  else buyPricesCache = normalized;
+}
+
+async function savePriceItem(type) {
+  if (isBusy) return;
+  const prefix = type === "sell" ? "sell" : "buy";
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const id = $(`${prefix}PriceId`)?.value.trim();
+  const name = $(`${prefix}ItemName`).value.trim();
+  const category = $(`${prefix}ItemCategory`)?.value.trim() || "";
+  const price = Number($(`${prefix}ItemPrice`).value || 0);
+  const unit = $(`${prefix}ItemUnit`).value.trim();
+  const note = $(`${prefix}ItemNote`).value.trim();
+  if (!name || price <= 0) return alert("Bitte mindestens Artikel und Preis eintragen.");
+  const exists = (type === "sell" ? sellPricesCache : buyPricesCache).find((item) => item.id !== id && item.name.trim().toLowerCase() === name.toLowerCase());
+  if (exists && !confirm(`Artikel "${name}" existiert bereits. Trotzdem speichern?`)) return;
+  const payload = { item_name: name, category: category || null, price, unit: unit || null, note: note || null, updated_at: new Date().toISOString() };
+  try {
+    setBusy(true, id ? "Preis wird aktualisiert..." : "Preis wird gespeichert...");
+    const request = id ? supabaseClient.from(table).update(payload).eq("id", id) : supabaseClient.from(table).insert(payload);
+    const { error } = await request;
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+    renderDashboard();
+  } catch (error) {
+    alert(`Preis konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally { setBusy(false); }
+}
+
+function getMatchingOtherPrice(type, item) {
+  const other = type === "sell" ? buyPricesCache : sellPricesCache;
+  return other.find((entry) => entry.name.trim().toLowerCase() === item.name.trim().toLowerCase());
+}
+
+function marginText(type, item) {
+  const other = getMatchingOtherPrice(type, item);
+  if (!other) return "Kein Vergleich";
+  const sell = type === "sell" ? item.price : other.price;
+  const buy = type === "sell" ? other.price : item.price;
+  const diff = sell - buy;
+  const percent = buy > 0 ? (diff / buy) * 100 : 0;
+  return `Marge: ${formatMoney(diff)} / ${percent.toFixed(1)}%`;
+}
+
+function renderPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const allItems = type === "sell" ? sellPricesCache : buyPricesCache;
+  const items = getVisiblePriceItems(type);
+  const list = $(`${prefix}PriceList`);
+  const select = $(`${prefix}CalculatorItem`);
+  if (!list || !select) return;
+  const calculatorItems = [...allItems].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  select.innerHTML = calculatorItems.length ? calculatorItems.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${formatMoney(item.price)}</option>`).join("") : `<option value="">Keine Artikel vorhanden</option>`;
+  list.innerHTML = items.length ? items.map((item) => `
+    <div class="price-row enhanced-price-row ${item.favorite ? "favorite-card" : ""}">
+      <div class="price-main">
+        <div class="folder-chip-row"><span class="folder-chip">${escapeHtml(item.category || "Keine Kategorie")}</span><span class="folder-chip">${escapeHtml(item.unit || "Keine Einheit")}</span><span class="folder-chip">${escapeHtml(marginText(type, item))}</span></div>
+        <strong>${escapeHtml(item.name)}</strong><span>${item.note ? escapeHtml(item.note) : "Keine Notiz"}</span>
+      </div>
+      <div class="price-value">${formatMoney(item.price)}</div>
+      <div class="price-actions"><button class="secondary-btn mini-btn" type="button" data-edit-price="${escapeHtml(item.id)}">Bearbeiten</button><button class="danger-btn mini-btn" type="button" data-delete-price="${escapeHtml(item.id)}">Löschen</button></div>
+    </div>`).join("") : `<div class="price-row"><div><strong>Keine Artikel gefunden</strong><span>Lege neue Artikel an oder ändere deine Suche.</span></div></div>`;
+  list.querySelectorAll("[data-edit-price]").forEach((button) => button.addEventListener("click", () => loadPriceIntoForm(type, button.dataset.editPrice)));
+  list.querySelectorAll("[data-delete-price]").forEach((button) => button.addEventListener("click", () => deletePriceItem(type, button.dataset.deletePrice)));
+  updateCalculator(type);
+  renderCart(type);
+}
+
+function addCurrentCalculatorToCart(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
+  const item = items.find((entry) => entry.id === $(`${prefix}CalculatorItem`)?.value);
+  if (!item) return;
+  const qty = Math.max(1, Number($(`${prefix}CalculatorQty`)?.value || 1));
+  const adjustment = Number($(`${prefix}CalculatorAdjust`)?.value || 0);
+  const single = item.price * (1 + adjustment / 100);
+  priceCarts[type].push({ id: item.id, name: item.name, qty, single, total: single * qty });
+  renderCart(type);
+}
+
+function renderCart(type) {
+  const box = $(`${type}CartBox`);
+  if (!box) return;
+  const cart = priceCarts[type] || [];
+  const total = cart.reduce((sum, item) => sum + item.total, 0);
+  box.innerHTML = cart.length ? `<div class="cart-lines">${cart.map((item, index) => `<div><span>${escapeHtml(item.name)} × ${item.qty}</span><strong>${formatMoney(item.total)}</strong><button class="danger-btn mini-btn" type="button" data-cart-remove="${index}">×</button></div>`).join("")}</div><div class="calc-result"><span>Warenkorb Gesamt</span><strong>${formatMoney(total)}</strong></div>` : `<p class="field-hint">Warenkorb ist leer.</p>`;
+  box.querySelectorAll("[data-cart-remove]").forEach((btn) => btn.addEventListener("click", () => { priceCarts[type].splice(Number(btn.dataset.cartRemove), 1); renderCart(type); }));
+}
+
+async function createReceiptFromCart(type) {
+  const cart = priceCarts[type] || [];
+  if (!cart.length) return alert("Der Warenkorb ist leer.");
+  const total = cart.reduce((sum, item) => sum + item.total, 0);
+  const isSell = type === "sell";
+  const reason = `${isSell ? "Verkaufsbeleg" : "Kaufbeleg"}: ${cart.map((item) => `${item.name} x${item.qty}`).join(", ")}`;
+  if (!confirm(`${reason}\n\nGesamt: ${formatMoney(total)}\n\nIn Buchhaltung übernehmen?`)) return;
+  try {
+    setBusy(true, "Beleg wird gebucht...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({ transaction_type: isSell ? "einzahlung" : "auszahlung", amount: total, reason, category: isSell ? "Verkauf" : "Einkauf", created_by: sessionUser?.id || null });
+    if (error) throw error;
+    priceCarts[type] = [];
+    await loadCashEntries();
+    renderCash();
+    renderCart(type);
+    alert("Beleg wurde in die Buchhaltung übernommen.");
+  } catch (error) {
+    alert(`Beleg konnte nicht erstellt werden: ${error.message || error}`);
+  } finally { setBusy(false); }
+}
+
+async function loadInternalNotes() {
+  const { data, error } = await supabaseClient.from("internal_notes").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  internalCache = (data || []).map((row) => ({
+    id: row.id,
+    title: row.title || "",
+    content: row.content || "",
+    category: row.category || "Allgemein",
+    favorite: !!row.favorite,
+    importance: row.importance || "Normal",
+    tags: safeJsonArray(row.tags),
+    assignee: row.assignee || "",
+    dueDate: row.due_date || "",
+    status: row.status || "Offen",
+    createdAtRaw: row.created_at,
+    updatedAtRaw: row.updated_at,
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+}
+
+async function saveInternalNote() {
+  if (isBusy) return;
+  const id = $("internalId")?.value.trim() || "";
+  const title = $("internalTitle")?.value.trim() || "";
+  const category = $("internalCategory")?.value || "Allgemein";
+  const content = $("internalContent")?.value.trim() || "";
+  if (!title) return setInternalMessage("Bitte eine Überschrift eintragen.", "error");
+  try {
+    setBusy(true, id ? "Information wird aktualisiert..." : "Information wird gespeichert...");
+    const payload = { title, category, content: content || null, favorite: getElValue("internalFavorite", false), importance: getElValue("internalImportance", "Normal"), tags: csvTagsToArray(getElValue("internalTags", "")), assignee: getElValue("internalAssignee", "") || null, due_date: getElValue("internalDueDate", "") || null, status: getElValue("internalStatus", "Offen"), updated_at: new Date().toISOString() };
+    const result = id ? await supabaseClient.from("internal_notes").update(payload).eq("id", id) : await supabaseClient.from("internal_notes").insert({ ...payload, created_by: sessionUser?.id || null });
+    if (result.error) throw result.error;
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    renderDashboard();
+    setInternalMessage(id ? "Interne Information wurde aktualisiert." : "Interne Information wurde gespeichert.", "success");
+  } catch (error) {
+    setInternalMessage(`Information konnte nicht gespeichert werden: ${error.message || error}`, "error");
+  } finally { setBusy(false); }
+}
+
+function getVisibleInternalNotes() {
+  let notes = [...internalCache];
+  if (internalCategoryFilter !== "Alle") notes = notes.filter((note) => String(note.category || "Allgemein") === internalCategoryFilter);
+  if (internalSearchQuery) {
+    notes = notes.filter((note) => [note.title, note.category, note.content, note.importance, note.status, note.assignee, note.dueDate, tagsToText(note.tags), note.createdAt, note.updatedAt].join(" ").toLowerCase().includes(internalSearchQuery));
+  }
+  notes.sort((a, b) => {
+    if (internalSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+    if (internalSortMode === "title") return String(a.title || "").localeCompare(String(b.title || ""), "de");
+    if (internalSortMode === "category") return String(a.category || "").localeCompare(String(b.category || ""), "de");
+    return new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0);
+  });
+  return notes;
+}
+
+function renderInternal() {
+  const list = $("internalList");
+  if (!list) return;
+  const notes = getVisibleInternalNotes();
+  const total = internalCache.length;
+  const countByCategory = (category) => internalCache.filter((note) => String(note.category || "Allgemein") === category).length;
+  setText("internalTotalCount", String(total));
+  setText("internalRulesCount", String(countByCategory("Regeln")));
+  setText("internalRolesCount", String(countByCategory("Rollen")));
+  setText("internalMembersCount", String(countByCategory("Mitglieder") + countByCategory("Kontakte")));
+  setText("internalPlansCount", String(countByCategory("Pläne") + countByCategory("Aufgaben")));
+  setText("internalAllianceCount", String(countByCategory("Bündnisse")));
+  setText("internalHintsCount", String(countByCategory("Hinweise")));
+  setText("internalVisibleCount", `${notes.length} sichtbar`);
+  document.querySelectorAll("[data-internal-overview-filter]").forEach((button) => button.classList.toggle("active", (button.dataset.internalOverviewFilter || "Alle") === internalCategoryFilter));
+  list.innerHTML = notes.length ? notes.map((note) => `
+    <article class="internal-note-card-v11 ${note.favorite ? "favorite-card" : ""}" data-internal-card="${escapeHtml(note.id)}">
+      <div class="folder-chip-row internal-chip-row-v11"><span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span><span class="folder-chip ${createStatusClass(note.importance)}">${escapeHtml(note.importance || "Normal")}</span><span class="folder-chip">${escapeHtml(note.status || "Offen")}</span>${note.favorite ? `<span class="folder-chip gold-chip">★ Favorit</span>` : ""}</div>
+      <h3>${escapeHtml(note.title)}</h3>
+      <div class="internal-note-content-v11">${escapeHtml(note.content || "Keine zusätzliche Information hinterlegt.")}</div>
+      <div class="feature-meta-line">${[note.assignee ? `Zuständig: ${note.assignee}` : "", note.dueDate ? `Fällig: ${note.dueDate}` : "", note.tags?.length ? `Tags: ${tagsToText(note.tags)}` : ""].filter(Boolean).map(escapeHtml).join(" · ")}</div>
+      <div class="internal-actions-v11"><button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button><button class="secondary-btn mini-btn" data-copy-internal="${escapeHtml(note.id)}" type="button">Kopieren</button><button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button></div>
+    </article>`).join("") : `<article class="internal-note-card-v11 empty-internal-v11"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Kontakte, Aufgaben, Hinweise, Pläne oder Bündnisse an.</p></article>`;
+  list.querySelectorAll("[data-edit-internal]").forEach((button) => button.addEventListener("click", () => { const note = internalCache.find((entry) => entry.id === button.dataset.editInternal); if (note) loadInternalIntoForm(note); }));
+  list.querySelectorAll("[data-copy-internal]").forEach((button) => button.addEventListener("click", async () => { const note = internalCache.find((entry) => entry.id === button.dataset.copyInternal); if (!note) return; const text = [note.title, `Kategorie: ${note.category}`, note.assignee ? `Zuständig: ${note.assignee}` : "", note.content || ""].filter(Boolean).join("\n"); try { await navigator.clipboard.writeText(text); setInternalMessage("Interne Information wurde kopiert.", "success"); } catch { setInternalMessage("Kopieren wurde vom Browser blockiert.", "error"); } }));
+  list.querySelectorAll("[data-delete-internal]").forEach((button) => button.addEventListener("click", () => deleteInternalNote(button.dataset.deleteInternal)));
+}
+
+function loadInternalIntoForm(note) {
+  if (!note) return;
+  setElValue("internalId", note.id || "");
+  setElValue("internalTitle", note.title || "");
+  setElValue("internalCategory", note.category || "Allgemein");
+  setElValue("internalContent", note.content || "");
+  setElValue("internalFavorite", !!note.favorite);
+  setElValue("internalImportance", note.importance || "Normal");
+  setElValue("internalStatus", note.status || "Offen");
+  setElValue("internalAssignee", note.assignee || "");
+  setElValue("internalDueDate", note.dueDate || "");
+  setElValue("internalTags", tagsToText(note.tags));
+  setText("internalSaveButtonText", "Änderungen speichern");
+  setText("internalEditorTitle", "Interne Information bearbeiten");
+  $("cancelInternalEditBtn")?.classList.remove("hidden");
+  setInternalMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => $("internalTitle")?.focus(), 80);
+}
+
+function clearInternalForm() {
+  setElValue("internalId", ""); setElValue("internalTitle", ""); setElValue("internalCategory", "Allgemein"); setElValue("internalContent", ""); setElValue("internalFavorite", false); setElValue("internalImportance", "Normal"); setElValue("internalStatus", "Offen"); setElValue("internalAssignee", ""); setElValue("internalDueDate", ""); setElValue("internalTags", "");
+  setText("internalSaveButtonText", "Information speichern");
+  setText("internalEditorTitle", "Interne Information anlegen");
+  $("cancelInternalEditBtn")?.classList.add("hidden");
+}
+
+async function loadCashEntries() {
+  const { data, error } = await supabaseClient.from("accounting_transactions").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  cashCache = (data || []).map((row) => ({ id: row.id, type: row.transaction_type, amount: Number(row.amount || 0), reason: row.reason || "", category: row.category || "Sonstiges", createdAtRaw: row.created_at, createdAt: formatDate(row.created_at) }));
+}
+
+async function saveCashEntry() {
+  if (isBusy) return;
+  const type = $("cashType").value === "withdraw" ? "auszahlung" : "einzahlung";
+  const amount = Number($("cashAmount").value || 0);
+  const reason = $("cashReason").value.trim();
+  const category = getElValue("cashCategory", "Sonstiges");
+  if (amount <= 0) return alert("Bitte einen Betrag größer als 0 eintragen.");
+  if (!reason) return alert("Bitte eine Begründung eintragen.");
+  try {
+    setBusy(true, "Buchung wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({ transaction_type: type, amount, reason, category, created_by: sessionUser?.id || null });
+    if (error) throw error;
+    $("cashAmount").value = ""; $("cashReason").value = "";
+    await loadCashEntries(); renderCash(); renderDashboard();
+  } catch (error) { alert(`Buchung konnte nicht gespeichert werden: ${error.message || error}`); } finally { setBusy(false); }
+}
+
+function renderCashMonthlyOverview(entries = cashCache) {
+  const box = $("cashMonthlyOverview");
+  if (!box) return;
+  const grouped = {};
+  entries.forEach((entry) => {
+    const d = new Date(entry.createdAtRaw || Date.now());
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    grouped[key] ||= { income: 0, expense: 0, count: 0 };
+    grouped[key].count++;
+    if (entry.type === "einzahlung") grouped[key].income += entry.amount;
+    else grouped[key].expense += entry.amount;
+  });
+  const rows = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6);
+  box.innerHTML = rows.length ? rows.map(([month, data]) => `<div><span>${month}</span><strong>${formatMoney(data.income - data.expense)}</strong><small>Einnahmen ${formatMoney(data.income)} · Ausgaben ${formatMoney(data.expense)} · ${data.count} Buchungen</small></div>`).join("") : `<p class="system-text">Noch keine Monatsdaten.</p>`;
+}
+
+const baseRenderCashV16 = renderCash;
+function renderCash() {
+  baseRenderCashV16();
+  renderCashMonthlyOverview(cashCache);
+  document.querySelectorAll(".cash-row .price-main .folder-chip-row").forEach((row, index) => {
+    const entry = getVisibleCashEntries()[index];
+    if (entry && entry.category && !row.textContent.includes(entry.category)) row.insertAdjacentHTML("beforeend", `<span class="folder-chip">${escapeHtml(entry.category)}</span>`);
+  });
+}
+
+function renderDashboardCharts() {
+  const box = $("dashboardCharts");
+  if (!box) return;
+  const income = cashCache.filter(e=>e.type==="einzahlung").reduce((s,e)=>s+e.amount,0);
+  const expense = cashCache.filter(e=>e.type==="auszahlung").reduce((s,e)=>s+e.amount,0);
+  const maxMoney = Math.max(income, expense, 1);
+  const counts = [
+    ["Person", countRecordsByType("Person")], ["Organisation", countRecordsByType("Organisation")], ["Route", countRecordsByType("Route")], ["Ort", countRecordsByType("Ort")], ["Gegenstand", countRecordsByType("Gegenstand")]
+  ];
+  const maxCount = Math.max(...counts.map(([,v])=>v),1);
+  box.innerHTML = `
+    <div class="mini-chart-line"><span>Einzahlungen</span><div><i style="width:${(income/maxMoney)*100}%"></i></div><strong>${formatMoney(income)}</strong></div>
+    <div class="mini-chart-line"><span>Auszahlungen</span><div><i style="width:${(expense/maxMoney)*100}%"></i></div><strong>${formatMoney(expense)}</strong></div>
+    ${counts.map(([label,value])=>`<div class="mini-chart-line"><span>${label}</span><div><i style="width:${(value/maxCount)*100}%"></i></div><strong>${value}</strong></div>`).join("")}`;
+}
+
+const baseRenderDashboardV16 = renderDashboard;
+function renderDashboard() {
+  baseRenderDashboardV16();
+  renderDashboardCharts();
+}
+
+function exportRecordsCsv() {
+  const rows = [["Name", "Was", "Wichtigkeit", "Favorit", "Beziehungsstatus", "Tags", "Wo", "Telegramm", "Beschreibung", "Mitglieder", "Route", "Ort", "Bilder", "Erstellt", "Bearbeitet"]];
+  recordsCache.forEach((record) => rows.push([record.name, record.type, record.importance, record.favorite ? "Ja" : "Nein", record.relationStatus, tagsToText(record.tags), record.location, record.telegram, record.description, record.orgMembers, record.routeInfo, record.placeInfo, Array.isArray(record.images) ? record.images.length : 0, record.createdAt, record.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_datensaetze_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+function exportCashCsv() {
+  const rows = [["Datum", "Art", "Kategorie", "Betrag", "Begründung"]];
+  getVisibleCashEntries().forEach((entry) => rows.push([entry.createdAt, entry.type, entry.category || "", String(entry.amount).replace(".", ","), entry.reason]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_buchhaltung_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+function exportInternalCsv() {
+  const notes = getVisibleInternalNotes();
+  const rows = [["Überschrift", "Kategorie", "Wichtigkeit", "Favorit", "Status", "Zuständig", "Fällig", "Tags", "Information", "Erstellt", "Bearbeitet"]];
+  notes.forEach((note) => rows.push([note.title, note.category, note.importance, note.favorite ? "Ja" : "Nein", note.status, note.assignee, note.dueDate, tagsToText(note.tags), note.content, note.createdAt, note.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_intern_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+function handleQuickAction(action) {
+  if (action === "newRecord") { switchTab("dataTab"); clearRecordForm(); setTimeout(()=>recordFields.name?.focus(),100); }
+  if (action === "newTodo") { switchTab("internTab"); clearInternalForm(); setElValue("internalCategory", "Aufgaben"); setElValue("internalStatus", "Offen"); setTimeout(()=>$("internalTitle")?.focus(),100); }
+  if (action === "newCash") { switchTab("cashTab"); setTimeout(()=>$("cashAmount")?.focus(),100); }
+}
+
+function refreshInternalCategoryOptions() {
+  ["internalCategory", "internalCategoryFilter"].forEach((id) => {
+    const select = $(id); if (!select) return;
+    const current = select.value || (id.endsWith("Filter") ? "Alle" : "Allgemein");
+    const opts = id.endsWith("Filter") ? ["Alle", ...FEATURE_INTERNAL_CATEGORIES] : FEATURE_INTERNAL_CATEGORIES;
+    select.innerHTML = opts.map((cat) => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join("");
+    select.value = opts.includes(current) ? current : opts[0];
+  });
+}
+
+// Extra bindings after the original bindEvents ran.
+document.addEventListener("DOMContentLoaded", () => {
+  refreshInternalCategoryOptions();
+  buildRelatedOptions("");
+  ["sell", "buy"].forEach((type) => {
+    on($(`${type}AddCartBtn`), "click", () => addCurrentCalculatorToCart(type));
+    on($(`${type}CreateReceiptBtn`), "click", () => createReceiptFromCart(type));
+  });
+  document.querySelectorAll("[data-quick-action]").forEach((button) => button.addEventListener("click", () => handleQuickAction(button.dataset.quickAction)));
+  on($("recordType"), "change", () => {});
+});

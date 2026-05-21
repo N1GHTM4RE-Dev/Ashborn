@@ -191,22 +191,44 @@
         <div class="panel-header"><div><p class="section-kicker">VERKAUF</p><h2>Preisliste Verkauf</h2></div></div>
         <div class="price-layout" data-price-module="sell">
           <form class="price-form" id="sellPriceForm">
-            <div class="form-grid">
-              <div class="form-field"><label for="sellItemName">Artikel</label><input id="sellItemName" type="text" placeholder="Artikelname" /></div>
-              <div class="form-field"><label for="sellItemPrice">Preis</label><input id="sellItemPrice" type="number" min="0" step="0.01" placeholder="0" /></div>
+            <input type="hidden" id="sellPriceId" />
+            <div class="price-form-head">
+              <div>
+                <p class="section-kicker">ARTIKELPFLEGE</p>
+                <h3 id="sellPriceFormTitle">Verkaufsartikel anlegen</h3>
+              </div>
             </div>
             <div class="form-grid">
+              <div class="form-field"><label for="sellItemName">Artikel *</label><input id="sellItemName" type="text" placeholder="Artikelname" /></div>
+              <div class="form-field"><label for="sellItemCategory">Kategorie</label><input id="sellItemCategory" type="text" placeholder="z. B. Waffen, Munition, Ware" /></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field"><label for="sellItemPrice">Preis *</label><input id="sellItemPrice" type="number" min="0" step="0.01" placeholder="0" /></div>
               <div class="form-field"><label for="sellItemUnit">Einheit</label><input id="sellItemUnit" type="text" placeholder="z. B. Stück, Kiste, Sack" /></div>
-              <div class="form-field"><label for="sellItemNote">Notiz</label><input id="sellItemNote" type="text" placeholder="Optional" /></div>
             </div>
-            <div class="form-actions"><button class="primary-btn small-btn" type="submit">Artikel speichern</button><button id="clearSellPricesBtn" class="danger-btn small-btn" type="button">Preisliste leeren</button></div>
+            <div class="form-field"><label for="sellItemNote">Notiz</label><input id="sellItemNote" type="text" placeholder="Optionaler Hinweis, Qualität, Besonderheit oder Regel" /></div>
+            <div class="form-actions">
+              <button class="primary-btn small-btn" type="submit"><span id="sellPriceSaveText">Artikel speichern</span></button>
+              <button id="cancelSellPriceEditBtn" class="secondary-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
+              <button id="clearSellPricesBtn" class="danger-btn small-btn" type="button">Preisliste leeren</button>
+            </div>
           </form>
           <div class="calculator-card">
             <p class="section-kicker">RECHNER</p><h3>Verkauf berechnen</h3>
             <div class="form-field"><label for="sellCalculatorItem">Artikel</label><select id="sellCalculatorItem"></select></div>
-            <div class="form-field"><label for="sellCalculatorQty">Menge</label><input id="sellCalculatorQty" type="number" min="0" step="1" value="1" /></div>
+            <div class="form-grid compact-grid">
+              <div class="form-field"><label for="sellCalculatorQty">Menge</label><input id="sellCalculatorQty" type="number" min="0" step="1" value="1" /></div>
+              <div class="form-field"><label for="sellCalculatorAdjust">Rabatt/Aufschlag %</label><input id="sellCalculatorAdjust" type="number" step="0.01" value="0" /></div>
+            </div>
+            <div class="calc-result muted-result"><span>Einzelpreis</span><strong id="sellCalculatorSingle">0 $</strong></div>
             <div class="calc-result"><span>Gesamt</span><strong id="sellCalculatorResult">0 $</strong></div>
           </div>
+        </div>
+        <div class="price-toolbar">
+          <div class="search-shell price-search-shell"><div class="search-core"><span class="search-icon">A</span><input type="text" id="sellPriceSearchInput" class="search-input" placeholder="Verkaufsliste durchsuchen..." /></div></div>
+          <div class="form-field toolbar-field"><label for="sellPriceSortSelect">Sortierung</label><select id="sellPriceSortSelect"><option value="name">Artikel A-Z</option><option value="category">Kategorie A-Z</option><option value="priceAsc">Preis aufsteigend</option><option value="priceDesc">Preis absteigend</option><option value="newest">Neueste zuerst</option></select></div>
+          <button id="clearSellPriceSearchBtn" class="secondary-btn small-btn" type="button">Suche leeren</button>
+          <button id="exportSellPricesCsvBtn" class="secondary-btn small-btn" type="button">Verkauf CSV</button>
         </div>
         <div id="sellPriceList" class="price-list"></div>
       </section>
@@ -217,22 +239,44 @@
         <div class="panel-header"><div><p class="section-kicker">KAUF</p><h2>Preisliste Kauf</h2></div></div>
         <div class="price-layout" data-price-module="buy">
           <form class="price-form" id="buyPriceForm">
-            <div class="form-grid">
-              <div class="form-field"><label for="buyItemName">Artikel</label><input id="buyItemName" type="text" placeholder="Artikelname" /></div>
-              <div class="form-field"><label for="buyItemPrice">Preis</label><input id="buyItemPrice" type="number" min="0" step="0.01" placeholder="0" /></div>
+            <input type="hidden" id="buyPriceId" />
+            <div class="price-form-head">
+              <div>
+                <p class="section-kicker">ARTIKELPFLEGE</p>
+                <h3 id="buyPriceFormTitle">Kaufartikel anlegen</h3>
+              </div>
             </div>
             <div class="form-grid">
+              <div class="form-field"><label for="buyItemName">Artikel *</label><input id="buyItemName" type="text" placeholder="Artikelname" /></div>
+              <div class="form-field"><label for="buyItemCategory">Kategorie</label><input id="buyItemCategory" type="text" placeholder="z. B. Waffen, Munition, Ware" /></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field"><label for="buyItemPrice">Preis *</label><input id="buyItemPrice" type="number" min="0" step="0.01" placeholder="0" /></div>
               <div class="form-field"><label for="buyItemUnit">Einheit</label><input id="buyItemUnit" type="text" placeholder="z. B. Stück, Kiste, Sack" /></div>
-              <div class="form-field"><label for="buyItemNote">Notiz</label><input id="buyItemNote" type="text" placeholder="Optional" /></div>
             </div>
-            <div class="form-actions"><button class="primary-btn small-btn" type="submit">Artikel speichern</button><button id="clearBuyPricesBtn" class="danger-btn small-btn" type="button">Preisliste leeren</button></div>
+            <div class="form-field"><label for="buyItemNote">Notiz</label><input id="buyItemNote" type="text" placeholder="Optionaler Hinweis, Qualität, Besonderheit oder Regel" /></div>
+            <div class="form-actions">
+              <button class="primary-btn small-btn" type="submit"><span id="buyPriceSaveText">Artikel speichern</span></button>
+              <button id="cancelBuyPriceEditBtn" class="secondary-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
+              <button id="clearBuyPricesBtn" class="danger-btn small-btn" type="button">Preisliste leeren</button>
+            </div>
           </form>
           <div class="calculator-card">
             <p class="section-kicker">RECHNER</p><h3>Kauf berechnen</h3>
             <div class="form-field"><label for="buyCalculatorItem">Artikel</label><select id="buyCalculatorItem"></select></div>
-            <div class="form-field"><label for="buyCalculatorQty">Menge</label><input id="buyCalculatorQty" type="number" min="0" step="1" value="1" /></div>
+            <div class="form-grid compact-grid">
+              <div class="form-field"><label for="buyCalculatorQty">Menge</label><input id="buyCalculatorQty" type="number" min="0" step="1" value="1" /></div>
+              <div class="form-field"><label for="buyCalculatorAdjust">Rabatt/Aufschlag %</label><input id="buyCalculatorAdjust" type="number" step="0.01" value="0" /></div>
+            </div>
+            <div class="calc-result muted-result"><span>Einzelpreis</span><strong id="buyCalculatorSingle">0 $</strong></div>
             <div class="calc-result"><span>Gesamt</span><strong id="buyCalculatorResult">0 $</strong></div>
           </div>
+        </div>
+        <div class="price-toolbar">
+          <div class="search-shell price-search-shell"><div class="search-core"><span class="search-icon">A</span><input type="text" id="buyPriceSearchInput" class="search-input" placeholder="Kaufliste durchsuchen..." /></div></div>
+          <div class="form-field toolbar-field"><label for="buyPriceSortSelect">Sortierung</label><select id="buyPriceSortSelect"><option value="name">Artikel A-Z</option><option value="category">Kategorie A-Z</option><option value="priceAsc">Preis aufsteigend</option><option value="priceDesc">Preis absteigend</option><option value="newest">Neueste zuerst</option></select></div>
+          <button id="clearBuyPriceSearchBtn" class="secondary-btn small-btn" type="button">Suche leeren</button>
+          <button id="exportBuyPricesCsvBtn" class="secondary-btn small-btn" type="button">Kauf CSV</button>
         </div>
         <div id="buyPriceList" class="price-list"></div>
       </section>

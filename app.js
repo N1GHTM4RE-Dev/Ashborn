@@ -238,6 +238,11 @@ function bindEvents() {
   });
   on($("clearAllDataBtn"), "click", clearAllData);
   on($("exportDataBtn"), "click", exportData);
+  on($("reloadAllDataBtn"), "click", loadAllData);
+  on($("exportAllCsvBtn"), "click", exportAllCsv);
+  document.querySelectorAll("[data-system-open]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.systemOpen));
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -360,6 +365,38 @@ function renderAll() {
   renderPriceModule("buy");
   renderInternal();
   renderCash();
+  renderSystemDashboard();
+}
+
+function renderSystemDashboard() {
+  setText("sysRecordsCount", recordsCache.length);
+  setText("sysSellCount", sellPricesCache.length);
+  setText("sysBuyCount", buyPricesCache.length);
+  setText("sysInternalCount", internalCache.length);
+  setText("sysCashCount", cashCache.length);
+  setText("sysBalanceValue", formatMoney(calculateCashBalance(cashCache)));
+  setText("sysProjectUrl", SUPABASE_URL.replace("https://", ""));
+  setText("systemConnectionStatus", sessionUser ? "Supabase verbunden" : "Nicht angemeldet");
+
+  const newest = getNewestDate([
+    ...recordsCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...sellPricesCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...buyPricesCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...internalCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...cashCache.map((entry) => entry.createdAtRaw)
+  ]);
+
+  setText("sysLastUpdate", newest ? formatDate(newest) : "Noch keine Daten vorhanden.");
+}
+
+function getNewestDate(values) {
+  const timestamps = values
+    .filter(Boolean)
+    .map((value) => new Date(value).getTime())
+    .filter((value) => Number.isFinite(value));
+
+  if (!timestamps.length) return null;
+  return new Date(Math.max(...timestamps)).toISOString();
 }
 
 async function loadRecords() {
@@ -1219,6 +1256,12 @@ function getVisibleCashEntries() {
   return entries;
 }
 
+function calculateCashBalance(entries = []) {
+  const deposits = entries.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const withdraws = entries.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  return deposits - withdraws;
+}
+
 function renderCash() {
   const deposits = cashCache.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const withdraws = cashCache.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
@@ -1320,6 +1363,12 @@ async function clearCashEntries() {
 
 async function clearAllData() {
   if (!confirm("Wirklich ALLE Ashborn-Daten in Supabase löschen?")) return;
+  const confirmation = prompt("Zur Sicherheit bitte ASHBORN eingeben, um alle Systemdaten zu löschen:");
+  if (confirmation !== "ASHBORN") {
+    alert("Löschung abgebrochen. Bestätigung war nicht korrekt.");
+    return;
+  }
+
   try {
     setBusy(true, "Systemdaten werden gelöscht...");
     const tables = ["ashborn_entries", "price_sale", "price_purchase", "internal_notes", "accounting_transactions"];
@@ -1361,6 +1410,20 @@ function exportData() {
     exportedAt: new Date().toISOString()
   };
   downloadTextFile(`ashborn-export-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
+}
+
+function exportAllCsv() {
+  const rows = [
+    ["Bereich", "Name/Titel", "Kategorie/Typ", "Wert", "Beschreibung/Grund", "Erstellt"],
+    ...recordsCache.map((entry) => ["Aktensystem", entry.name, entry.type, entry.find_location || entry.telegram_number || "", entry.description || "", formatDate(entry.created_at)]),
+    ...sellPricesCache.map((entry) => ["Verkauf", entry.item_name, entry.category || "", formatMoney(entry.price), entry.note || "", formatDate(entry.created_at)]),
+    ...buyPricesCache.map((entry) => ["Kauf", entry.item_name, entry.category || "", formatMoney(entry.price), entry.note || "", formatDate(entry.created_at)]),
+    ...internalCache.map((entry) => ["Intern", entry.title, entry.category || "", "", entry.content || "", formatDate(entry.created_at)]),
+    ...cashCache.map((entry) => ["Buchhaltung", entry.transaction_type, "", formatMoney(entry.amount), entry.reason || "", formatDate(entry.created_at)])
+  ];
+
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn-gesamt-export-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + csv, "text/csv;charset=utf-8");
 }
 
 function setBusy(state, message = "") {

@@ -3224,3 +3224,148 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   SYSTEMZENTRALE UPGRADE V13
+========================================================= */
+.system-dashboard-panel {
+  padding-bottom: 18px;
+}
+
+.system-panel-header {
+  align-items: flex-start;
+}
+
+.compact-overview {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+
+.system-overview-card {
+  position: relative;
+  min-height: 92px;
+  padding: 14px 12px;
+  border: 1px solid rgba(198, 146, 63, 0.24);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  background:
+    linear-gradient(180deg, rgba(43, 18, 8, 0.86), rgba(5, 3, 2, 0.9)),
+    radial-gradient(circle at 50% 0%, rgba(242, 199, 107, 0.12), transparent 56%);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease;
+}
+
+.system-overview-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 227, 160, 0.62);
+  filter: brightness(1.08);
+}
+
+.system-overview-card span {
+  display: block;
+  color: rgba(228, 194, 126, 0.72);
+  font-family: var(--font-title);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.system-overview-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #f2c76b;
+  background: var(--gold-soft);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-title);
+  font-size: clamp(24px, 2.1vw, 36px);
+  line-height: 1;
+  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
+}
+
+.balance-card strong {
+  font-size: clamp(20px, 1.75vw, 30px);
+}
+
+.system-info-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.system-info-card,
+.compact-danger-zone {
+  border: 1px solid rgba(198, 146, 63, 0.22);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(216, 181, 106, 0.045), rgba(0, 0, 0, 0.16));
+  padding: 16px;
+}
+
+.system-info-card h3,
+.compact-danger-zone h3 {
+  margin: 0 0 6px;
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.system-info-card p,
+.compact-danger-zone p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 18px;
+}
+
+.system-action-grid {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.compact-danger-zone {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-color: rgba(255, 119, 96, 0.28);
+  background:
+    linear-gradient(180deg, rgba(122, 31, 18, 0.14), rgba(0, 0, 0, 0.16)),
+    radial-gradient(circle at 100% 0%, rgba(255, 59, 19, 0.1), transparent 46%);
+}
+
+@media (max-width: 1120px) {
+  .compact-overview {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .compact-overview,
+  .system-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-danger-zone {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

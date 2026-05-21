@@ -24,6 +24,7 @@ let cashRangeFilter = "all";
 let cashSortMode = "newest";
 let cashSearchQuery = "";
 let isBusy = false;
+let dashboardGlobalSearchQuery = "";
 
 const $ = (id) => document.getElementById(id);
 const landingPage = $("landingPage");
@@ -243,6 +244,19 @@ function bindEvents() {
   document.querySelectorAll("[data-system-open]").forEach((button) => {
     button.addEventListener("click", () => switchTab(button.dataset.systemOpen));
   });
+  document.querySelectorAll("[data-dashboard-open]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.dashboardOpen));
+  });
+  on($("dashboardReloadBtn"), "click", loadAllData);
+  on($("dashboardGlobalSearchInput"), "input", (event) => {
+    dashboardGlobalSearchQuery = (event.target.value || "").trim().toLowerCase();
+    renderDashboardGlobalSearch();
+  });
+  on($("dashboardGlobalSearchClearBtn"), "click", () => {
+    dashboardGlobalSearchQuery = "";
+    if ($("dashboardGlobalSearchInput")) $("dashboardGlobalSearchInput").value = "";
+    renderDashboardGlobalSearch();
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -320,6 +334,7 @@ async function logout() {
 function showSystem() {
   landingPage.classList.add("hidden");
   aktenSystem.classList.remove("hidden");
+  switchTab("dashboardTab");
 }
 
 function showLanding() {
@@ -366,6 +381,7 @@ function renderAll() {
   renderInternal();
   renderCash();
   renderSystemDashboard();
+  renderDashboard();
 }
 
 function renderSystemDashboard() {
@@ -387,6 +403,254 @@ function renderSystemDashboard() {
   ]);
 
   setText("sysLastUpdate", newest ? formatDate(newest) : "Noch keine Daten vorhanden.");
+}
+
+
+function renderDashboard() {
+  const imageCount = recordsCache.filter((entry) => Array.isArray(entry.images) && entry.images.length > 0).length;
+  const income = cashCache
+    .filter((entry) => entry.type === "einzahlung")
+    .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  const expense = cashCache
+    .filter((entry) => entry.type === "auszahlung")
+    .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  const movement = income + expense;
+
+  setText("dashBalanceValue", formatMoney(calculateCashBalance(cashCache)));
+  setText("dashRecordsCount", recordsCache.length);
+  setText("dashImageCount", `${imageCount} mit Bildern`);
+  setText("dashSellCount", sellPricesCache.length);
+  setText("dashBuyCount", buyPricesCache.length);
+  setText("dashInternalCount", internalCache.length);
+  setText("dashCashCount", cashCache.length);
+  setText("dashCashMovement", `${formatMoney(movement)} Bewegung`);
+  setText("dashIncomeValue", formatMoney(income));
+  setText("dashExpenseValue", formatMoney(expense));
+  setText("dashboardStatusPill", sessionUser ? "System verbunden" : "Nicht angemeldet");
+
+  const lastCash = [...cashCache].sort((a, b) => new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0))[0];
+  setText("dashLastCashDate", lastCash ? formatDate(lastCash.createdAtRaw) : "-");
+
+  setText("dashPersonCount", countRecordsByType("Person"));
+  setText("dashOrgCount", countRecordsByType("Organisation"));
+  setText("dashRouteCount", countRecordsByType("Route"));
+  setText("dashPlaceCount", countRecordsByType("Ort"));
+  setText("dashObjectCount", countRecordsByType("Gegenstand"));
+
+  renderDashboardRecentList();
+  renderDashboardGlobalSearch();
+}
+
+
+function renderDashboardGlobalSearch() {
+  const target = $("dashboardGlobalSearchResults");
+  if (!target) return;
+
+  const input = $("dashboardGlobalSearchInput");
+  const query = dashboardGlobalSearchQuery || (input?.value || "").trim().toLowerCase();
+
+  if (!query) {
+    setText("dashboardGlobalSearchCount", "0 Treffer");
+    target.innerHTML = `<p class="system-text">Gib etwas ein, um alle Bereiche gleichzeitig zu durchsuchen.</p>`;
+    return;
+  }
+
+  const results = buildDashboardGlobalSearchIndex()
+    .filter((entry) => entry.searchText.includes(query))
+    .sort((a, b) => new Date(b.dateRaw || 0) - new Date(a.dateRaw || 0))
+    .slice(0, 40);
+
+  setText("dashboardGlobalSearchCount", `${results.length} Treffer`);
+
+  if (!results.length) {
+    target.innerHTML = `<p class="system-text">Keine Treffer gefunden. Prüfe Schreibweise oder suche nach einem anderen Begriff.</p>`;
+    return;
+  }
+
+  target.innerHTML = results.map((entry) => `
+    <button class="dashboard-global-result" type="button" data-global-open="${escapeHtml(entry.tab)}" data-global-id="${escapeHtml(entry.id || "")}" data-global-kind="${escapeHtml(entry.kind)}">
+      <div class="folder-chip-row">
+        <span class="folder-chip ${createStatusClass(entry.badge)}">${escapeHtml(entry.area)}</span>
+        ${entry.badge ? `<span class="folder-chip">${escapeHtml(entry.badge)}</span>` : ""}
+        ${entry.dateLabel ? `<span class="folder-chip">${escapeHtml(entry.dateLabel)}</span>` : ""}
+      </div>
+      <strong>${escapeHtml(entry.title || "Ohne Titel")}</strong>
+      <p>${escapeHtml(entry.preview || "Keine weiteren Informationen")}</p>
+    </button>
+  `).join("");
+
+  target.querySelectorAll("[data-global-open]").forEach((button) => {
+    button.addEventListener("click", () => openGlobalSearchResult(button.dataset.globalOpen, button.dataset.globalKind, button.dataset.globalId));
+  });
+}
+
+function buildDashboardGlobalSearchIndex() {
+  const toSearch = (...values) => values.join(" ").toLowerCase();
+
+  return [
+    ...recordsCache.map((entry) => ({
+      kind: "record",
+      id: entry.id,
+      area: "Großes Aktensystem",
+      tab: "dataTab",
+      badge: entry.type || "Datensatz",
+      title: entry.name,
+      preview: [entry.location ? `Wo: ${entry.location}` : "", entry.telegram ? `Telegramm: ${entry.telegram}` : "", entry.description || ""].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.name, entry.type, entry.location, entry.telegram, entry.description, entry.createdAt, entry.updatedAt, "großes aktensystem datensatz")
+    })),
+    ...sellPricesCache.map((entry) => ({
+      kind: "sell",
+      id: entry.id,
+      area: "Preisliste Verkauf",
+      tab: "sellTab",
+      badge: entry.category || "Verkauf",
+      title: entry.name,
+      preview: [formatMoney(entry.price), entry.unit || "", entry.note || ""].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price, entry.createdAt, entry.updatedAt, "preisliste verkauf preis artikel")
+    })),
+    ...buyPricesCache.map((entry) => ({
+      kind: "buy",
+      id: entry.id,
+      area: "Preisliste Kauf",
+      tab: "buyTab",
+      badge: entry.category || "Kauf",
+      title: entry.name,
+      preview: [formatMoney(entry.price), entry.unit || "", entry.note || ""].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price, entry.createdAt, entry.updatedAt, "preisliste kauf preis artikel")
+    })),
+    ...internalCache.map((entry) => ({
+      kind: "internal",
+      id: entry.id,
+      area: "Ashborn Intern",
+      tab: "internTab",
+      badge: entry.category || "Intern",
+      title: entry.title,
+      preview: entry.content || "Keine zusätzliche Information",
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.title, entry.category, entry.content, entry.createdAt, entry.updatedAt, "ashborn intern info regel rollen pläne")
+    })),
+    ...cashCache.map((entry) => ({
+      kind: "cash",
+      id: entry.id,
+      area: "Buchhaltung",
+      tab: "cashTab",
+      badge: entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+      title: entry.reason || "Buchung",
+      preview: formatMoney(entry.amount || 0),
+      dateRaw: entry.createdAtRaw,
+      dateLabel: entry.createdAt ? `Gebucht: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.type, entry.reason, entry.amount, entry.createdAt, "buchhaltung kontostand einzahlung auszahlung")
+    }))
+  ];
+}
+
+function openGlobalSearchResult(tabId, kind, id) {
+  switchTab(tabId);
+
+  if (kind === "record" && id) {
+    const record = recordsCache.find((entry) => entry.id === id);
+    if (record) setTimeout(() => openDetail(record), 80);
+    return;
+  }
+
+  if (kind === "sell" && id) {
+    if ($("sellPriceSearchInput")) $("sellPriceSearchInput").value = "";
+    loadPriceIntoForm("sell", id);
+    return;
+  }
+
+  if (kind === "buy" && id) {
+    if ($("buyPriceSearchInput")) $("buyPriceSearchInput").value = "";
+    loadPriceIntoForm("buy", id);
+    return;
+  }
+
+  if (kind === "internal" && id) {
+    const note = internalCache.find((entry) => entry.id === id);
+    if (note) loadInternalIntoForm(note);
+    return;
+  }
+
+  if (kind === "cash" && id) {
+    cashSearchQuery = "";
+    if ($("cashSearchInput")) $("cashSearchInput").value = "";
+    const row = document.querySelector(`[data-cash-id="${CSS.escape(id)}"]`);
+    if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+function countRecordsByType(type) {
+  return recordsCache.filter((entry) => String(entry.type || "") === type).length;
+}
+
+function renderDashboardRecentList() {
+  const target = $("dashboardRecentList");
+  if (!target) return;
+
+  const activities = [
+    ...recordsCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Datensatz",
+      title: entry.name || "Ohne Name",
+      info: entry.type || "Nicht festgelegt",
+      tab: "dataTab"
+    })),
+    ...sellPricesCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Verkauf",
+      title: entry.name || "Artikel",
+      info: formatMoney(entry.price || 0),
+      tab: "sellTab"
+    })),
+    ...buyPricesCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Kauf",
+      title: entry.name || "Artikel",
+      info: formatMoney(entry.price || 0),
+      tab: "buyTab"
+    })),
+    ...internalCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Intern",
+      title: entry.title || "Interne Info",
+      info: entry.category || "Allgemein",
+      tab: "internTab"
+    })),
+    ...cashCache.map((entry) => ({
+      date: entry.createdAtRaw,
+      label: entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+      title: entry.reason || "Buchung",
+      info: formatMoney(entry.amount || 0),
+      tab: "cashTab"
+    }))
+  ]
+    .filter((entry) => entry.date)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 7);
+
+  if (activities.length === 0) {
+    target.innerHTML = `<p class="system-text">Noch keine Aktivitäten vorhanden.</p>`;
+    return;
+  }
+
+  target.innerHTML = activities.map((entry) => `
+    <button class="dashboard-recent-item" type="button" data-dashboard-open="${escapeHtml(entry.tab)}">
+      <span>${escapeHtml(entry.label)}</span>
+      <strong>${escapeHtml(entry.title)}</strong>
+      <small>${escapeHtml(entry.info)} · ${escapeHtml(formatDate(entry.date))}</small>
+    </button>
+  `).join("");
+
+  target.querySelectorAll("[data-dashboard-open]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.dashboardOpen));
+  });
 }
 
 function getNewestDate(values) {
@@ -1281,7 +1545,7 @@ function renderCash() {
     ? visibleEntries.map((entry) => {
       const isStorno = String(entry.reason || "").trim().toUpperCase().startsWith("STORNO");
       return `
-      <div class="price-row cash-row ${isStorno ? "cash-row-storno" : ""}">
+      <div class="price-row cash-row ${isStorno ? "cash-row-storno" : ""}" data-cash-id="${escapeHtml(entry.id)}">
         <div>
           <strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong>
           <span>${escapeHtml(entry.reason)}</span>

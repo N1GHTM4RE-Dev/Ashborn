@@ -283,57 +283,82 @@
     </div>
 
     <div id="internTab" class="tab-content">
-      <section class="panel">
+      <section class="panel internal-panel-v11">
         <div class="panel-header">
           <div>
             <p class="section-kicker">INTERN</p>
             <h2>Ashborn Intern</h2>
           </div>
+          <div class="status-pill" id="internalVisibleCount">0 Einträge</div>
         </div>
 
-        <p class="system-text">Sammle interne Regeln, Rollen, Pläne, Hinweise und wichtige Informationen zentral im Ashborn-Stil. Nur die Überschrift ist Pflicht, alles Weitere bleibt optional.</p>
+        <p class="system-text">Sammle interne Regeln, Rollen, Pläne, Hinweise und wichtige Informationen zentral. Nur die Überschrift ist Pflicht, alles Weitere bleibt optional.</p>
 
-        <input type="hidden" id="internalId" />
+        <div class="internal-overview-v11">
+          <div class="archive-stat"><span>Gesamt</span><strong id="internalTotalCount">0</strong></div>
+          <div class="archive-stat"><span>Regeln</span><strong id="internalRulesCount">0</strong></div>
+          <div class="archive-stat"><span>Rollen</span><strong id="internalRolesCount">0</strong></div>
+          <div class="archive-stat"><span>Pläne</span><strong id="internalPlansCount">0</strong></div>
+        </div>
 
-        <div class="form-grid compact-grid">
-          <div class="form-field">
-            <label for="internalTitle">Überschrift</label>
-            <input id="internalTitle" type="text" placeholder="z. B. Interne Regel, Rollenplan, Bündnisinfo" />
+        <div class="internal-workspace-v11">
+          <div class="internal-editor-card-v11">
+            <div class="panel-header compact-header">
+              <div>
+                <p class="section-kicker">EINTRAG</p>
+                <h3 id="internalEditorTitle">Interne Information anlegen</h3>
+              </div>
+            </div>
+
+            <input type="hidden" id="internalId" />
+
+            <div class="form-grid compact-grid">
+              <div class="form-field">
+                <label for="internalTitle">Überschrift</label>
+                <input id="internalTitle" type="text" placeholder="z. B. Interne Regel, Rollenplan, Bündnisinfo" />
+              </div>
+
+              <div class="form-field">
+                <label for="internalCategory">Kategorie</label>
+                <select id="internalCategory">
+                  <option value="Allgemein">Allgemein</option>
+                  <option value="Regeln">Regeln</option>
+                  <option value="Rollen">Rollen</option>
+                  <option value="Mitglieder">Mitglieder</option>
+                  <option value="Pläne">Pläne</option>
+                  <option value="Bündnisse">Bündnisse</option>
+                  <option value="Hinweise">Hinweise</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="internalContent">Information</label>
+              <textarea id="internalContent" placeholder="Interne Information eintragen..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button id="saveInternalBtn" class="primary-btn small-btn" type="button"><span id="internalSaveButtonText">Information speichern</span></button>
+              <button id="resetInternalBtn" class="secondary-btn small-btn" type="button">Felder leeren</button>
+              <button id="cancelInternalEditBtn" class="secondary-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
+            </div>
+
+            <div id="internalSaveInfo" class="save-info"></div>
           </div>
 
-          <div class="form-field">
-            <label for="internalCategory">Kategorie</label>
-            <select id="internalCategory">
-              <option value="Allgemein">Allgemein</option>
-              <option value="Regeln">Regeln</option>
-              <option value="Rollen">Rollen</option>
-              <option value="Mitglieder">Mitglieder</option>
-              <option value="Pläne">Pläne</option>
-              <option value="Bündnisse">Bündnisse</option>
-              <option value="Hinweise">Hinweise</option>
-            </select>
-          </div>
+          <aside class="internal-help-card-v11">
+            <p class="section-kicker">HINWEIS</p>
+            <h3>So nutzt du Intern</h3>
+            <p>Lege Regeln, Rollen, Pläne, Bündnisse oder Hinweise ab. Über Suche, Kategorie und Sortierung findest du alles wieder. Bearbeiten und Löschen sind direkt an jedem Eintrag sichtbar.</p>
+            <button id="clearInternalBtn" class="danger-btn small-btn" type="button">Alle internen Daten löschen</button>
+          </aside>
         </div>
 
-        <div class="form-field">
-          <label for="internalContent">Information</label>
-          <textarea id="internalContent" placeholder="Interne Information eintragen..."></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button id="saveInternalBtn" class="primary-btn small-btn" type="button"><span id="internalSaveButtonText">Information speichern</span></button>
-          <button id="resetInternalBtn" class="secondary-btn small-btn" type="button">Felder leeren</button>
-          <button id="cancelInternalEditBtn" class="danger-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
-          <button id="clearInternalBtn" class="danger-btn small-btn" type="button">Interne Daten löschen</button>
-        </div>
-
-        <div id="internalSaveInfo" class="save-info"></div>
-
-        <div class="internal-toolbar">
+        <div class="internal-toolbar v11-toolbar">
           <div class="search-shell price-search-shell">
             <div class="search-core">
               <span class="search-icon">A</span>
-              <input type="text" id="internalSearchInput" class="search-input" placeholder="Internes nach Titel, Kategorie oder Inhalt durchsuchen..." />
+              <input type="text" id="internalSearchInput" class="search-input" placeholder="Internes nach Überschrift, Kategorie oder Inhalt durchsuchen..." />
             </div>
           </div>
 
@@ -365,7 +390,7 @@
           <button id="exportInternalCsvBtn" class="secondary-btn small-btn" type="button">Intern CSV</button>
         </div>
 
-        <div id="internalList" class="akten-list internal-list"></div>
+        <div id="internalList" class="internal-grid-v11"></div>
       </section>
     </div>
 

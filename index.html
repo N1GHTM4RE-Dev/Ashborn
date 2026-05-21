@@ -81,6 +81,12 @@
             <div class="archive-stat"><span>Gespeicherte Einträge</span><strong id="totalRecordsCount">0</strong></div>
             <div class="archive-stat"><span>Suchtreffer</span><strong id="filteredRecordsCount">0</strong></div>
             <div class="archive-stat"><span>Mit Bildern</span><strong id="imageRecordsCount">0</strong></div>
+            <div class="record-type-grid">
+              <div class="record-type-stat"><span>Personen</span><strong id="personRecordsCount">0</strong></div>
+              <div class="record-type-stat"><span>Routen</span><strong id="routeRecordsCount">0</strong></div>
+              <div class="record-type-stat"><span>Orte</span><strong id="locationRecordsCount">0</strong></div>
+              <div class="record-type-stat"><span>Gegenstände</span><strong id="objectRecordsCount">0</strong></div>
+            </div>
           </div>
           <div class="sidepanel-block sidepanel-note">
             <p class="section-kicker">HINWEIS</p>
@@ -165,6 +171,20 @@
           <button class="filter-btn" data-record-filter="Route" type="button">Route</button>
           <button class="filter-btn" data-record-filter="Ort" type="button">Ort</button>
           <button class="filter-btn" data-record-filter="Gegenstand" type="button">Gegenstand</button>
+        </div>
+        <div class="record-toolbar">
+          <div class="form-field toolbar-field">
+            <label for="recordSortSelect">Sortierung</label>
+            <select id="recordSortSelect">
+              <option value="newest">Neueste zuerst</option>
+              <option value="oldest">Älteste zuerst</option>
+              <option value="name">Name A-Z</option>
+              <option value="type">Art A-Z</option>
+            </select>
+          </div>
+          <button id="toggleImageFilterBtn" class="secondary-btn small-btn" type="button">Nur mit Bildern</button>
+          <button id="clearRecordSearchBtn" class="secondary-btn small-btn" type="button">Suche leeren</button>
+          <button id="exportRecordsCsvBtn" class="secondary-btn small-btn" type="button">Datensätze CSV</button>
         </div>
         <div id="recordList" class="akten-list"></div>
       </section>
@@ -269,7 +289,10 @@
       <div class="detail-meta-row">
         <div class="detail-meta-box"><span>Wo?</span><strong id="detailLocation">-</strong></div>
         <div class="detail-meta-box"><span>Telegramm</span><strong id="detailTelegram">-</strong></div>
+        <div class="detail-meta-box"><span>Erstellt</span><strong id="detailCreatedAt">-</strong></div>
+        <div class="detail-meta-box"><span>Bearbeitet</span><strong id="detailUpdatedAt">-</strong></div>
       </div>
+      <div class="detail-actions compact-detail-actions"><button id="copyTelegramBtn" class="secondary-btn small-btn" type="button">Telegramm kopieren</button></div>
       <div class="detail-section"><h3>Beschreibung</h3><p id="detailDescription">-</p></div>
       <div class="detail-section"><h3>Bilder</h3><div id="detailImages" class="detail-image-grid"></div></div>
       <div class="detail-actions"><button id="editRecordBtn" class="primary-btn small-btn" type="button">Datensatz bearbeiten</button><button id="deleteRecordBtn" class="danger-btn small-btn" type="button">Datensatz löschen</button></div>

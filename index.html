@@ -284,12 +284,88 @@
 
     <div id="internTab" class="tab-content">
       <section class="panel">
-        <div class="panel-header"><div><p class="section-kicker">INTERN</p><h2>Ashborn Intern</h2></div></div>
-        <p class="system-text">Hier sammeln wir später interne Informationen, Regeln, Rollen, Mitgliederinfos oder wichtige Hinweise. Die Grundfunktion zum Speichern ist schon vorbereitet.</p>
-        <div class="form-field"><label for="internalTitle">Überschrift</label><input id="internalTitle" type="text" placeholder="z. B. Interne Regel, Hinweis, Plan" /></div>
-        <div class="form-field"><label for="internalContent">Information</label><textarea id="internalContent" placeholder="Interne Information eintragen..."></textarea></div>
-        <div class="form-actions"><button id="saveInternalBtn" class="primary-btn small-btn" type="button">Information speichern</button><button id="clearInternalBtn" class="danger-btn small-btn" type="button">Interne Daten löschen</button></div>
-        <div id="internalList" class="akten-list"></div>
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">INTERN</p>
+            <h2>Ashborn Intern</h2>
+          </div>
+        </div>
+
+        <p class="system-text">Sammle interne Regeln, Rollen, Pläne, Hinweise und wichtige Informationen zentral im Ashborn-Stil. Nur die Überschrift ist Pflicht, alles Weitere bleibt optional.</p>
+
+        <input type="hidden" id="internalId" />
+
+        <div class="form-grid compact-grid">
+          <div class="form-field">
+            <label for="internalTitle">Überschrift</label>
+            <input id="internalTitle" type="text" placeholder="z. B. Interne Regel, Rollenplan, Bündnisinfo" />
+          </div>
+
+          <div class="form-field">
+            <label for="internalCategory">Kategorie</label>
+            <select id="internalCategory">
+              <option value="Allgemein">Allgemein</option>
+              <option value="Regeln">Regeln</option>
+              <option value="Rollen">Rollen</option>
+              <option value="Mitglieder">Mitglieder</option>
+              <option value="Pläne">Pläne</option>
+              <option value="Bündnisse">Bündnisse</option>
+              <option value="Hinweise">Hinweise</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="internalContent">Information</label>
+          <textarea id="internalContent" placeholder="Interne Information eintragen..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button id="saveInternalBtn" class="primary-btn small-btn" type="button"><span id="internalSaveButtonText">Information speichern</span></button>
+          <button id="resetInternalBtn" class="secondary-btn small-btn" type="button">Felder leeren</button>
+          <button id="cancelInternalEditBtn" class="danger-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
+          <button id="clearInternalBtn" class="danger-btn small-btn" type="button">Interne Daten löschen</button>
+        </div>
+
+        <div id="internalSaveInfo" class="save-info"></div>
+
+        <div class="internal-toolbar">
+          <div class="search-shell price-search-shell">
+            <div class="search-core">
+              <span class="search-icon">A</span>
+              <input type="text" id="internalSearchInput" class="search-input" placeholder="Internes nach Titel, Kategorie oder Inhalt durchsuchen..." />
+            </div>
+          </div>
+
+          <div class="form-field toolbar-field">
+            <label for="internalCategoryFilter">Kategorie</label>
+            <select id="internalCategoryFilter">
+              <option value="Alle">Alle</option>
+              <option value="Allgemein">Allgemein</option>
+              <option value="Regeln">Regeln</option>
+              <option value="Rollen">Rollen</option>
+              <option value="Mitglieder">Mitglieder</option>
+              <option value="Pläne">Pläne</option>
+              <option value="Bündnisse">Bündnisse</option>
+              <option value="Hinweise">Hinweise</option>
+            </select>
+          </div>
+
+          <div class="form-field toolbar-field">
+            <label for="internalSortSelect">Sortierung</label>
+            <select id="internalSortSelect">
+              <option value="newest">Neueste zuerst</option>
+              <option value="oldest">Älteste zuerst</option>
+              <option value="title">Überschrift A-Z</option>
+              <option value="category">Kategorie A-Z</option>
+            </select>
+          </div>
+
+          <button id="clearInternalSearchBtn" class="secondary-btn small-btn" type="button">Suche leeren</button>
+          <button id="exportInternalCsvBtn" class="secondary-btn small-btn" type="button">Intern CSV</button>
+        </div>
+
+        <div id="internalList" class="akten-list internal-list"></div>
       </section>
     </div>
 

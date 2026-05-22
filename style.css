@@ -4499,3 +4499,251 @@ select[multiple] option {
     padding: 22px 16px;
   }
 }
+
+/* =========================================================
+   ASHBORN ULTIMATE v19 - Klarheit, Führung, Übersicht
+========================================================= */
+
+.system-header-actions {
+  gap: 10px;
+}
+
+#openStartGuideBtn {
+  min-width: 178px;
+}
+
+.ultimate-guide-strip {
+  align-items: stretch;
+  gap: 10px;
+}
+
+.ultimate-guide-strip span {
+  flex: 1 1 190px;
+  padding: 10px 12px;
+  border: 1px solid rgba(242, 199, 107, 0.24);
+  border-radius: var(--radius-md);
+  background: rgba(5, 3, 2, 0.38);
+}
+
+.current-path-bar {
+  width: min(1340px, calc(100% - 32px));
+  margin: -8px auto 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid rgba(242, 199, 107, 0.22);
+  border-radius: var(--radius-lg);
+  color: var(--text-soft);
+  background: linear-gradient(180deg, rgba(24, 13, 7, 0.78), rgba(5, 3, 2, 0.72));
+  box-shadow: var(--shadow-soft);
+}
+
+.current-path-bar strong {
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.path-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--gold-2);
+  box-shadow: 0 0 18px rgba(242, 199, 107, 0.7);
+}
+
+.ultimate-start-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ultimate-start-main,
+.ultimate-rules-card,
+.area-compass-panel {
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(242, 199, 107, 0.24);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(242, 199, 107, 0.1), transparent 36%),
+    linear-gradient(180deg, rgba(35, 18, 8, 0.86), rgba(5, 3, 2, 0.76));
+  box-shadow: var(--shadow-soft);
+}
+
+.ultimate-start-main h3,
+.area-compass-head h3 {
+  margin: 0 0 8px;
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: clamp(24px, 2.2vw, 38px);
+  text-transform: uppercase;
+}
+
+.ultimate-start-main p,
+.ultimate-rules-card li,
+.area-compass-grid span,
+.wizard-intro {
+  color: var(--text-soft);
+  font-size: 18px;
+}
+
+.ultimate-flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.ultimate-flow span {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  border: 1px solid rgba(242, 199, 107, 0.28);
+  border-radius: var(--radius-md);
+  color: #190b04;
+  background: linear-gradient(180deg, #ffe7a3, var(--gold-2) 46%, var(--gold-dark));
+  font-family: var(--font-title);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.ultimate-rules-card ul {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ultimate-rules-card li + li {
+  margin-top: 8px;
+}
+
+.area-compass-panel {
+  margin: 20px 0;
+}
+
+.area-compass-head {
+  margin-bottom: 14px;
+}
+
+.area-compass-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.area-compass-grid button,
+.wizard-choice-grid button {
+  border: 1px solid rgba(242, 199, 107, 0.24);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-align: left;
+  color: var(--text);
+  background:
+    linear-gradient(180deg, rgba(43, 18, 8, 0.82), rgba(5, 3, 2, 0.88)),
+    radial-gradient(circle at 0% 0%, rgba(242, 199, 107, 0.11), transparent 42%);
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.area-compass-grid button:hover,
+.wizard-choice-grid button:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 227, 160, 0.62);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.42), 0 0 24px rgba(242, 199, 107, 0.14);
+}
+
+.area-compass-grid strong,
+.wizard-choice-grid strong {
+  display: block;
+  color: var(--gold-2);
+  font-family: var(--font-title);
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 7px;
+}
+
+.context-help-clear {
+  border-left: 4px solid var(--gold-2);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.context-help-clear span {
+  display: inline-block;
+  margin-top: 6px;
+  color: rgba(244, 234, 213, 0.68);
+}
+
+.ultimate-wizard-sheet {
+  width: min(920px, calc(100vw - 28px));
+}
+
+.wizard-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.ux-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 250;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 14px 18px;
+  border: 1px solid rgba(242, 199, 107, 0.5);
+  border-radius: var(--radius-lg);
+  color: var(--gold-2);
+  background: rgba(10, 5, 3, 0.94);
+  box-shadow: var(--shadow);
+  transform: translate(-50%, 18px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+  font-family: var(--font-title);
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.ux-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+body.ultimate-focus-mode .dashboard-content-grid,
+body.ultimate-focus-mode .system-guide-strip {
+  opacity: 0.72;
+}
+
+@media (max-width: 980px) {
+  .ultimate-start-layout,
+  .area-compass-grid,
+  .wizard-choice-grid {
+    grid-template-columns: 1fr;
+  }
+  .ultimate-flow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .current-path-bar,
+  .ultimate-guide-strip span,
+  .ultimate-start-main,
+  .ultimate-rules-card,
+  .area-compass-panel {
+    padding: 12px;
+  }
+  .ultimate-flow {
+    grid-template-columns: 1fr;
+  }
+}

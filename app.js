@@ -3084,3 +3084,166 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateCurrentPathV19("dashboardTab");
 });
+
+/* =========================================================
+   v19.3 STABILITÄTSFIX – DATENBEREICH
+   Grund: Die große v19-Struktur kann je nach ausgeführter Supabase-Migration
+   beim Laden/Rendern des Datenbereichs hängen bleiben. Diese finalen
+   Override-Funktionen laden nur die sicheren Basisspalten und rendern den
+   Datenbereich unabhängig von optionalen Erweiterungsfeldern.
+========================================================= */
+
+async function loadRecords() {
+  const { data, error } = await supabaseClient
+    .from("ashborn_entries")
+    .select("id,name,type,find_location,telegram_number,description,images,created_at,updated_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Daten konnten nicht aus ashborn_entries geladen werden:", error);
+    throw error;
+  }
+
+  const rows = Array.isArray(data) ? data : [];
+  recordsCache = await Promise.all(rows.map(async (row) => {
+    let rawImages = [];
+    if (Array.isArray(row.images)) {
+      rawImages = row.images;
+    } else if (typeof row.images === "string" && row.images.trim()) {
+      try { rawImages = JSON.parse(row.images); } catch (_) { rawImages = []; }
+    }
+
+    const images = [];
+    for (const rawImage of rawImages) {
+      if (!rawImage) continue;
+      const image = typeof rawImage === "string"
+        ? { name: "Bild", path: rawImage, src: "" }
+        : {
+            name: String(rawImage.name || "Bild"),
+            path: String(rawImage.path || ""),
+            src: String(rawImage.src || "")
+          };
+
+      if (image.path && !image.src) {
+        try {
+          const { data: signed } = await supabaseClient.storage
+            .from(IMAGE_BUCKET)
+            .createSignedUrl(image.path, 60 * 60 * 24);
+          image.src = signed?.signedUrl || "";
+        } catch (err) {
+          console.warn("Bild konnte nicht signiert werden:", err);
+        }
+      }
+      images.push(image);
+    }
+
+    return {
+      id: row.id,
+      name: row.name || "Ohne Name",
+      type: row.type || "Nicht festgelegt",
+      location: row.find_location || "",
+      telegram: row.telegram_number || "",
+      description: row.description || "",
+      images,
+      favorite: false,
+      importance: "Normal",
+      tags: [],
+      relatedIds: [],
+      relationStatus: "",
+      orgMembers: "",
+      routeInfo: "",
+      placeInfo: "",
+      createdAt: formatDate(row.created_at),
+      updatedAt: row.updated_at ? formatDate(row.updated_at) : "",
+      createdAtRaw: row.created_at || "",
+      updatedAtRaw: row.updated_at || row.created_at || ""
+    };
+  }));
+
+  console.info(`Ashborn Daten geladen: ${recordsCache.length}`);
+}
+
+function renderRecords() {
+  const list = $("recordList");
+  if (!list) return;
+
+  const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
+  const filtered = (Array.isArray(recordsCache) ? recordsCache : [])
+    .filter((record) => {
+      const type = record.type || "Nicht festgelegt";
+      const matchesType = activeRecordFilter === "Alle" || type === activeRecordFilter;
+      const hasImages = Array.isArray(record.images) && record.images.length > 0;
+      const matchesImages = !activeRecordImageFilter || hasImages;
+      const haystack = [
+        record.name,
+        type,
+        record.location,
+        record.telegram,
+        record.description,
+        record.createdAt,
+        record.updatedAt
+      ].join(" ").toLowerCase();
+      return matchesType && matchesImages && haystack.includes(query);
+    })
+    .sort((a, b) => {
+      if (recordSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+      if (recordSortMode === "name") return String(a.name || "").localeCompare(String(b.name || ""), "de");
+      if (recordSortMode === "type") return String(a.type || "").localeCompare(String(b.type || ""), "de") || String(a.name || "").localeCompare(String(b.name || ""), "de");
+      return new Date(b.updatedAtRaw || b.createdAtRaw || 0) - new Date(a.updatedAtRaw || a.createdAtRaw || 0);
+    });
+
+  setText("totalRecordsCount", recordsCache.length);
+  setText("filteredRecordsCount", filtered.length);
+  setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
+
+  if (!recordsCache.length) {
+    list.innerHTML = `
+      <div class="akten-card empty-state-card">
+        <div class="folder-chip-row"><span class="folder-chip">Datenbank leer</span></div>
+        <h3>Keine Datensätze vorhanden</h3>
+        <p>In Supabase wurden keine Einträge in <strong>ashborn_entries</strong> gefunden.</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = `
+      <div class="akten-card empty-state-card">
+        <div class="folder-chip-row"><span class="folder-chip">0 Treffer</span></div>
+        <h3>Keine Einträge gefunden</h3>
+        <p>${query ? "Deine Suche oder dein Filter blendet alle vorhandenen Datensätze aus." : "Ändere den Filter oder die Sortierung."}</p>
+        <button class="secondary-btn mini-btn" type="button" onclick="document.getElementById('clearRecordSearchBtn')?.click()">Filter zurücksetzen</button>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = filtered.map((record) => {
+    const firstImage = Array.isArray(record.images) ? record.images.find((img) => img.src) : null;
+    return `
+      <button class="akten-card record-card" type="button" data-id="${escapeHtml(record.id)}">
+        <div class="record-card-main">
+          <div class="record-thumb ${firstImage ? "has-image" : ""}">
+            ${firstImage ? `<img src="${firstImage.src}" alt="${escapeHtml(firstImage.name || record.name)}" />` : `<span>${escapeHtml((record.type || "A").slice(0, 1))}</span>`}
+          </div>
+          <div class="record-card-body">
+            <div class="folder-chip-row">
+              <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
+              <span class="folder-chip">${escapeHtml(record.updatedAt ? `Bearbeitet: ${record.updatedAt}` : `Erstellt: ${record.createdAt || "-"}`)}</span>
+              <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
+            </div>
+            <h3>${escapeHtml(record.name || "Ohne Name")}</h3>
+            <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
+            <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
+            <p class="akten-preview">${escapeHtml(record.description || "Keine Beschreibung")}</p>
+            <div class="card-actions">
+              <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
+              <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    `;
+  }).join("");
+}

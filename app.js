@@ -2984,3 +2984,106 @@ handleQuickAction = function handleQuickActionV17(action) {
   if (action === "newTrade") { switchTab("tradeTab"); clearTradeForm(); setTimeout(() => $("tradePartner")?.focus(), 100); return; }
   originalHandleQuickActionV17(action);
 };
+
+/* =========================================================
+   ASHBORN ULTIMATE v19 - Nutzerführung & Klarheit
+========================================================= */
+
+const ASHBORN_ONBOARDING_KEY = "ashborn_v19_onboarding_seen";
+
+const tabHelpMapV19 = {
+  dashboardTab: ["Start", "Hier findest du Suche, Schnellaktionen und die wichtigsten Zahlen."],
+  dataTab: ["Daten", "Speichere Personen, Organisationen, Orte, Routen und Gegenstände."],
+  sellTab: ["Verkauf", "Pflege Verkaufspreise und nutze sie später im Auftrag."],
+  buyTab: ["Einkauf", "Pflege Einkaufspreise für Gewinn- und Margenberechnung."],
+  tradeTab: ["Aufträge", "Erstelle Handelsvorgänge mit Positionen, Summe und optionaler Kassenbuchung."],
+  relationTab: ["Finden", "Suche einen Begriff und sieh alle Verbindungen über das ganze System."],
+  internTab: ["Intern", "Sammle Regeln, Aufgaben, Kontakte, Rollen, Pläne und Hinweise."],
+  cashTab: ["Kasse", "Buche Einzahlungen oder Auszahlungen mit Begründung."],
+  settingsTab: ["System", "Export, Daten neu laden und wenige Verwaltungsaktionen."]
+};
+
+function updateCurrentPathV19(tabId) {
+  const bar = $("currentPathBar");
+  if (!bar) return;
+  const [title, desc] = tabHelpMapV19[tabId] || tabHelpMapV19.dashboardTab;
+  bar.innerHTML = `<span class="path-dot"></span><strong>Du bist auf: ${escapeHtml(title)}</strong><span>${escapeHtml(desc)}</span>`;
+}
+
+function openStartWizardV19() {
+  const modal = $("startWizardModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeStartWizardV19() {
+  const modal = $("startWizardModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+  localStorage.setItem(ASHBORN_ONBOARDING_KEY, "true");
+}
+
+function showUxToastV19(message) {
+  let toast = document.getElementById("uxToastV19");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "uxToastV19";
+    toast.className = "ux-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showUxToastV19.timer);
+  showUxToastV19.timer = setTimeout(() => toast.classList.remove("show"), 2800);
+}
+
+const originalSwitchTabV19 = switchTab;
+switchTab = function switchTabUltimateV19(tabId) {
+  originalSwitchTabV19(tabId);
+  updateCurrentPathV19(tabId);
+};
+
+const originalShowSystemV19 = showSystem;
+showSystem = function showSystemUltimateV19() {
+  originalShowSystemV19();
+  updateCurrentPathV19("dashboardTab");
+  if (localStorage.getItem(ASHBORN_ONBOARDING_KEY) !== "true") {
+    setTimeout(openStartWizardV19, 650);
+  }
+};
+
+const originalSetBusyV19 = setBusy;
+setBusy = function setBusyUltimateV19(state, message = "") {
+  originalSetBusyV19(state, message);
+  if (!state && message) showUxToastV19("Fertig.");
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  on($("openStartGuideBtn"), "click", openStartWizardV19);
+  on($("closeStartWizardBtn"), "click", closeStartWizardV19);
+  on($("startWizardBackdrop"), "click", closeStartWizardV19);
+
+  document.querySelectorAll("#startWizardModal [data-dashboard-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeStartWizardV19();
+      switchTab(button.dataset.dashboardOpen);
+    });
+  });
+
+  document.querySelectorAll("#startWizardModal [data-quick-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeStartWizardV19();
+      handleQuickAction(button.dataset.quickAction);
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && $("startWizardModal") && !$("startWizardModal").classList.contains("hidden")) {
+      closeStartWizardV19();
+    }
+  });
+
+  updateCurrentPathV19("dashboardTab");
+});

@@ -91,6 +91,10 @@ function bindEvents() {
     if (event.key === "Escape") hideLogin();
   });
   on(logoutBtn, "click", logout);
+  on($("openHelpBtn"), "click", openHelpModal);
+  on($("openHelpBtnDashboard"), "click", openHelpModal);
+  on($("closeHelpBtn"), "click", closeHelpModal);
+  on($("helpBackdrop"), "click", closeHelpModal);
 
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => switchTab(button.dataset.tab));
@@ -267,9 +271,25 @@ function bindEvents() {
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+    if ($("helpModal") && !$("helpModal").classList.contains("hidden")) return closeHelpModal();
     if (!$("detailModal").classList.contains("hidden")) return closeDetail();
     if (loginBox.classList.contains("show")) hideLogin();
   });
+}
+
+
+function openHelpModal() {
+  const modal = $("helpModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeHelpModal() {
+  const modal = $("helpModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
 }
 
 function showLogin() {
@@ -360,6 +380,8 @@ function playSmokeTransition(callback) {
 function switchTab(tabId) {
   tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === tabId));
   tabContents.forEach((content) => content.classList.toggle("active", content.id === tabId));
+  closeHelpModal();
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
 }
 
 async function loadAllData() {

@@ -71,6 +71,8 @@
       <button class="tab-btn" data-tab="dataTab" type="button"><span class="tab-seal"></span><span>Großes Aktensystem</span></button>
       <button class="tab-btn" data-tab="sellTab" type="button"><span class="tab-seal"></span><span>Preisliste Verkauf</span></button>
       <button class="tab-btn" data-tab="buyTab" type="button"><span class="tab-seal"></span><span>Preisliste Kauf</span></button>
+      <button class="tab-btn" data-tab="tradeTab" type="button"><span class="tab-seal"></span><span>Handel / Aufträge</span></button>
+      <button class="tab-btn" data-tab="relationTab" type="button"><span class="tab-seal"></span><span>Beziehungsnetz</span></button>
       <button class="tab-btn" data-tab="internTab" type="button"><span class="tab-seal"></span><span>Ashborn Intern</span></button>
       <button class="tab-btn" data-tab="cashTab" type="button"><span class="tab-seal"></span><span>Buchhaltung</span></button>
       <button class="tab-btn" data-tab="settingsTab" type="button"><span class="tab-seal"></span><span>System</span></button>
@@ -111,6 +113,16 @@
             <span>Kaufpreise</span>
             <strong id="dashBuyCount">0</strong>
             <small>Preisliste Kauf</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="tradeTab">
+            <span>Handelsaufträge</span>
+            <strong id="dashTradeCount">0</strong>
+            <small id="dashTradeVolume">0 $ Volumen</small>
+          </button>
+          <button class="dashboard-metric-card" type="button" data-dashboard-open="relationTab">
+            <span>Beziehungsnetz</span>
+            <strong id="dashRelationCount">0</strong>
+            <small>Verknüpfte Treffer</small>
           </button>
           <button class="dashboard-metric-card" type="button" data-dashboard-open="internTab">
             <span>Intern</span>
@@ -164,9 +176,12 @@
               <button class="primary-btn small-btn" type="button" data-quick-action="newRecord">+ Neuer Datensatz</button>
               <button class="primary-btn small-btn" type="button" data-quick-action="newTodo">+ Neue Aufgabe</button>
               <button class="primary-btn small-btn" type="button" data-quick-action="newCash">+ Neue Buchung</button>
+              <button class="primary-btn small-btn" type="button" data-quick-action="newTrade">+ Neuer Auftrag</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="dataTab">Daten erfassen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="sellTab">Verkauf öffnen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="buyTab">Kauf öffnen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="tradeTab">Handel öffnen</button>
+              <button class="secondary-btn small-btn" type="button" data-dashboard-open="relationTab">Beziehungsnetz öffnen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="internTab">Intern öffnen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="cashTab">Buchhaltung öffnen</button>
               <button class="secondary-btn small-btn" type="button" data-dashboard-open="settingsTab">System öffnen</button>
@@ -466,6 +481,105 @@
     <div id="priceCompareTab" class="tab-content hidden"></div>
 
     <div class="tab-content always-hidden-feature" aria-hidden="true"></div>
+
+
+
+    <div id="tradeTab" class="tab-content">
+      <section class="panel trade-panel">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">HANDEL</p>
+            <h2>Verkaufs- & Auftragsverwaltung</h2>
+            <p class="dashboard-subline">Erstelle Verkaufs- oder Kaufaufträge mit Positionen, Status, Gewinnrechnung und optionaler Buchhaltung.</p>
+          </div>
+        </div>
+
+        <div class="trade-layout">
+          <form id="tradeOrderForm" class="price-form trade-form">
+            <input type="hidden" id="tradeOrderId" />
+            <div class="price-form-head"><div><p class="section-kicker">AUFTRAG</p><h3 id="tradeFormTitle">Neuen Auftrag erstellen</h3></div></div>
+            <div class="form-grid">
+              <div class="form-field"><label for="tradeType">Art</label><select id="tradeType"><option value="sell">Verkauf</option><option value="buy">Kauf</option></select></div>
+              <div class="form-field"><label for="tradePartner">Kunde / Organisation *</label><input id="tradePartner" type="text" placeholder="Name der Person oder Organisation" /></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field"><label for="tradeStatus">Status</label><select id="tradeStatus"><option value="Offen">Offen</option><option value="Bezahlt">Bezahlt</option><option value="Geliefert">Geliefert</option><option value="Abgeschlossen">Abgeschlossen</option><option value="Storniert">Storniert</option></select></div>
+              <div class="form-field"><label for="tradeLinkedRecord">Verknüpfter Datensatz</label><select id="tradeLinkedRecord"><option value="">Keine Verknüpfung</option></select></div>
+            </div>
+            <div class="form-field"><label for="tradeNote">Notiz</label><input id="tradeNote" type="text" placeholder="Lieferhinweis, Vereinbarung, Treffpunkt oder Bemerkung" /></div>
+
+            <div class="trade-item-builder">
+              <p class="section-kicker">POSITION HINZUFÜGEN</p>
+              <div class="form-grid">
+                <div class="form-field"><label for="tradeCatalogItem">Artikel aus Preisliste</label><select id="tradeCatalogItem"><option value="">Freie Position</option></select></div>
+                <div class="form-field"><label for="tradeItemName">Artikelname *</label><input id="tradeItemName" type="text" placeholder="Artikelname" /></div>
+              </div>
+              <div class="form-grid compact-grid">
+                <div class="form-field"><label for="tradeItemQty">Menge</label><input id="tradeItemQty" type="number" min="1" step="1" value="1" /></div>
+                <div class="form-field"><label for="tradeItemPrice">Einzelpreis</label><input id="tradeItemPrice" type="number" min="0" step="0.01" value="0" /></div>
+                <div class="form-field"><label for="tradeItemCost">Einkauf/Referenz</label><input id="tradeItemCost" type="number" min="0" step="0.01" value="0" /></div>
+              </div>
+              <div class="form-actions compact-actions"><button id="addTradeItemBtn" class="secondary-btn small-btn" type="button">Position hinzufügen</button><button id="clearTradeItemsBtn" class="danger-btn small-btn" type="button">Positionen leeren</button></div>
+              <div id="tradeItemsPreview" class="cart-box"><p class="field-hint">Noch keine Positionen im Auftrag.</p></div>
+            </div>
+
+            <div class="trade-summary-box">
+              <div><span>Auftragssumme</span><strong id="tradeDraftTotal">0 $</strong></div>
+              <div><span>Geschätzter Gewinn</span><strong id="tradeDraftProfit">0 $</strong></div>
+            </div>
+            <div class="form-actions">
+              <button class="primary-btn small-btn" type="submit"><span id="tradeSaveText">Auftrag speichern</span></button>
+              <button id="cancelTradeEditBtn" class="secondary-btn small-btn hidden" type="button">Bearbeitung abbrechen</button>
+              <label class="feature-check"><input id="tradeCreateCash" type="checkbox" /> Buchhaltungseintrag beim Speichern erstellen</label>
+            </div>
+            <div id="tradeSaveInfo" class="save-info"></div>
+          </form>
+
+          <aside class="calculator-card trade-side-card">
+            <p class="section-kicker">HANDELSÜBERSICHT</p>
+            <h3>Aufträge</h3>
+            <div class="archive-stat"><span>Gesamt</span><strong id="tradeTotalCount">0</strong></div>
+            <div class="archive-stat"><span>Offen</span><strong id="tradeOpenCount">0</strong></div>
+            <div class="archive-stat"><span>Abgeschlossen</span><strong id="tradeDoneCount">0</strong></div>
+            <div class="archive-stat"><span>Volumen</span><strong id="tradeTotalVolume">0 $</strong></div>
+          </aside>
+        </div>
+
+        <div class="price-toolbar">
+          <div class="search-shell price-search-shell"><div class="search-core"><span class="search-icon">A</span><input type="text" id="tradeSearchInput" class="search-input" placeholder="Aufträge nach Kunde, Artikel, Status oder Notiz durchsuchen..." /></div></div>
+          <div class="form-field toolbar-field"><label for="tradeTypeFilter">Art</label><select id="tradeTypeFilter"><option value="Alle">Alle</option><option value="sell">Verkauf</option><option value="buy">Kauf</option></select></div>
+          <div class="form-field toolbar-field"><label for="tradeStatusFilter">Status</label><select id="tradeStatusFilter"><option value="Alle">Alle</option><option>Offen</option><option>Bezahlt</option><option>Geliefert</option><option>Abgeschlossen</option><option>Storniert</option></select></div>
+          <div class="form-field toolbar-field"><label for="tradeSortSelect">Sortierung</label><select id="tradeSortSelect"><option value="newest">Neueste zuerst</option><option value="oldest">Älteste zuerst</option><option value="totalDesc">Summe absteigend</option><option value="totalAsc">Summe aufsteigend</option><option value="partner">Kunde A-Z</option></select></div>
+          <button id="clearTradeSearchBtn" class="secondary-btn small-btn" type="button">Suche leeren</button>
+        </div>
+        <div id="tradeOrderList" class="trade-order-list"></div>
+      </section>
+    </div>
+
+    <div id="relationTab" class="tab-content">
+      <section class="panel relation-panel">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">BEZIEHUNGSNETZ</p>
+            <h2>Intelligente Verknüpfungszentrale</h2>
+            <p class="dashboard-subline">Suche nach Person, Organisation, Route, Ort, Gegenstand, Telegramm oder Tags und sieh alle verbundenen Informationen.</p>
+          </div>
+        </div>
+        <div class="relation-search-grid">
+          <div class="search-shell"><div class="search-core"><span class="search-icon">A</span><input id="relationSearchInput" class="search-input" type="text" placeholder="z. B. Organisation, Telegrammnummer, Ort, Route, Person..." /></div></div>
+          <button id="relationUseSelectedBtn" class="secondary-btn small-btn" type="button">Aus Datensätzen wählen</button>
+          <select id="relationRecordSelect"><option value="">Datensatz auswählen...</option></select>
+        </div>
+        <div class="relation-summary-grid">
+          <div class="dashboard-metric-card"><span>Treffer</span><strong id="relationResultCount">0</strong><small>über alle Bereiche</small></div>
+          <div class="dashboard-metric-card"><span>Datensätze</span><strong id="relationRecordCount">0</strong><small>Großes Aktensystem</small></div>
+          <div class="dashboard-metric-card"><span>Handel</span><strong id="relationTradeCount">0</strong><small>Aufträge</small></div>
+          <div class="dashboard-metric-card"><span>Finanzen</span><strong id="relationCashCount">0</strong><small>Buchungen</small></div>
+        </div>
+        <div id="relationGraphBox" class="relation-graph-box"><p class="system-text">Gib einen Suchbegriff ein oder wähle einen Datensatz aus.</p></div>
+        <div id="relationResults" class="dashboard-global-search-results relation-results"></div>
+      </section>
+    </div>
 
     <div id="internTab" class="tab-content">
       <section class="panel internal-panel-v11">

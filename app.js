@@ -25,6 +25,13 @@ let cashSortMode = "newest";
 let cashSearchQuery = "";
 let isBusy = false;
 let dashboardGlobalSearchQuery = "";
+let tradeOrdersCache = [];
+let tradeDraftItems = [];
+let tradeSearchQuery = "";
+let tradeTypeFilter = "Alle";
+let tradeStatusFilter = "Alle";
+let tradeSortMode = "newest";
+let relationSearchQuery = "";
 
 const $ = (id) => document.getElementById(id);
 const landingPage = $("landingPage");
@@ -363,7 +370,8 @@ async function loadAllData() {
     ["Preisliste Verkauf", () => loadPriceItems("sell")],
     ["Preisliste Kauf", () => loadPriceItems("buy")],
     ["Ashborn Intern", loadInternalNotes],
-    ["Buchhaltung", loadCashEntries]
+    ["Buchhaltung", loadCashEntries],
+    ["Handel / Aufträge", loadTradeOrders]
   ];
 
   const errors = [];
@@ -406,6 +414,8 @@ function renderAll() {
   safeRender("Ashborn Intern", renderInternal);
   safeRender("Buchhaltung", renderCash);
   safeRender("Buchhaltung Erweiterungen", renderCashEnhancements);
+  safeRender("Handel / Aufträge", renderTradeOrders);
+  safeRender("Beziehungsnetz", renderRelations);
   safeRender("Systemzentrale", renderSystemDashboard);
   safeRender("Dashboard", renderDashboard);
   safeRender("Dashboard Erweiterungen", renderDashboardEnhancements);
@@ -2506,3 +2516,449 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-quick-action]").forEach((button) => button.addEventListener("click", () => handleQuickAction(button.dataset.quickAction)));
   on($("recordType"), "change", () => {});
 });
+
+/* =========================================================
+   ASHBORN v17
+   Beziehungsnetz + Handels-/Auftragsverwaltung
+========================================================= */
+
+function normalizeTradeOrder(row) {
+  const items = (row.trade_order_items || row.items || []).map((item) => ({
+    id: item.id,
+    itemName: item.item_name || "",
+    qty: Number(item.qty || 0),
+    unitPrice: Number(item.unit_price || 0),
+    costPrice: Number(item.cost_price || 0),
+    total: Number(item.total || (Number(item.qty || 0) * Number(item.unit_price || 0)))
+  }));
+  const total = Number(row.total || items.reduce((sum, item) => sum + item.total, 0));
+  const costTotal = Number(row.cost_total || items.reduce((sum, item) => sum + (item.qty * item.costPrice), 0));
+  return {
+    id: row.id,
+    orderType: row.order_type || "sell",
+    partner: row.partner || "",
+    status: row.status || "Offen",
+    note: row.note || "",
+    linkedRecordId: row.linked_record_id || "",
+    total,
+    costTotal,
+    profit: Number(row.profit ?? (row.order_type === "sell" ? total - costTotal : 0)),
+    items,
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : ""
+  };
+}
+
+async function loadTradeOrders() {
+  const { data, error } = await supabaseClient
+    .from("trade_orders")
+    .select("*, trade_order_items(*)")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  tradeOrdersCache = (data || []).map(normalizeTradeOrder);
+}
+
+function refreshTradeRecordOptions() {
+  const tradeLinked = $("tradeLinkedRecord");
+  const relationSelect = $("relationRecordSelect");
+  const options = recordsCache
+    .slice()
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "de"))
+    .map((record) => `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} (${escapeHtml(record.type || "Datensatz")})</option>`)
+    .join("");
+  if (tradeLinked) tradeLinked.innerHTML = `<option value="">Keine Verknüpfung</option>${options}`;
+  if (relationSelect) relationSelect.innerHTML = `<option value="">Datensatz auswählen...</option>${options}`;
+}
+
+function refreshTradeCatalogOptions() {
+  const type = getElValue("tradeType", "sell");
+  const select = $("tradeCatalogItem");
+  if (!select) return;
+  const items = (type === "sell" ? sellPricesCache : buyPricesCache).slice().sort((a, b) => a.name.localeCompare(b.name, "de"));
+  select.innerHTML = `<option value="">Freie Position</option>` + items.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${formatMoney(item.price)}</option>`).join("");
+}
+
+function getReferenceCostForItem(name) {
+  const key = String(name || "").trim().toLowerCase();
+  if (!key) return 0;
+  const buy = buyPricesCache.find((item) => String(item.name || "").trim().toLowerCase() === key);
+  return buy ? Number(buy.price || 0) : 0;
+}
+
+function applyTradeCatalogSelection() {
+  const type = getElValue("tradeType", "sell");
+  const id = getElValue("tradeCatalogItem", "");
+  const item = (type === "sell" ? sellPricesCache : buyPricesCache).find((entry) => entry.id === id);
+  if (!item) return;
+  setElValue("tradeItemName", item.name || "");
+  setElValue("tradeItemPrice", item.price || 0);
+  setElValue("tradeItemCost", type === "sell" ? getReferenceCostForItem(item.name) : item.price || 0);
+}
+
+function addTradeDraftItem() {
+  const name = getElValue("tradeItemName", "").trim();
+  const qty = Math.max(1, Number(getElValue("tradeItemQty", 1) || 1));
+  const unitPrice = Math.max(0, Number(getElValue("tradeItemPrice", 0) || 0));
+  const costPrice = Math.max(0, Number(getElValue("tradeItemCost", 0) || 0));
+  if (!name) return alert("Bitte einen Artikelnamen eintragen.");
+  if (unitPrice <= 0) return alert("Bitte einen Einzelpreis größer als 0 eintragen.");
+  tradeDraftItems.push({ itemName: name, qty, unitPrice, costPrice, total: qty * unitPrice });
+  setElValue("tradeItemName", "");
+  setElValue("tradeItemQty", 1);
+  setElValue("tradeItemPrice", 0);
+  setElValue("tradeItemCost", 0);
+  if ($("tradeCatalogItem")) $("tradeCatalogItem").value = "";
+  renderTradeDraftItems();
+}
+
+function renderTradeDraftItems() {
+  const box = $("tradeItemsPreview");
+  if (!box) return;
+  const total = tradeDraftItems.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const cost = tradeDraftItems.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.costPrice || 0)), 0);
+  const profit = getElValue("tradeType", "sell") === "sell" ? total - cost : 0;
+  setText("tradeDraftTotal", formatMoney(total));
+  setText("tradeDraftProfit", formatMoney(profit));
+  if (!tradeDraftItems.length) {
+    box.innerHTML = `<p class="field-hint">Noch keine Positionen im Auftrag.</p>`;
+    return;
+  }
+  box.innerHTML = `<div class="cart-lines">${tradeDraftItems.map((item, index) => `
+    <div>
+      <span>${escapeHtml(item.itemName)} × ${item.qty}</span>
+      <strong>${formatMoney(item.total)}</strong>
+      <small>EK/Ref: ${formatMoney(item.costPrice)} · Gewinn: ${formatMoney((item.unitPrice - item.costPrice) * item.qty)}</small>
+      <button class="danger-btn mini-btn" type="button" data-trade-remove-item="${index}">×</button>
+    </div>`).join("")}</div>`;
+  box.querySelectorAll("[data-trade-remove-item]").forEach((button) => button.addEventListener("click", () => {
+    tradeDraftItems.splice(Number(button.dataset.tradeRemoveItem), 1);
+    renderTradeDraftItems();
+  }));
+}
+
+function clearTradeForm() {
+  setElValue("tradeOrderId", "");
+  setElValue("tradeType", "sell");
+  setElValue("tradePartner", "");
+  setElValue("tradeStatus", "Offen");
+  setElValue("tradeLinkedRecord", "");
+  setElValue("tradeNote", "");
+  setElValue("tradeCreateCash", false);
+  tradeDraftItems = [];
+  setText("tradeFormTitle", "Neuen Auftrag erstellen");
+  setText("tradeSaveText", "Auftrag speichern");
+  $("cancelTradeEditBtn")?.classList.add("hidden");
+  refreshTradeCatalogOptions();
+  refreshTradeRecordOptions();
+  renderTradeDraftItems();
+  setTradeMessage("", "neutral");
+}
+
+function setTradeMessage(message, type) {
+  const el = $("tradeSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+async function saveTradeOrder(event) {
+  event?.preventDefault();
+  if (isBusy) return;
+  const id = getElValue("tradeOrderId", "").trim();
+  const orderType = getElValue("tradeType", "sell");
+  const partner = getElValue("tradePartner", "").trim();
+  const status = getElValue("tradeStatus", "Offen");
+  const note = getElValue("tradeNote", "").trim();
+  const linkedRecordId = getElValue("tradeLinkedRecord", "") || null;
+  if (!partner) return setTradeMessage("Bitte Kunde / Organisation eintragen.", "error");
+  if (!tradeDraftItems.length) return setTradeMessage("Bitte mindestens eine Position hinzufügen.", "error");
+  const total = tradeDraftItems.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const costTotal = tradeDraftItems.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.costPrice || 0)), 0);
+  const profit = orderType === "sell" ? total - costTotal : 0;
+  const payload = {
+    order_type: orderType,
+    partner,
+    status,
+    note: note || null,
+    linked_record_id: linkedRecordId,
+    total,
+    cost_total: costTotal,
+    profit,
+    created_by: sessionUser?.id || null,
+    updated_at: new Date().toISOString()
+  };
+  try {
+    setBusy(true, "Auftrag wird gespeichert...");
+    let orderId = id;
+    if (id) {
+      const { error } = await supabaseClient.from("trade_orders").update(payload).eq("id", id);
+      if (error) throw error;
+      await supabaseClient.from("trade_order_items").delete().eq("order_id", id);
+    } else {
+      const { data, error } = await supabaseClient.from("trade_orders").insert(payload).select("id").single();
+      if (error) throw error;
+      orderId = data.id;
+    }
+    const itemRows = tradeDraftItems.map((item) => ({
+      order_id: orderId,
+      item_name: item.itemName,
+      qty: item.qty,
+      unit_price: item.unitPrice,
+      cost_price: item.costPrice,
+      total: item.total
+    }));
+    const { error: itemError } = await supabaseClient.from("trade_order_items").insert(itemRows);
+    if (itemError) throw itemError;
+
+    if (getElValue("tradeCreateCash", false)) {
+      const transaction_type = orderType === "sell" ? "einzahlung" : "auszahlung";
+      const reason = `${orderType === "sell" ? "Verkaufsauftrag" : "Kaufauftrag"}: ${partner} · ${tradeDraftItems.map((item) => `${item.itemName} x${item.qty}`).join(", ")}`;
+      const { error: cashError } = await supabaseClient.from("accounting_transactions").insert({ transaction_type, amount: total, reason, category: orderType === "sell" ? "Verkauf" : "Einkauf", created_by: sessionUser?.id || null });
+      if (cashError) throw cashError;
+      await loadCashEntries();
+    }
+    clearTradeForm();
+    setTradeMessage("Auftrag wurde gespeichert.", "success");
+    await loadTradeOrders();
+    renderTradeOrders();
+    renderRelations();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    console.error(error);
+    setTradeMessage(`Auftrag konnte nicht gespeichert werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function loadTradeIntoForm(id) {
+  const order = tradeOrdersCache.find((entry) => entry.id === id);
+  if (!order) return;
+  refreshTradeRecordOptions();
+  setElValue("tradeOrderId", order.id);
+  setElValue("tradeType", order.orderType);
+  setElValue("tradePartner", order.partner);
+  setElValue("tradeStatus", order.status);
+  setElValue("tradeLinkedRecord", order.linkedRecordId || "");
+  setElValue("tradeNote", order.note || "");
+  setElValue("tradeCreateCash", false);
+  tradeDraftItems = order.items.map((item) => ({ ...item }));
+  refreshTradeCatalogOptions();
+  renderTradeDraftItems();
+  setText("tradeFormTitle", "Auftrag bearbeiten");
+  setText("tradeSaveText", "Änderungen speichern");
+  $("cancelTradeEditBtn")?.classList.remove("hidden");
+  switchTab("tradeTab");
+  setTradeMessage("Bearbeitungsmodus aktiv.", "neutral");
+}
+
+async function updateTradeStatus(id, status) {
+  try {
+    setBusy(true, "Status wird geändert...");
+    const { error } = await supabaseClient.from("trade_orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+    if (error) throw error;
+    await loadTradeOrders();
+    renderTradeOrders();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Status konnte nicht geändert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function deleteTradeOrder(id) {
+  const order = tradeOrdersCache.find((entry) => entry.id === id);
+  if (!order) return;
+  if (!confirm(`Auftrag von "${order.partner}" wirklich löschen?`)) return;
+  try {
+    setBusy(true, "Auftrag wird gelöscht...");
+    await supabaseClient.from("trade_order_items").delete().eq("order_id", id);
+    const { error } = await supabaseClient.from("trade_orders").delete().eq("id", id);
+    if (error) throw error;
+    await loadTradeOrders();
+    renderTradeOrders();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Auftrag konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisibleTradeOrders() {
+  const query = tradeSearchQuery || (getElValue("tradeSearchInput", "").trim().toLowerCase());
+  let orders = tradeOrdersCache.slice();
+  if (tradeTypeFilter !== "Alle") orders = orders.filter((order) => order.orderType === tradeTypeFilter);
+  if (tradeStatusFilter !== "Alle") orders = orders.filter((order) => order.status === tradeStatusFilter);
+  if (query) {
+    orders = orders.filter((order) => [
+      order.partner, order.status, order.note, order.total, order.profit, order.createdAt, order.updatedAt,
+      ...order.items.flatMap((item) => [item.itemName, item.qty, item.unitPrice, item.costPrice])
+    ].join(" ").toLowerCase().includes(query));
+  }
+  orders.sort((a, b) => {
+    if (tradeSortMode === "oldest") return String(a.createdAtRaw).localeCompare(String(b.createdAtRaw));
+    if (tradeSortMode === "totalDesc") return b.total - a.total;
+    if (tradeSortMode === "totalAsc") return a.total - b.total;
+    if (tradeSortMode === "partner") return String(a.partner).localeCompare(String(b.partner), "de");
+    return String(b.createdAtRaw).localeCompare(String(a.createdAtRaw));
+  });
+  return orders;
+}
+
+function renderTradeOrders() {
+  refreshTradeRecordOptions();
+  refreshTradeCatalogOptions();
+  renderTradeDraftItems();
+  const list = $("tradeOrderList");
+  if (!list) return;
+  const totalVolume = tradeOrdersCache.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  setText("tradeTotalCount", tradeOrdersCache.length);
+  setText("tradeOpenCount", tradeOrdersCache.filter((o) => o.status === "Offen").length);
+  setText("tradeDoneCount", tradeOrdersCache.filter((o) => o.status === "Abgeschlossen").length);
+  setText("tradeTotalVolume", formatMoney(totalVolume));
+  const orders = getVisibleTradeOrders();
+  if (!orders.length) {
+    list.innerHTML = `<div class="empty-state-card"><h3>Keine Aufträge gefunden</h3><p>Erstelle einen neuen Auftrag oder ändere Filter/Suche.</p></div>`;
+    return;
+  }
+  list.innerHTML = orders.map((order) => {
+    const linked = recordsCache.find((record) => record.id === order.linkedRecordId);
+    return `<article class="trade-order-card">
+      <div class="folder-chip-row">
+        <span class="folder-chip ${createStatusClass(order.orderType)}">${order.orderType === "sell" ? "Verkauf" : "Kauf"}</span>
+        <span class="folder-chip ${createStatusClass(order.status)}">${escapeHtml(order.status)}</span>
+        ${linked ? `<span class="folder-chip">Verknüpft: ${escapeHtml(linked.name)}</span>` : ""}
+        <span class="folder-chip">${escapeHtml(order.createdAt || "-")}</span>
+      </div>
+      <div class="trade-order-head">
+        <div><h3>${escapeHtml(order.partner || "Ohne Partner")}</h3><p>${escapeHtml(order.note || "Keine Notiz")}</p></div>
+        <div class="trade-order-money"><strong>${formatMoney(order.total)}</strong><small>Gewinn: ${formatMoney(order.profit)}</small></div>
+      </div>
+      <div class="trade-items-list">${order.items.map((item) => `<div><span>${escapeHtml(item.itemName)} × ${item.qty}</span><strong>${formatMoney(item.total)}</strong><small>EP ${formatMoney(item.unitPrice)} · EK/Ref ${formatMoney(item.costPrice)}</small></div>`).join("")}</div>
+      <div class="form-actions compact-actions">
+        <button class="secondary-btn mini-btn" type="button" data-edit-trade="${escapeHtml(order.id)}">Bearbeiten</button>
+        <button class="primary-btn mini-btn" type="button" data-complete-trade="${escapeHtml(order.id)}">Abschließen</button>
+        <button class="secondary-btn mini-btn" type="button" data-relation-from-trade="${escapeHtml(order.partner)}">Netz anzeigen</button>
+        <button class="danger-btn mini-btn" type="button" data-delete-trade="${escapeHtml(order.id)}">Löschen</button>
+      </div>
+    </article>`;
+  }).join("");
+  list.querySelectorAll("[data-edit-trade]").forEach((button) => button.addEventListener("click", () => loadTradeIntoForm(button.dataset.editTrade)));
+  list.querySelectorAll("[data-complete-trade]").forEach((button) => button.addEventListener("click", () => updateTradeStatus(button.dataset.completeTrade, "Abgeschlossen")));
+  list.querySelectorAll("[data-delete-trade]").forEach((button) => button.addEventListener("click", () => deleteTradeOrder(button.dataset.deleteTrade)));
+  list.querySelectorAll("[data-relation-from-trade]").forEach((button) => button.addEventListener("click", () => { relationSearchQuery = button.dataset.relationFromTrade || ""; if ($("relationSearchInput")) $("relationSearchInput").value = relationSearchQuery; switchTab("relationTab"); renderRelations(); }));
+}
+
+function buildRelationIndex() {
+  const toSearch = (...values) => values.join(" ").toLowerCase();
+  return [
+    ...recordsCache.map((entry) => ({ kind: "record", area: "Datensatz", tab: "dataTab", id: entry.id, title: entry.name, badge: entry.type || "Datensatz", preview: [entry.location, entry.telegram, entry.relationStatus, entry.description, tagsToText(entry.tags), entry.orgMembers, entry.routeInfo, entry.placeInfo].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.name, entry.type, entry.location, entry.telegram, entry.description, entry.relationStatus, tagsToText(entry.tags), entry.orgMembers, entry.routeInfo, entry.placeInfo) })),
+    ...internalCache.map((entry) => ({ kind: "internal", area: "Intern", tab: "internTab", id: entry.id, title: entry.title, badge: entry.category || "Intern", preview: [entry.status, entry.assignee, entry.content, tagsToText(entry.tags)].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.title, entry.category, entry.content, entry.status, entry.assignee, tagsToText(entry.tags)) })),
+    ...tradeOrdersCache.map((entry) => ({ kind: "trade", area: "Handel", tab: "tradeTab", id: entry.id, title: entry.partner, badge: entry.orderType === "sell" ? "Verkauf" : "Kauf", preview: [entry.status, formatMoney(entry.total), entry.note, ...entry.items.map((item) => item.itemName)].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.partner, entry.status, entry.note, entry.total, entry.profit, ...entry.items.flatMap((item) => [item.itemName, item.qty, item.unitPrice])) })),
+    ...cashCache.map((entry) => ({ kind: "cash", area: "Buchhaltung", tab: "cashTab", id: entry.id, title: entry.reason || "Buchung", badge: entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung", preview: [formatMoney(entry.amount), entry.category].filter(Boolean).join(" · "), dateRaw: entry.createdAtRaw, searchText: toSearch(entry.reason, entry.type, entry.amount, entry.category, entry.createdAt) })),
+    ...sellPricesCache.map((entry) => ({ kind: "sell", area: "Verkaufspreis", tab: "sellTab", id: entry.id, title: entry.name, badge: entry.category || "Verkauf", preview: [formatMoney(entry.price), entry.unit, entry.note].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price) })),
+    ...buyPricesCache.map((entry) => ({ kind: "buy", area: "Kaufpreis", tab: "buyTab", id: entry.id, title: entry.name, badge: entry.category || "Kauf", preview: [formatMoney(entry.price), entry.unit, entry.note].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price) }))
+  ];
+}
+
+function renderRelations() {
+  refreshTradeRecordOptions();
+  const target = $("relationResults");
+  const graph = $("relationGraphBox");
+  if (!target || !graph) return;
+  const query = (relationSearchQuery || getElValue("relationSearchInput", "")).trim().toLowerCase();
+  if (!query) {
+    setText("relationResultCount", 0);
+    setText("relationRecordCount", 0);
+    setText("relationTradeCount", 0);
+    setText("relationCashCount", 0);
+    graph.innerHTML = `<p class="system-text">Gib einen Suchbegriff ein oder wähle einen Datensatz aus.</p>`;
+    target.innerHTML = "";
+    return;
+  }
+  const results = buildRelationIndex().filter((entry) => entry.searchText.includes(query)).sort((a, b) => new Date(b.dateRaw || 0) - new Date(a.dateRaw || 0));
+  setText("relationResultCount", results.length);
+  setText("relationRecordCount", results.filter((r) => r.kind === "record").length);
+  setText("relationTradeCount", results.filter((r) => r.kind === "trade").length);
+  setText("relationCashCount", results.filter((r) => r.kind === "cash").length);
+  const grouped = results.reduce((acc, entry) => { acc[entry.area] = (acc[entry.area] || 0) + 1; return acc; }, {});
+  graph.innerHTML = `<div class="relation-node main-node">${escapeHtml(query)}</div>${Object.entries(grouped).map(([area, count]) => `<div class="relation-link-line"></div><div class="relation-node"><strong>${escapeHtml(area)}</strong><span>${count} Treffer</span></div>`).join("")}`;
+  target.innerHTML = results.length ? results.map((entry) => `<button class="dashboard-global-result" type="button" data-relation-open="${escapeHtml(entry.tab)}" data-relation-kind="${escapeHtml(entry.kind)}" data-relation-id="${escapeHtml(entry.id || "")}"><div class="folder-chip-row"><span class="folder-chip">${escapeHtml(entry.area)}</span><span class="folder-chip ${createStatusClass(entry.badge)}">${escapeHtml(entry.badge || "-")}</span></div><strong>${escapeHtml(entry.title || "Ohne Titel")}</strong><p>${escapeHtml(entry.preview || "Keine Vorschau")}</p></button>`).join("") : `<p class="system-text">Keine Verknüpfungen gefunden.</p>`;
+  target.querySelectorAll("[data-relation-open]").forEach((button) => button.addEventListener("click", () => openGlobalSearchResult(button.dataset.relationOpen, button.dataset.relationKind, button.dataset.relationId)));
+}
+
+const originalRenderDashboardV17 = renderDashboard;
+renderDashboard = function renderDashboardV17() {
+  originalRenderDashboardV17();
+  const tradeVolume = tradeOrdersCache.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  setText("dashTradeCount", tradeOrdersCache.length);
+  setText("dashTradeVolume", `${formatMoney(tradeVolume)} Volumen`);
+  const linkedCount = recordsCache.filter((record) => Array.isArray(record.relatedIds) && record.relatedIds.length).length + tradeOrdersCache.filter((order) => order.linkedRecordId).length;
+  setText("dashRelationCount", linkedCount);
+};
+
+const originalBuildDashboardGlobalSearchIndexV17 = buildDashboardGlobalSearchIndex;
+buildDashboardGlobalSearchIndex = function buildDashboardGlobalSearchIndexV17() {
+  return [
+    ...originalBuildDashboardGlobalSearchIndexV17(),
+    ...tradeOrdersCache.map((entry) => ({
+      kind: "trade",
+      id: entry.id,
+      area: "Handel / Auftrag",
+      tab: "tradeTab",
+      badge: entry.orderType === "sell" ? "Verkauf" : "Kauf",
+      title: entry.partner,
+      preview: [entry.status, formatMoney(entry.total), entry.note, ...entry.items.map((item) => item.itemName)].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: [entry.partner, entry.status, entry.note, entry.total, entry.profit, ...entry.items.flatMap((item) => [item.itemName, item.qty, item.unitPrice, item.costPrice]), "handel auftrag verkauf kauf"].join(" ").toLowerCase()
+    }))
+  ];
+};
+
+const originalOpenGlobalSearchResultV17 = openGlobalSearchResult;
+openGlobalSearchResult = function openGlobalSearchResultV17(tabId, kind, id) {
+  if (kind === "trade" && id) {
+    switchTab("tradeTab");
+    setTimeout(() => loadTradeIntoForm(id), 80);
+    return;
+  }
+  originalOpenGlobalSearchResultV17(tabId, kind, id);
+};
+
+const originalRenderDashboardEnhancementsV17 = renderDashboardEnhancements;
+renderDashboardEnhancements = function renderDashboardEnhancementsV17() {
+  originalRenderDashboardEnhancementsV17();
+  renderTradeOrders();
+  renderRelations();
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  on($("tradeOrderForm"), "submit", saveTradeOrder);
+  on($("tradeType"), "change", () => { refreshTradeCatalogOptions(); renderTradeDraftItems(); });
+  on($("tradeCatalogItem"), "change", applyTradeCatalogSelection);
+  on($("addTradeItemBtn"), "click", addTradeDraftItem);
+  on($("clearTradeItemsBtn"), "click", () => { tradeDraftItems = []; renderTradeDraftItems(); });
+  on($("cancelTradeEditBtn"), "click", clearTradeForm);
+  on($("tradeSearchInput"), "input", (event) => { tradeSearchQuery = (event.target.value || "").trim().toLowerCase(); renderTradeOrders(); });
+  on($("tradeTypeFilter"), "change", (event) => { tradeTypeFilter = event.target.value || "Alle"; renderTradeOrders(); });
+  on($("tradeStatusFilter"), "change", (event) => { tradeStatusFilter = event.target.value || "Alle"; renderTradeOrders(); });
+  on($("tradeSortSelect"), "change", (event) => { tradeSortMode = event.target.value || "newest"; renderTradeOrders(); });
+  on($("clearTradeSearchBtn"), "click", () => { tradeSearchQuery = ""; tradeTypeFilter = "Alle"; tradeStatusFilter = "Alle"; tradeSortMode = "newest"; if ($("tradeSearchInput")) $("tradeSearchInput").value = ""; if ($("tradeTypeFilter")) $("tradeTypeFilter").value = "Alle"; if ($("tradeStatusFilter")) $("tradeStatusFilter").value = "Alle"; if ($("tradeSortSelect")) $("tradeSortSelect").value = "newest"; renderTradeOrders(); });
+  on($("relationSearchInput"), "input", (event) => { relationSearchQuery = (event.target.value || "").trim(); renderRelations(); });
+  on($("relationUseSelectedBtn"), "click", () => { const id = getElValue("relationRecordSelect", ""); const record = recordsCache.find((entry) => entry.id === id); if (!record) return; relationSearchQuery = [record.name, record.telegram, record.type].filter(Boolean)[0] || record.name; if ($("relationSearchInput")) $("relationSearchInput").value = relationSearchQuery; renderRelations(); });
+});
+
+// v17 quick action override
+const originalHandleQuickActionV17 = handleQuickAction;
+handleQuickAction = function handleQuickActionV17(action) {
+  if (action === "newTrade") { switchTab("tradeTab"); clearTradeForm(); setTimeout(() => $("tradePartner")?.focus(), 100); return; }
+  originalHandleQuickActionV17(action);
+};

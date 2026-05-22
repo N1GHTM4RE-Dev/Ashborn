@@ -3247,3 +3247,265 @@ function renderRecords() {
     `;
   }).join("");
 }
+
+/* =========================================================
+   v19.4 FINALER DATENBANK-NOTFALLLADER
+   Dieser Block ist absichtlich unabhängig vom normalen Renderer.
+   Ziel: Wenn Supabase Einträge enthält, werden sie im Bereich „Daten"
+   sichtbar angezeigt – oder der echte Supabase-Fehler steht direkt im UI.
+========================================================= */
+(function installDatabaseEmergencyLoaderV194() {
+  const logPrefix = "Ashborn v19.4 Datencheck";
+
+  function safeText(value, fallback = "") {
+    if (value === null || value === undefined) return fallback;
+    return String(value);
+  }
+
+  function localEscape(value) {
+    return safeText(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function localDate(value) {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+    } catch (_) {
+      return String(value);
+    }
+  }
+
+  function getRecordType(row) {
+    return safeText(row.type || row.was || row.category || "Nicht festgelegt", "Nicht festgelegt");
+  }
+
+  function normalizeEmergencyRow(row) {
+    let images = [];
+    if (Array.isArray(row.images)) {
+      images = row.images;
+    } else if (typeof row.images === "string" && row.images.trim()) {
+      try {
+        const parsed = JSON.parse(row.images);
+        images = Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        images = [];
+      }
+    }
+
+    return {
+      id: safeText(row.id),
+      name: safeText(row.name, "Ohne Name"),
+      type: getRecordType(row),
+      location: safeText(row.find_location || row.location || row.wo, ""),
+      telegram: safeText(row.telegram_number || row.telegram || ""),
+      description: safeText(row.description || row.beschreibung || ""),
+      images,
+      createdAtRaw: row.created_at || row.createdAt || "",
+      updatedAtRaw: row.updated_at || row.updatedAt || row.created_at || "",
+      createdAt: localDate(row.created_at || row.createdAt),
+      updatedAt: row.updated_at || row.updatedAt ? localDate(row.updated_at || row.updatedAt) : ""
+    };
+  }
+
+  function renderEmergencyRecords(rows, sourceLabel) {
+    const list = document.getElementById("recordList");
+    if (!list) return;
+
+    const records = Array.isArray(rows) ? rows.map(normalizeEmergencyRow) : [];
+    window.recordsCache = records;
+    try { recordsCache = records; } catch (_) {}
+
+    const searchValue = (document.getElementById("recordSearchInput")?.value || "").trim().toLowerCase();
+    const typeFilter = (typeof activeRecordFilter !== "undefined" ? activeRecordFilter : "Alle") || "Alle";
+    const imageFilter = Boolean(typeof activeRecordImageFilter !== "undefined" ? activeRecordImageFilter : false);
+
+    const filtered = records.filter((record) => {
+      const matchesType = typeFilter === "Alle" || record.type === typeFilter;
+      const matchesImages = !imageFilter || (Array.isArray(record.images) && record.images.length > 0);
+      const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.createdAt, record.updatedAt]
+        .join(" ")
+        .toLowerCase();
+      return matchesType && matchesImages && haystack.includes(searchValue);
+    });
+
+    if (typeof setText === "function") {
+      setText("totalRecordsCount", records.length);
+      setText("filteredRecordsCount", filtered.length);
+      setText("imageRecordsCount", records.filter((item) => Array.isArray(item.images) && item.images.length).length);
+      setText("dashRecordsCount", records.length);
+    }
+
+    if (!records.length) {
+      list.innerHTML = `
+        <div class="akten-card empty-state-card">
+          <div class="folder-chip-row"><span class="folder-chip">Supabase verbunden</span><span class="folder-chip">0 Datensätze</span></div>
+          <h3>Keine Datensätze gefunden</h3>
+          <p>Die Tabelle <strong>ashborn_entries</strong> wurde erfolgreich abgefragt, aber Supabase hat 0 Zeilen zurückgegeben.</p>
+          <p class="field-hint">Quelle: ${localEscape(sourceLabel)}</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (!filtered.length) {
+      list.innerHTML = `
+        <div class="akten-card empty-state-card">
+          <div class="folder-chip-row"><span class="folder-chip">${records.length} vorhanden</span><span class="folder-chip">0 sichtbar</span></div>
+          <h3>Datensätze sind da, aber Filter/Suche blendet sie aus</h3>
+          <p>Setze Suche und Filter zurück.</p>
+          <button class="secondary-btn mini-btn" type="button" data-v194-reset-record-filters>Filter zurücksetzen</button>
+        </div>
+      `;
+      list.querySelector("[data-v194-reset-record-filters]")?.addEventListener("click", () => {
+        const search = document.getElementById("recordSearchInput");
+        if (search) search.value = "";
+        try { activeRecordFilter = "Alle"; activeRecordImageFilter = false; } catch (_) {}
+        hardLoadRecordsV194("filter-reset");
+      });
+      return;
+    }
+
+    list.innerHTML = filtered.map((record) => {
+      const imageCount = Array.isArray(record.images) ? record.images.length : 0;
+      return `
+        <button class="akten-card record-card" type="button" data-id="${localEscape(record.id)}">
+          <div class="record-card-main">
+            <div class="record-thumb"><span>${localEscape((record.type || "A").slice(0, 1))}</span></div>
+            <div class="record-card-body">
+              <div class="folder-chip-row">
+                <span class="folder-chip">${localEscape(record.type)}</span>
+                <span class="folder-chip">${localEscape(record.updatedAt ? `Bearbeitet: ${record.updatedAt}` : `Erstellt: ${record.createdAt}`)}</span>
+                <span class="folder-chip">${imageCount} Bild(er)</span>
+              </div>
+              <h3>${localEscape(record.name)}</h3>
+              <p><strong>Wo?</strong> ${localEscape(record.location || "Nicht eingetragen")}</p>
+              <p><strong>Telegramm:</strong> ${localEscape(record.telegram || "Nicht eingetragen")}</p>
+              <p class="akten-preview">${localEscape(record.description || "Keine Beschreibung")}</p>
+              <div class="card-actions">
+                <span class="secondary-btn mini-btn" data-edit-record="${localEscape(record.id)}">Bearbeiten</span>
+                <span class="danger-btn mini-btn" data-delete-record="${localEscape(record.id)}">Löschen</span>
+              </div>
+            </div>
+          </div>
+        </button>
+      `;
+    }).join("");
+
+    console.info(`${logPrefix}: ${records.length} Datensätze geladen, ${filtered.length} sichtbar`, { sourceLabel, records });
+  }
+
+  function renderEmergencyError(error, stage) {
+    const list = document.getElementById("recordList");
+    if (!list) return;
+    const message = error?.message || error?.error_description || JSON.stringify(error) || String(error);
+    const details = error?.details || error?.hint || error?.code || "";
+    list.innerHTML = `
+      <div class="akten-card empty-state-card emergency-error-card">
+        <div class="folder-chip-row"><span class="folder-chip">Datenbank-Fehler</span><span class="folder-chip">${localEscape(stage)}</span></div>
+        <h3>Daten konnten nicht geladen werden</h3>
+        <p><strong>Fehler:</strong> ${localEscape(message)}</p>
+        ${details ? `<p><strong>Details:</strong> ${localEscape(details)}</p>` : ""}
+        <p class="field-hint">Diese Meldung kommt direkt aus Supabase oder aus dem Auth-System.</p>
+        <button class="secondary-btn mini-btn" type="button" data-v194-retry-records>Erneut laden</button>
+      </div>
+    `;
+    list.querySelector("[data-v194-retry-records]")?.addEventListener("click", () => hardLoadRecordsV194("retry-button"));
+    console.error(`${logPrefix}: Fehler`, stage, error);
+  }
+
+  window.hardLoadRecordsV194 = async function hardLoadRecordsV194(trigger = "manual") {
+    const list = document.getElementById("recordList");
+    if (list) {
+      list.innerHTML = `
+        <div class="akten-card empty-state-card">
+          <div class="folder-chip-row"><span class="folder-chip">Lade Datenbank</span></div>
+          <h3>Daten werden direkt aus Supabase geladen...</h3>
+          <p>Trigger: ${localEscape(trigger)}</p>
+        </div>
+      `;
+    }
+
+    try {
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!sessionData?.session) {
+        throw new Error("Keine aktive Supabase-Session. Bitte einmal ausloggen und neu mit dem Masterpasswort einloggen.");
+      }
+
+      // Erst Standardabfrage. Wenn das wegen späteren Spalten/Policies scheitert,
+      // wird darunter eine Minimalabfrage versucht.
+      let response = await supabaseClient
+        .from("ashborn_entries")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (response.error) {
+        console.warn(`${logPrefix}: select(*) fehlgeschlagen, versuche Minimalabfrage`, response.error);
+        response = await supabaseClient
+          .from("ashborn_entries")
+          .select("id,name,type,find_location,telegram_number,description,images,created_at,updated_at")
+          .order("created_at", { ascending: false });
+      }
+
+      if (response.error) throw response.error;
+      renderEmergencyRecords(response.data || [], trigger);
+    } catch (error) {
+      renderEmergencyError(error, trigger);
+    }
+  };
+
+  // Normales Laden absichern: Nach jedem Gesamtladen noch einmal den direkten
+  // Datenbank-Lader ausführen. Dadurch können andere Renderfehler die Datenliste
+  // nicht mehr leer lassen.
+  try {
+    if (typeof loadAllData === "function" && !window.__ashbornLoadAllDataWrappedV194) {
+      window.__ashbornLoadAllDataWrappedV194 = true;
+      const originalLoadAllData = loadAllData;
+      loadAllData = async function loadAllDataV194Wrapper() {
+        await originalLoadAllData();
+        await window.hardLoadRecordsV194("nach-loadAllData");
+      };
+    }
+  } catch (error) {
+    console.warn(`${logPrefix}: loadAllData konnte nicht gewrappt werden`, error);
+  }
+
+  try {
+    if (typeof switchTab === "function" && !window.__ashbornSwitchTabWrappedV194) {
+      window.__ashbornSwitchTabWrappedV194 = true;
+      const originalSwitchTab = switchTab;
+      switchTab = function switchTabV194Wrapper(tabId) {
+        originalSwitchTab(tabId);
+        if (tabId === "dataTab") {
+          setTimeout(() => window.hardLoadRecordsV194("tab-data"), 150);
+        }
+      };
+    }
+  } catch (error) {
+    console.warn(`${logPrefix}: switchTab konnte nicht gewrappt werden`, error);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const reloadBtn = document.createElement("button");
+    reloadBtn.type = "button";
+    reloadBtn.id = "v194ReloadRecordsBtn";
+    reloadBtn.className = "secondary-btn small-btn";
+    reloadBtn.textContent = "Datenbank neu laden";
+    reloadBtn.addEventListener("click", () => window.hardLoadRecordsV194("toolbar-button"));
+
+    const toolbar = document.querySelector("#dataTab .record-toolbar");
+    if (toolbar && !document.getElementById("v194ReloadRecordsBtn")) {
+      toolbar.prepend(reloadBtn);
+    }
+
+    setTimeout(() => {
+      const systemVisible = document.getElementById("aktenSystem") && !document.getElementById("aktenSystem").classList.contains("hidden");
+      if (systemVisible) window.hardLoadRecordsV194("dom-ready-visible");
+    }, 1000);
+  });
+})();

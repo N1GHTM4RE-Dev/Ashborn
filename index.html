@@ -62,22 +62,30 @@
       </div>
       <div class="system-header-actions">
         <div class="status-pill">Systemstatus: Aktiv</div>
+        <button id="openHelpBtn" class="secondary-btn logout-btn" type="button">Hilfe / Anleitung</button>
         <button id="logoutBtn" class="secondary-btn logout-btn" type="button">System schließen</button>
       </div>
     </header>
 
     <nav class="system-tabs ashborn-main-tabs" aria-label="Navigation">
-      <button class="tab-btn active" data-tab="dashboardTab" type="button"><span class="tab-seal"></span><span>Dashboard</span></button>
-      <button class="tab-btn" data-tab="dataTab" type="button"><span class="tab-seal"></span><span>Großes Aktensystem</span></button>
-      <button class="tab-btn" data-tab="sellTab" type="button"><span class="tab-seal"></span><span>Preisliste Verkauf</span></button>
-      <button class="tab-btn" data-tab="buyTab" type="button"><span class="tab-seal"></span><span>Preisliste Kauf</span></button>
-      <button class="tab-btn" data-tab="tradeTab" type="button"><span class="tab-seal"></span><span>Handel / Aufträge</span></button>
-      <button class="tab-btn" data-tab="relationTab" type="button"><span class="tab-seal"></span><span>Beziehungsnetz</span></button>
-      <button class="tab-btn" data-tab="internTab" type="button"><span class="tab-seal"></span><span>Ashborn Intern</span></button>
-      <button class="tab-btn" data-tab="cashTab" type="button"><span class="tab-seal"></span><span>Buchhaltung</span></button>
+      <button class="tab-btn active" data-tab="dashboardTab" type="button"><span class="tab-seal"></span><span>Übersicht</span></button>
+      <button class="tab-btn" data-tab="dataTab" type="button"><span class="tab-seal"></span><span>Daten</span></button>
+      <button class="tab-btn" data-tab="sellTab" type="button"><span class="tab-seal"></span><span>Verkauf</span></button>
+      <button class="tab-btn" data-tab="buyTab" type="button"><span class="tab-seal"></span><span>Einkauf</span></button>
+      <button class="tab-btn" data-tab="tradeTab" type="button"><span class="tab-seal"></span><span>Aufträge</span></button>
+      <button class="tab-btn" data-tab="relationTab" type="button"><span class="tab-seal"></span><span>Verknüpfungen</span></button>
+      <button class="tab-btn" data-tab="internTab" type="button"><span class="tab-seal"></span><span>Intern</span></button>
+      <button class="tab-btn" data-tab="cashTab" type="button"><span class="tab-seal"></span><span>Kasse</span></button>
       <button class="tab-btn" data-tab="settingsTab" type="button"><span class="tab-seal"></span><span>System</span></button>
     </nav>
 
+    <div class="system-guide-strip">
+      <span><strong>Übersicht</strong> = Start & Suche</span>
+      <span><strong>Daten</strong> = Personen/Orte/Routen erfassen</span>
+      <span><strong>Aufträge</strong> = Handel verwalten</span>
+      <span><strong>Kasse</strong> = Geldbewegungen</span>
+      <span><strong>Verknüpfungen</strong> = Zusammenhänge finden</span>
+    </div>
 
     <div id="dashboardTab" class="tab-content active">
       <section class="panel dashboard-panel">
@@ -92,6 +100,35 @@
             <button id="dashboardReloadBtn" class="secondary-btn small-btn" type="button">Daten neu laden</button>
           </div>
         </div>
+
+        <section class="easy-start-panel">
+          <div class="easy-start-head">
+            <div>
+              <p class="section-kicker">EINFACHER START</p>
+              <h3>Was möchtest du machen?</h3>
+              <p>Wähle zuerst eine Aufgabe. Jeder Bereich ist unten kurz erklärt, damit neue Nutzer sofort wissen, wohin sie klicken müssen.</p>
+            </div>
+            <button id="openHelpBtnDashboard" class="secondary-btn small-btn" type="button">Kurzanleitung öffnen</button>
+          </div>
+          <div class="easy-start-grid">
+            <button class="easy-start-card" type="button" data-quick-action="newRecord">
+              <strong>Neue Information speichern</strong>
+              <span>Person, Organisation, Ort, Route oder Gegenstand erfassen.</span>
+            </button>
+            <button class="easy-start-card" type="button" data-dashboard-open="relationTab">
+              <strong>Alles zu einem Namen finden</strong>
+              <span>Verknüpfungen über alle Bereiche suchen.</span>
+            </button>
+            <button class="easy-start-card" type="button" data-quick-action="newTrade">
+              <strong>Auftrag / Handel erstellen</strong>
+              <span>Verkauf oder Einkauf mit Warenkorb und Buchhaltung.</span>
+            </button>
+            <button class="easy-start-card" type="button" data-quick-action="newCash">
+              <strong>Geld buchen</strong>
+              <span>Einzahlung oder Auszahlung mit Begründung speichern.</span>
+            </button>
+          </div>
+        </section>
 
         <div class="dashboard-hero-grid">
           <button class="dashboard-metric-card primary-dashboard-card" type="button" data-dashboard-open="cashTab">
@@ -120,7 +157,7 @@
             <small id="dashTradeVolume">0 $ Volumen</small>
           </button>
           <button class="dashboard-metric-card" type="button" data-dashboard-open="relationTab">
-            <span>Beziehungsnetz</span>
+            <span>Verknüpfungen</span>
             <strong id="dashRelationCount">0</strong>
             <small>Verknüpfte Treffer</small>
           </button>
@@ -242,6 +279,7 @@
     </div>
 
     <div id="dataTab" class="tab-content">
+      <div class="context-help-box"><strong>Daten:</strong> Hier speicherst du einzelne Informationen. Nur der Name ist Pflicht. Nutze „Was?“ für Person, Organisation, Ort, Route oder Gegenstand.</div>
       <div class="archive-layout ashborn-data-layout">
         <aside class="archive-sidepanel">
           <div class="sidepanel-block">
@@ -373,6 +411,7 @@
     </div>
 
     <div id="sellTab" class="tab-content">
+      <div class="context-help-box"><strong>Verkauf:</strong> Hier stehen Preise, zu denen ihr Dinge verkauft. Diese Liste kann später in Aufträge übernommen werden.</div>
       <section class="panel">
         <div class="panel-header"><div><p class="section-kicker">VERKAUF</p><h2>Preisliste Verkauf</h2></div></div>
         <div class="price-layout" data-price-module="sell">
@@ -426,6 +465,7 @@
     </div>
 
     <div id="buyTab" class="tab-content">
+      <div class="context-help-box"><strong>Einkauf:</strong> Hier stehen Preise, zu denen ihr Dinge einkauft. Damit berechnet das System Gewinn und Marge.</div>
       <section class="panel">
         <div class="panel-header"><div><p class="section-kicker">KAUF</p><h2>Preisliste Kauf</h2></div></div>
         <div class="price-layout" data-price-module="buy">
@@ -485,6 +525,7 @@
 
 
     <div id="tradeTab" class="tab-content">
+      <div class="context-help-box"><strong>Aufträge:</strong> Hier erstellst du Verkaufs- oder Einkaufsaufträge. Positionen können aus den Preislisten übernommen oder frei eingetragen werden.</div>
       <section class="panel trade-panel">
         <div class="panel-header">
           <div>
@@ -557,6 +598,7 @@
     </div>
 
     <div id="relationTab" class="tab-content">
+      <div class="context-help-box"><strong>Verknüpfungen:</strong> Suche einen Namen, Ort, eine Telegrammnummer oder ein Tag. Das System zeigt, wo dieser Begriff überall vorkommt.</div>
       <section class="panel relation-panel">
         <div class="panel-header">
           <div>
@@ -582,6 +624,7 @@
     </div>
 
     <div id="internTab" class="tab-content">
+      <div class="context-help-box"><strong>Intern:</strong> Für Regeln, Aufgaben, Kontakte, Rollen, Pläne und interne Hinweise.</div>
       <section class="panel internal-panel-v11">
         <div class="panel-header">
           <div>
@@ -724,6 +767,7 @@
     </div>
 
     <div id="cashTab" class="tab-content">
+      <div class="context-help-box"><strong>Kasse:</strong> Hier werden Einzahlungen und Auszahlungen mit Begründung gespeichert. Der Kontostand berechnet sich automatisch.</div>
       <section class="panel">
         <div class="panel-header"><div><p class="section-kicker">BUCHHALTUNG</p><h2>Ashborn Buchhaltung</h2></div></div>
         <div class="cash-overview enhanced-cash-overview">
@@ -762,6 +806,7 @@
     </div>
 
     <div id="settingsTab" class="tab-content">
+      <div class="context-help-box"><strong>System:</strong> Hier findest du Export, Daten neu laden und gefährliche Systemaktionen.</div>
       <section class="panel system-dashboard-panel">
         <div class="panel-header system-panel-header">
           <div>
@@ -829,6 +874,25 @@
       </section>
     </div>
   </section>
+
+
+  <div id="helpModal" class="help-modal hidden" aria-hidden="true">
+    <div id="helpBackdrop" class="detail-backdrop"></div>
+    <section class="help-sheet">
+      <button id="closeHelpBtn" class="close-detail" type="button" aria-label="Hilfe schließen">×</button>
+      <p class="section-kicker">KURZANLEITUNG</p>
+      <h2>So benutzt du das Ashborn-System</h2>
+      <div class="help-steps-grid">
+        <article><span>1</span><h3>Übersicht nutzen</h3><p>Nach dem Login landest du immer auf der Übersicht. Dort findest du Suche, Schnellaktionen und die wichtigsten Zahlen.</p></article>
+        <article><span>2</span><h3>Daten erfassen</h3><p>Unter „Daten“ speicherst du Personen, Organisationen, Orte, Routen und Gegenstände. Nur der Name ist Pflicht.</p></article>
+        <article><span>3</span><h3>Preise & Aufträge</h3><p>Verkauf/Einkauf sind deine Preislisten. Unter „Aufträge“ machst du daraus echte Handelsvorgänge.</p></article>
+        <article><span>4</span><h3>Kasse pflegen</h3><p>Unter „Kasse“ trägst du Einzahlungen und Auszahlungen ein. Der Kontostand wird automatisch berechnet.</p></article>
+        <article><span>5</span><h3>Alles wiederfinden</h3><p>Nutze die globale Suche oder „Verknüpfungen“, um Namen, Orte, Telegrammnummern und Tags in allen Bereichen zu finden.</p></article>
+        <article><span>6</span><h3>Internes sammeln</h3><p>Unter „Intern“ liegen Regeln, Aufgaben, Kontakte, Pläne und wichtige Hinweise.</p></article>
+      </div>
+      <div class="help-tip-box"><strong>Tipp:</strong> Neue Nutzer sollten zuerst die Übersicht nutzen und nur über die großen Schnellaktions-Karten starten.</div>
+    </section>
+  </div>
 
   <div id="detailModal" class="detail-modal hidden">
     <div class="detail-backdrop" id="detailBackdrop"></div>

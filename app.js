@@ -3003,13 +3003,10 @@ const tabHelpMapV19 = {
   settingsTab: ["System", "Export, Daten neu laden und wenige Verwaltungsaktionen."]
 };
 
-function updateCurrentPathV19(tabId) {
-  const bar = $("currentPathBar");
-  if (!bar) return;
-  const [title, desc] = tabHelpMapV19[tabId] || tabHelpMapV19.dashboardTab;
-  bar.innerHTML = `<span class="path-dot"></span><strong>Du bist auf: ${escapeHtml(title)}</strong><span>${escapeHtml(desc)}</span>`;
+function updateCurrentPath(tabId) {
+  const bar = document.getElementById("currentPathBar");
+  if (bar) bar.remove();
 }
-
 function openStartWizardV19() {
   const modal = $("startWizardModal");
   if (!modal) return;

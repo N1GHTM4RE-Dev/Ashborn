@@ -3010,3 +3010,234 @@ handleQuickAction = function handleQuickActionV2(action) {
   }
   ashbornV2HandleQuickAction(action);
 };
+
+/* =========================================================
+   V2.2 HOTFIX: PREISLISTEN VOLLSTÄNDIG LADEN & ANZEIGEN
+   Problem in V2.1: Verkauf/Einkauf zeigten teils nur den letzten Artikel.
+   Dieser Block überschreibt die Preislisten-Funktionen bewusst am Dateiende.
+========================================================= */
+
+async function loadPriceItems(type) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+
+  const { data, error } = await supabaseClient
+    .from(table)
+    .select("id,item_name,category,unit,price,note,created_at,updated_at")
+    .order("created_at", { ascending: false })
+    .range(0, 5000);
+
+  if (error) throw error;
+
+  const normalized = Array.isArray(data)
+    ? data.map((row) => ({
+        id: String(row.id || ""),
+        name: row.item_name || "",
+        category: row.category || "",
+        unit: row.unit || "",
+        price: Number(row.price || 0),
+        note: row.note || "",
+        createdAtRaw: row.created_at || "",
+        updatedAtRaw: row.updated_at || "",
+        createdAt: formatDate(row.created_at),
+        updatedAt: formatDate(row.updated_at)
+      })).filter((item) => item.id)
+    : [];
+
+  if (type === "sell") {
+    sellPricesCache = normalized;
+  } else {
+    buyPricesCache = normalized;
+  }
+
+  console.info(`Ashborn V2.2 ${type === "sell" ? "Verkauf" : "Einkauf"}: ${normalized.length} Artikel geladen.`);
+  return normalized;
+}
+
+function getVisiblePriceItems(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const source = type === "sell" ? sellPricesCache : buyPricesCache;
+  const query = ($(`${prefix}PriceSearchInput`)?.value || "").trim().toLowerCase();
+  const sortMode = $(`${prefix}PriceSortSelect`)?.value || "name";
+
+  let items = Array.isArray(source) ? [...source] : [];
+
+  if (query) {
+    items = items.filter((item) => {
+      const text = [
+        item.name,
+        item.category,
+        item.unit,
+        item.note,
+        item.price,
+        item.createdAt,
+        item.updatedAt
+      ].join(" ").toLowerCase();
+      return text.includes(query);
+    });
+  }
+
+  items.sort((a, b) => {
+    if (sortMode === "priceAsc") return Number(a.price || 0) - Number(b.price || 0);
+    if (sortMode === "priceDesc") return Number(b.price || 0) - Number(a.price || 0);
+    if (sortMode === "category") return `${a.category || "zzz"} ${a.name || ""}`.localeCompare(`${b.category || "zzz"} ${b.name || ""}`, "de");
+    if (sortMode === "newest") return String(b.createdAtRaw || "").localeCompare(String(a.createdAtRaw || ""));
+    return String(a.name || "").localeCompare(String(b.name || ""), "de");
+  });
+
+  return items;
+}
+
+function renderPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const allItems = Array.isArray(type === "sell" ? sellPricesCache : buyPricesCache)
+    ? [...(type === "sell" ? sellPricesCache : buyPricesCache)]
+    : [];
+  const items = getVisiblePriceItems(type);
+  const list = $(`${prefix}PriceList`);
+  const select = $(`${prefix}CalculatorItem`);
+
+  if (!list || !select) return;
+
+  const currentSelected = select.value;
+  const calculatorItems = [...allItems].sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "de"));
+
+  select.innerHTML = calculatorItems.length
+    ? calculatorItems.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name || "Ohne Namen")} — ${formatMoney(item.price || 0)}</option>`).join("")
+    : `<option value="">Keine Artikel vorhanden</option>`;
+
+  if (currentSelected && calculatorItems.some((item) => item.id === currentSelected)) {
+    select.value = currentSelected;
+  }
+
+  const query = ($(`${prefix}PriceSearchInput`)?.value || "").trim();
+
+  list.innerHTML = items.length
+    ? items.map((item) => `
+      <div class="price-row enhanced-price-row">
+        <div class="price-main">
+          <div class="folder-chip-row">
+            <span class="folder-chip">${escapeHtml(item.category || "Keine Kategorie")}</span>
+            <span class="folder-chip">${escapeHtml(item.unit || "Keine Einheit")}</span>
+            <span class="folder-chip">${escapeHtml(typeof marginText === "function" ? marginText(type, item) : "")}</span>
+          </div>
+          <strong>${escapeHtml(item.name || "Ohne Namen")}</strong>
+          <span>${item.note ? escapeHtml(item.note) : "Keine Notiz"}</span>
+        </div>
+        <div class="price-value">${formatMoney(item.price || 0)}</div>
+        <div class="price-actions">
+          <button class="secondary-btn mini-btn" type="button" data-edit-price="${escapeHtml(item.id)}">Bearbeiten</button>
+          <button class="danger-btn mini-btn" type="button" data-delete-price="${escapeHtml(item.id)}">Löschen</button>
+        </div>
+      </div>
+    `).join("")
+    : `<div class="price-row"><div><strong>${allItems.length ? "Keine Treffer" : "Keine Artikel vorhanden"}</strong><span>${allItems.length ? `Es gibt ${allItems.length} Artikel, aber deine Suche „${escapeHtml(query)}“ findet nichts.` : "Lege neue Artikel an."}</span></div></div>`;
+
+  list.querySelectorAll("[data-edit-price]").forEach((button) => {
+    button.addEventListener("click", () => loadPriceIntoForm(type, button.dataset.editPrice));
+  });
+
+  list.querySelectorAll("[data-delete-price]").forEach((button) => {
+    button.addEventListener("click", () => deletePriceItem(type, button.dataset.deletePrice));
+  });
+
+  updateCalculator(type);
+  if (typeof renderCart === "function") renderCart(type);
+}
+
+async function savePriceItem(type) {
+  if (isBusy) return;
+
+  const prefix = type === "sell" ? "sell" : "buy";
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const id = $(`${prefix}PriceId`)?.value.trim();
+  const name = $(`${prefix}ItemName`)?.value.trim() || "";
+  const category = $(`${prefix}ItemCategory`)?.value.trim() || "";
+  const price = Number($(`${prefix}ItemPrice`)?.value || 0);
+  const unit = $(`${prefix}ItemUnit`)?.value.trim() || "";
+  const note = $(`${prefix}ItemNote`)?.value.trim() || "";
+
+  if (!name || price <= 0) {
+    alert("Bitte mindestens Artikel und Preis eintragen.");
+    return;
+  }
+
+  const cache = type === "sell" ? sellPricesCache : buyPricesCache;
+  const duplicate = cache.find((item) => item.id !== id && String(item.name || "").trim().toLowerCase() === name.toLowerCase());
+  if (duplicate && !confirm(`Artikel „${name}“ existiert bereits. Trotzdem speichern?`)) return;
+
+  const payload = {
+    item_name: name,
+    category: category || null,
+    price,
+    unit: unit || null,
+    note: note || null,
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    setBusy(true, id ? "Artikel wird aktualisiert..." : "Artikel wird gespeichert...");
+
+    const request = id
+      ? supabaseClient.from(table).update(payload).eq("id", id)
+      : supabaseClient.from(table).insert(payload);
+
+    const { error } = await request;
+    if (error) throw error;
+
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+    if (typeof renderDashboard === "function") renderDashboard();
+    if (typeof renderDashboardEnhancements === "function") renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Artikel konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function deletePriceItem(type, id) {
+  if (!id || isBusy) return;
+
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  if (!confirm("Diesen Artikel wirklich löschen?")) return;
+
+  try {
+    setBusy(true, "Artikel wird gelöscht...");
+    const { error } = await supabaseClient.from(table).delete().eq("id", id);
+    if (error) throw error;
+
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+    if (typeof renderDashboard === "function") renderDashboard();
+    if (typeof renderDashboardEnhancements === "function") renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Artikel konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearPriceItems(type) {
+  const label = type === "sell" ? "Verkaufspreisliste" : "Einkaufspreisliste";
+  if (!confirm(`${label} wirklich komplett leeren?`)) return;
+
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+
+  try {
+    setBusy(true, "Preisliste wird geleert...");
+    const { error } = await supabaseClient.from(table).delete().not("id", "is", null);
+    if (error) throw error;
+
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+    if (typeof renderDashboard === "function") renderDashboard();
+    if (typeof renderDashboardEnhancements === "function") renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Preisliste konnte nicht geleert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}

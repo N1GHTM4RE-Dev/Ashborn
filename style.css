@@ -4501,7 +4501,7 @@ select[multiple] option {
 }
 
 /* =========================================================
-   ASHBORN V2 CLEAN / ÜBERSICHTLICH
+   ASHBORN VERWALTUNG CLEAN / ÜBERSICHTLICH
 ========================================================= */
 .ashborn-main-tabs {
   grid-template-columns: repeat(7, minmax(105px, 1fr));

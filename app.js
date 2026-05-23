@@ -1,4681 +1,3012 @@
-:root {
-  --black: #050302;
-  --black-2: #090504;
-  --brown: #160b05;
-  --wood: #2b1208;
-  --leather: #1a100b;
-  --leather-2: #24140b;
-  --metal: #110d0a;
-
-  --gold: #c6923f;
-  --gold-2: #f2c76b;
-  --gold-3: #ffe3a0;
-  --gold-dark: #6b4714;
-  --parchment: #d8b56a;
-  --gold-metal:
-    repeating-linear-gradient(110deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 4px),
-    linear-gradient(
-      180deg,
-      #fff8d4 0%,
-      #f8dc86 16%,
-      #d99b35 34%,
-      #fff0a6 48%,
-      #c68121 64%,
-      #f4c767 82%,
-      #8d5717 100%
-    );
-  --gold-soft:
-    linear-gradient(
-      180deg,
-      #fff1b4 0%,
-      #eac264 36%,
-      #b8731d 68%,
-      #f2c76b 100%
-    );
-
-  --rust: #7a1f12;
-  --ember: #ff3b13;
-  --fire: #ff7a18;
-  --smoke: rgba(180, 160, 130, 0.18);
-
-  --text: #f4ead5;
-  --text-soft: rgba(244, 234, 213, 0.78);
-  --text-muted: rgba(244, 234, 213, 0.54);
-
-  --line: rgba(198, 146, 63, 0.3);
-  --line-strong: rgba(242, 199, 107, 0.64);
-
-  --panel: rgba(13, 7, 4, 0.88);
-  --panel-2: rgba(24, 13, 7, 0.92);
-
-  --shadow: 0 34px 100px rgba(0, 0, 0, 0.72);
-  --shadow-soft: 0 18px 54px rgba(0, 0, 0, 0.48);
-
-  --font-title: "Cinzel", Georgia, serif;
-  --font-brand: "Cinzel Decorative", "Cinzel", Georgia, serif;
-  --font-accent: "UnifrakturCook", "Cinzel Decorative", Georgia, serif;
-  --font-body: "Cormorant Garamond", Georgia, serif;
-
-  --radius-xl: 8px;
-  --radius-lg: 8px;
-  --radius-md: 6px;
-
-  --z-background: 0;
-  --z-effects: 1;
-  --z-content: 5;
-  --z-nav: 20;
-  --z-modal-backdrop: 90;
-  --z-modal: 100;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  min-height: 100%;
-  background: var(--black);
-}
-
-body {
-  position: relative;
-  min-height: 100vh;
-  margin: 0;
-  overflow-x: hidden;
-  isolation: isolate;
-  color: var(--text);
-  background: var(--black);
-  font-family: var(--font-body);
-  line-height: 1.55;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-.system-brand-text,
-.panel-header > div,
-.sidepanel-block {
-  min-width: 0;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button {
-  user-select: none;
-}
-
-button,
-input,
-textarea,
-select {
-  -webkit-tap-highlight-color: transparent;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
-::selection {
-  color: #160b05;
-  background: var(--gold-2);
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* =========================================================
-   BACKGROUND / EFFECT LAYERS
-========================================================= */
-
-.bg-scene {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-background);
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(5, 3, 2, 0.18), rgba(5, 3, 2, 0.74) 74%, var(--black) 100%),
-    url("./assets/background.png");
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.64) contrast(1.14) saturate(1.08);
-  transform: scale(1.035);
-  transform-origin: center;
-  will-change: transform;
-}
-
-.bg-vignette,
-.bg-smoke,
-.bg-embers {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-effects);
-  pointer-events: none;
-}
-
-.bg-vignette {
-  background:
-    radial-gradient(circle at 74% 22%, rgba(255, 122, 24, 0.18), transparent 26%),
-    radial-gradient(circle at 44% 48%, rgba(242, 199, 107, 0.08), transparent 28%),
-    radial-gradient(circle at center, transparent 34%, rgba(0, 0, 0, 0.9) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.82), transparent 24%, transparent 72%, rgba(0, 0, 0, 0.78)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 34%, rgba(0, 0, 0, 0.58));
-}
-
-.bg-smoke {
-  inset: -18%;
-  opacity: 0.56;
-  filter: blur(32px);
-  background:
-    radial-gradient(ellipse at 18% 76%, rgba(216, 181, 106, 0.11), transparent 34%),
-    radial-gradient(ellipse at 78% 22%, rgba(180, 160, 130, 0.09), transparent 36%),
-    radial-gradient(ellipse at 48% 54%, rgba(255, 255, 255, 0.055), transparent 40%);
-  animation: smokeDrift 32s ease-in-out infinite alternate;
-}
-
-.bg-smoke::before,
-.bg-smoke::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 8% 46%, rgba(255, 255, 255, 0.055), transparent 34%),
-    radial-gradient(ellipse at 88% 66%, rgba(216, 181, 106, 0.075), transparent 34%);
-  animation: smokeLayer 44s ease-in-out infinite alternate;
-}
-
-.bg-smoke::after {
-  opacity: 0.6;
-  animation-duration: 56s;
-  animation-direction: alternate-reverse;
-}
-
-.bg-embers {
-  overflow: hidden;
-  mix-blend-mode: screen;
-}
-
-.bg-embers::before,
-.bg-embers::after {
-  content: "";
-  position: absolute;
-  inset: -12%;
-  opacity: 0.32;
-  background-image:
-    radial-gradient(circle, rgba(255, 122, 24, 0.58) 0 1px, transparent 2px),
-    radial-gradient(circle, rgba(242, 199, 107, 0.34) 0 1px, transparent 2px),
-    radial-gradient(circle, rgba(255, 59, 19, 0.36) 0 1.5px, transparent 2.5px);
-  background-size: 210px 210px, 330px 330px, 470px 470px;
-  animation: emberField 40s linear infinite;
-}
-
-.bg-embers::after {
-  opacity: 0.2;
-  background-size: 170px 170px, 260px 260px, 390px 390px;
-  animation-duration: 58s;
-  animation-direction: reverse;
-}
-
-.ember-particle {
-  position: absolute;
-  bottom: -18px;
-  width: var(--ember-size, 3px);
-  height: var(--ember-size, 3px);
-  left: var(--ember-left, 50%);
-  border-radius: 50%;
-  background: var(--fire);
-  opacity: 0;
-  box-shadow:
-    0 0 10px rgba(255, 122, 24, 0.72),
-    0 0 22px rgba(255, 59, 19, 0.34);
-  animation: emberParticle var(--ember-duration, 8s) linear forwards;
-}
-
-.smoke-transition {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(216, 181, 106, 0.18), transparent 34%),
-    radial-gradient(ellipse at 30% 65%, rgba(255, 255, 255, 0.1), transparent 28%),
-    radial-gradient(ellipse at 70% 35%, rgba(122, 31, 18, 0.15), transparent 32%),
-    rgba(5, 3, 2, 0.18);
-  filter: blur(22px);
-}
-
-.smoke-transition.active {
-  animation: smokeTransition 900ms cubic-bezier(0.22, 0.8, 0.24, 1) forwards;
-}
-
-@keyframes smokeDrift {
-  from {
-    transform: translate3d(-1.4%, 0.8%, 0) scale(1);
-  }
-
-  to {
-    transform: translate3d(1.4%, -0.8%, 0) scale(1.045);
-  }
-}
-
-@keyframes smokeLayer {
-  from {
-    transform: translate3d(1%, -1%, 0) scale(1.02);
-  }
-
-  to {
-    transform: translate3d(-1%, 1%, 0) scale(1.08);
-  }
-}
-
-@keyframes emberField {
-  from {
-    transform: translate3d(0, 5%, 0) rotate(0deg);
-  }
-
-  to {
-    transform: translate3d(0, -7%, 0) rotate(5deg);
-  }
-}
-
-@keyframes emberParticle {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.6);
-  }
-
-  14% {
-    opacity: 0.9;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(var(--ember-drift, 24px), -56vh, 0) scale(0.14);
-  }
-}
-
-@keyframes smokeTransition {
-  0% {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-
-  38% {
-    opacity: 0.9;
-    transform: scale(1.04);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.12);
-  }
-}
-
-/* =========================================================
-   LANDING / LOGIN
-========================================================= */
-
-.landing-page,
-.akten-system {
-  position: relative;
-  z-index: var(--z-content);
-}
-
-.landing-page {
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
-  padding: clamp(34px, 5vw, 64px) 20px;
-}
-
-.landing-logo-frame {
-  position: relative;
-  z-index: var(--z-content);
-  display: grid;
-  justify-items: center;
-  width: min(940px, 94vw);
-  text-align: center;
-  transition:
-    opacity 260ms ease,
-    transform 260ms ease,
-    filter 260ms ease;
-}
-
-.landing-page.login-open .landing-logo-frame {
-  opacity: 0.2;
-  transform: scale(0.98);
-  filter: blur(1px);
-}
-
-.landing-logo-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(660px, 82vw);
-  aspect-ratio: 1;
-  border: 1px solid rgba(242, 199, 107, 0.18);
-  border-radius: 50%;
-  box-shadow:
-    0 0 86px rgba(198, 146, 63, 0.13),
-    inset 0 0 90px rgba(198, 146, 63, 0.06);
-  opacity: 0.78;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  animation: ringBreath 7s ease-in-out infinite;
-}
-
-.landing-logo-ring::before,
-.landing-logo-ring::after {
-  content: "";
-  position: absolute;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.landing-logo-ring::before {
-  inset: 9%;
-  border: 1px solid rgba(122, 31, 18, 0.28);
-}
-
-.landing-logo-ring::after {
-  inset: 20%;
-  border: 1px solid rgba(242, 199, 107, 0.1);
-}
-
-.landing-logo-button {
-  position: relative;
-  z-index: 2;
-  width: min(560px, 84vw);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.landing-logo-button::before {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: 5%;
-  height: 34%;
-  border-radius: 50%;
-  pointer-events: none;
-  background:
-    radial-gradient(circle, rgba(255, 122, 24, 0.22), transparent 64%),
-    radial-gradient(circle, rgba(122, 31, 18, 0.24), transparent 74%);
-  filter: blur(30px);
-  opacity: 0.92;
-  transition:
-    opacity 280ms ease,
-    transform 280ms ease;
-}
-
-.landing-logo {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-height: min(62vh, 620px);
-  object-fit: contain;
-  filter:
-    drop-shadow(0 0 22px rgba(242, 199, 107, 0.34))
-    drop-shadow(0 0 52px rgba(255, 59, 19, 0.2))
-    drop-shadow(0 34px 64px rgba(0, 0, 0, 0.82));
-  transform-origin: center;
-  animation: logoPulse 7s ease-in-out infinite;
-  transition:
-    transform 340ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 340ms ease;
-}
-
-.landing-logo-button:hover .landing-logo,
-.landing-logo-button:focus-visible .landing-logo {
-  transform: translateY(-6px) scale(1.032);
-  filter:
-    drop-shadow(0 0 28px rgba(255, 227, 160, 0.5))
-    drop-shadow(0 0 68px rgba(255, 59, 19, 0.32))
-    drop-shadow(0 38px 72px rgba(0, 0, 0, 0.86));
-}
-
-.landing-logo-button:hover::before,
-.landing-logo-button:focus-visible::before {
-  opacity: 1;
-  transform: scale(1.14);
-}
-
-.landing-copy {
-  position: relative;
-  z-index: 2;
-  margin-top: clamp(14px, 2.5vw, 26px);
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 8px;
-  color: #d0a352;
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.8),
-    0 0 10px rgba(242, 199, 107, 0.16);
-}
-
-.landing-title {
-  margin: 0;
-  color: #f2c76b;
-  background: var(--gold-metal);
-  background-blend-mode: overlay, normal;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-brand);
-  font-size: clamp(48px, 8vw, 112px);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: 0.02em;
-  text-shadow:
-    0 3px 0 rgba(0, 0, 0, 0.9),
-    0 0 24px rgba(242, 199, 107, 0.32),
-    0 0 42px rgba(255, 59, 19, 0.18);
-  filter:
-    drop-shadow(0 2px 0 rgba(38, 16, 4, 0.86))
-    drop-shadow(0 0 16px rgba(242, 199, 107, 0.24));
-}
-
-.landing-subtitle {
-  max-width: 720px;
-  margin: 14px auto 0;
-  color: rgba(244, 234, 213, 0.86);
-  font-family: var(--font-title);
-  font-size: clamp(16px, 2.2vw, 24px);
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.88),
-    0 0 22px rgba(255, 122, 24, 0.2);
-}
-
-.landing-open-btn {
-  margin-top: 24px;
-}
-
-.login-box {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: var(--z-modal);
-  width: min(480px, calc(100vw - 28px));
-  padding: 34px 32px 28px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-xl);
-  opacity: 0;
-  pointer-events: none;
-  overflow: hidden;
-  transform: translate(-50%, -44%) scale(0.94);
-  background:
-    linear-gradient(180deg, rgba(29, 16, 8, 0.985), rgba(5, 3, 2, 0.99)),
-    radial-gradient(circle at top right, rgba(122, 31, 18, 0.18), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(198, 146, 63, 0.11), transparent 42%);
-  box-shadow:
-    0 0 0 9999px rgba(0, 0, 0, 0.58),
-    var(--shadow),
-    0 0 36px rgba(242, 199, 107, 0.14),
-    inset 0 1px 0 rgba(255, 232, 166, 0.08);
-  backdrop-filter: blur(16px) saturate(1.08);
-  transition:
-    opacity 340ms ease,
-    transform 340ms cubic-bezier(0.22, 0.8, 0.24, 1);
-}
-
-.login-box::before,
-.system-header::before,
-.panel::before,
-.archive-sidepanel::before,
-.archive-main::before,
-.detail-sheet::before,
-.status-box::before,
-.feature-card::before,
-.akten-card::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(198, 146, 63, 0.16);
-  pointer-events: none;
-}
-
-.login-box::after,
-.system-header::after,
-.panel::after,
-.archive-sidepanel::after,
-.archive-main::after,
-.detail-sheet::after,
-.status-box::after,
-.feature-card::after,
-.akten-card::after {
-  content: "";
-  position: absolute;
-  inset: -55%;
-  pointer-events: none;
-  opacity: 0.55;
-  background: linear-gradient(110deg, transparent 42%, rgba(255, 232, 166, 0.045), transparent 58%);
-  animation: premiumSheen 14s ease-in-out infinite;
-}
-
-.login-box.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.login-box.shake {
-  animation: loginShake 0.42s ease;
-}
-
-.close-login,
-.close-detail {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border: 1px solid rgba(242, 199, 107, 0.34);
-  border-radius: 50%;
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.52);
-  cursor: pointer;
-  font-size: 24px;
-  line-height: 1;
-  transition:
-    transform 200ms ease,
-    background 200ms ease,
-    box-shadow 200ms ease,
-    border-color 200ms ease;
-}
-
-.close-login:hover,
-.close-detail:hover {
-  transform: rotate(90deg) scale(1.05);
-  border-color: rgba(255, 122, 24, 0.54);
-  background: rgba(122, 31, 18, 0.24);
-  box-shadow: 0 0 22px rgba(255, 59, 19, 0.24);
-}
-
-.login-seal {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 18px;
-  border: 1px solid rgba(255, 227, 160, 0.32);
-  border-radius: 50%;
-  color: #190b04;
-  background:
-    radial-gradient(circle at 30% 22%, #ffe8aa, var(--gold-2) 42%, var(--gold) 64%, var(--gold-dark));
-  box-shadow:
-    inset 0 0 18px rgba(0, 0, 0, 0.28),
-    0 0 24px rgba(242, 199, 107, 0.18);
-}
-
-.login-seal span {
-  font-family: var(--font-accent);
-  font-size: 42px;
-  line-height: 1;
-}
-
-.login-box h1,
-.system-header h1,
-.panel h2,
-.archive-sidepanel h2,
-.archive-main h2,
-.detail-sheet h2,
-.status-box h2 {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  color: #f2c76b;
-  background: var(--gold-metal);
-  background-blend-mode: overlay, normal;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.012em;
-  text-transform: uppercase;
-  overflow-wrap: normal;
-  hyphens: auto;
-  text-shadow: none;
-  filter:
-    drop-shadow(0 2px 0 rgba(38, 16, 4, 0.9))
-    drop-shadow(0 0 14px rgba(242, 199, 107, 0.18));
-}
-
-.login-box h1 {
-  font-size: clamp(34px, 5vw, 50px);
-}
-
-.login-subtitle {
-  position: relative;
-  z-index: 2;
-  margin: 14px 0 24px;
-  color: var(--text-soft);
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.login-error,
-.save-info {
-  position: relative;
-  z-index: 2;
-  min-height: 26px;
-  margin-top: 14px;
-  color: #ffb49d;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-@keyframes ringBreath {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translate(-50%, -50%) scale(0.985);
-  }
-
-  50% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.025);
-  }
-}
-
-@keyframes logoPulse {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-
-  50% {
-    transform: translateY(-7px) scale(1.012);
-  }
-}
-
-@keyframes loginShake {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  18% {
-    transform: translate(calc(-50% - 10px), -50%) scale(1.01);
-  }
-
-  36% {
-    transform: translate(calc(-50% + 9px), -50%) scale(1.01);
-  }
-
-  54% {
-    transform: translate(calc(-50% - 7px), -50%) scale(1.01);
-  }
-
-  72% {
-    transform: translate(calc(-50% + 5px), -50%) scale(1.005);
-  }
-}
-
-@keyframes premiumSheen {
-  0%,
-  100% {
-    transform: translateX(-8%) rotate(0deg);
-  }
-
-  50% {
-    transform: translateX(8%) rotate(2deg);
-  }
-}
-
-/* =========================================================
-   BUTTONS / FORMS
-========================================================= */
-
-.primary-btn,
-.secondary-btn,
-.danger-btn,
-.tab-btn,
-.filter-btn,
-.status-choice {
-  position: relative;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 50px;
-  padding: 14px 20px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  cursor: pointer;
-  font-family: var(--font-title);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 1.1px;
-  text-align: center;
-  text-transform: uppercase;
-  transition:
-    transform 190ms ease,
-    filter 190ms ease,
-    box-shadow 190ms ease,
-    border-color 190ms ease;
-}
-
-.primary-btn {
-  border-color: rgba(255, 227, 160, 0.76);
-  color: #180c05;
-  background:
-    linear-gradient(180deg, #ffe7a3 0%, var(--gold-2) 38%, var(--gold) 62%, #704712 100%);
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.46),
-    0 0 28px rgba(242, 199, 107, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -2px 0 rgba(56, 28, 6, 0.36);
-}
-
-.secondary-btn,
-.filter-btn,
-.status-choice {
-  border-color: rgba(242, 199, 107, 0.28);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.88), rgba(5, 3, 2, 0.92)),
-    radial-gradient(circle at 50% 0%, rgba(198, 146, 63, 0.12), transparent 54%);
-  box-shadow:
-    0 14px 34px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255, 232, 166, 0.08);
-}
-
-.danger-btn {
-  border-color: rgba(255, 119, 96, 0.38);
-  color: #fff0e8;
-  background:
-    linear-gradient(180deg, #9d2a17, var(--rust) 56%, #3d0b05);
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.42),
-    0 0 24px rgba(255, 59, 19, 0.13);
-}
-
-.primary-btn::before,
-.secondary-btn::before,
-.danger-btn::before,
-.tab-btn::before,
-.filter-btn::before,
-.status-choice::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    linear-gradient(110deg, transparent 24%, rgba(255, 255, 255, 0.28), transparent 48%),
-    radial-gradient(circle at 50% 120%, rgba(255, 59, 19, 0.32), transparent 58%);
-  transform: translateX(-42%);
-  transition:
-    opacity 180ms ease,
-    transform 360ms ease;
-}
-
-.primary-btn:hover,
-.secondary-btn:hover,
-.danger-btn:hover,
-.tab-btn:hover,
-.filter-btn:hover,
-.status-choice:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.08);
-  border-color: rgba(255, 227, 160, 0.72);
-  box-shadow:
-    0 24px 54px rgba(0, 0, 0, 0.54),
-    0 0 30px rgba(255, 122, 24, 0.18),
-    0 0 22px rgba(242, 199, 107, 0.16);
-}
-
-.primary-btn:hover::before,
-.secondary-btn:hover::before,
-.danger-btn:hover::before,
-.tab-btn:hover::before,
-.filter-btn:hover::before,
-.status-choice:hover::before {
-  opacity: 1;
-  transform: translateX(42%);
-}
-
-.primary-btn:active,
-.secondary-btn:active,
-.danger-btn:active,
-.tab-btn:active,
-.filter-btn:active,
-.status-choice:active {
-  transform: translateY(-1px) scale(0.99);
-}
-
-.primary-btn:focus-visible,
-.secondary-btn:focus-visible,
-.danger-btn:focus-visible,
-.tab-btn:focus-visible,
-.filter-btn:focus-visible,
-.status-choice:focus-visible,
-.landing-logo-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid rgba(242, 199, 107, 0.86);
-  outline-offset: 3px;
-}
-
-.login-box .primary-btn {
-  width: 100%;
-}
-
-.small-btn {
-  width: auto;
-  min-width: 190px;
-}
-
-.login-field,
-.form-field {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 16px;
-}
-
-.login-field label,
-.form-field label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-}
-
-.login-field input,
-.form-field input,
-.form-field textarea,
-.form-field select,
-.search-input {
-  width: 100%;
-  min-height: 50px;
-  padding: 13px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  outline: none;
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(5, 3, 2, 0.92), rgba(22, 11, 5, 0.88)),
-    radial-gradient(circle at 100% 0%, rgba(198, 146, 63, 0.08), transparent 42%);
-  box-shadow:
-    inset 0 0 20px rgba(0, 0, 0, 0.56),
-    inset 0 1px 0 rgba(255, 232, 166, 0.05);
-  font-family: var(--font-body);
-  font-size: 18px;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
-}
-
-.form-field textarea {
-  min-height: 250px;
-  resize: vertical;
-  line-height: 1.55;
-}
-
-.login-field input::placeholder,
-.form-field input::placeholder,
-.form-field textarea::placeholder,
-.search-input::placeholder {
-  color: rgba(244, 234, 213, 0.34);
-}
-
-.login-field input:focus,
-.form-field input:focus,
-.form-field textarea:focus,
-.form-field select:focus,
-.search-input:focus {
-  border-color: rgba(242, 199, 107, 0.62);
-  box-shadow:
-    0 0 0 3px rgba(198, 146, 63, 0.12),
-    0 0 26px rgba(255, 122, 24, 0.1),
-    inset 0 0 20px rgba(0, 0, 0, 0.58);
-}
-
-/* =========================================================
-   SYSTEM VIEW
-========================================================= */
-
-.akten-system {
-  min-height: 100vh;
-  padding: 24px 0 34px;
-  animation: systemIn 520ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-.system-header,
-.system-tabs,
-.tab-content {
-  width: min(1340px, calc(100% - 32px));
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.system-header,
-.panel,
-.archive-sidepanel,
-.archive-main,
-.detail-sheet,
-.status-box,
-.feature-card,
-.akten-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(31, 16, 8, 0.9), rgba(5, 3, 2, 0.94)),
-    radial-gradient(circle at 88% 10%, rgba(122, 31, 18, 0.16), transparent 36%),
-    radial-gradient(circle at 8% 92%, rgba(198, 146, 63, 0.09), transparent 42%);
-  box-shadow:
-    var(--shadow),
-    inset 0 1px 0 rgba(255, 232, 166, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.78);
-  backdrop-filter: blur(14px) saturate(1.05);
-}
-
-.system-header {
-  z-index: 6;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 22px 24px;
-}
-
-.system-brand {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-width: 0;
-}
-
-.system-logo {
-  width: 108px;
-  max-width: 24vw;
-  object-fit: contain;
-  filter:
-    drop-shadow(0 0 16px rgba(242, 199, 107, 0.24))
-    drop-shadow(0 18px 26px rgba(0, 0, 0, 0.58));
-}
-
-.system-brand h1 {
-  font-size: clamp(29px, 2.45vw, 44px);
-  max-width: 980px;
-  line-height: 1.04;
-}
-
-.brand-word {
-  font-family: var(--font-brand);
-  font-weight: 700;
-  margin-right: 6px;
-  letter-spacing: 0.015em;
-}
-
-.system-subline {
-  position: relative;
-  z-index: 2;
-  margin: 8px 0 0;
-  color: var(--text-soft);
-  font-size: 18px;
-}
-
-.system-header-actions {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  padding: 9px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.34);
-  font-family: var(--font-title);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.logout-btn {
-  min-width: 190px;
-}
-
-.system-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-  margin-bottom: 22px;
-}
-
-.tab-btn {
-  min-height: 58px;
-  gap: 10px;
-  padding: 14px 18px;
-  border-color: rgba(198, 146, 63, 0.28);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.9), rgba(5, 3, 2, 0.94));
-  box-shadow: var(--shadow-soft);
-}
-
-.tab-btn.active,
-.filter-btn.active {
-  border-color: rgba(255, 227, 160, 0.78);
-  color: #190b04;
-  background:
-    linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.44),
-    0 0 26px rgba(242, 199, 107, 0.2);
-}
-
-.tab-seal,
-.search-icon {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 227, 160, 0.32);
-  border-radius: 50%;
-  color: #190b04;
-  background:
-    radial-gradient(circle at 30% 22%, #ffe8aa, var(--gold-2) 42%, var(--gold) 64%, var(--gold-dark));
-  box-shadow:
-    inset 0 0 18px rgba(0, 0, 0, 0.28),
-    0 0 24px rgba(242, 199, 107, 0.18);
-}
-
-.tab-seal {
-  width: 14px;
-  height: 14px;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-  animation: tabIn 280ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-.archive-layout {
-  display: grid;
-  grid-template-columns: 310px minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.archive-sidepanel,
-.archive-main,
-.panel {
-  padding: 22px;
-}
-
-.sidepanel-block + .sidepanel-block {
-  margin-top: 18px;
-}
-
-.archive-sidepanel h2,
-.panel h2,
-.archive-main h2 {
-  font-size: clamp(26px, 2vw, 36px);
-  line-height: 1.05;
-}
-
-.archive-sidepanel h2 {
-  font-size: clamp(24px, 1.55vw, 31px);
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.archive-stat {
-  position: relative;
-  z-index: 2;
-  margin-top: 14px;
-  padding: 16px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.18));
-}
-
-.archive-stat span,
-.detail-meta-box span {
-  display: block;
-  color: rgba(228, 194, 126, 0.68);
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.9px;
-  text-transform: uppercase;
-}
-
-.archive-stat strong,
-.detail-meta-box strong {
-  display: block;
-  margin-top: 6px;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: 32px;
-  line-height: 1;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
-}
-
-.sidepanel-note p {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 19px;
-  line-height: 1.55;
-}
-
-.panel-header {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.search-shell {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 14px;
-}
-
-.search-core {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid rgba(242, 199, 107, 0.2);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.035), rgba(0, 0, 0, 0.16));
-}
-
-.search-icon {
-  width: 38px;
-  height: 38px;
-  font-family: var(--font-title);
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.search-input {
-  min-height: 38px;
-  padding: 10px 4px;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.search-input:focus {
-  box-shadow: none;
-}
-
-.quick-filters {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.filter-btn {
-  min-height: 38px;
-  padding: 9px 13px;
-  font-size: 12px;
-}
-
-.akten-list {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 16px;
-}
-
-.akten-card {
-  width: 100%;
-  padding: 22px 20px 18px;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 220ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    filter 220ms ease;
-}
-
-.akten-card:hover,
-.feature-card:hover {
-  transform: translateY(-6px) perspective(900px) rotateX(1.5deg);
-  border-color: rgba(242, 199, 107, 0.58);
-  filter: brightness(1.06);
-  box-shadow:
-    0 30px 82px rgba(0, 0, 0, 0.68),
-    0 0 34px rgba(255, 122, 24, 0.16),
-    inset 0 1px 0 rgba(255, 232, 166, 0.12);
-}
-
-.akten-card:disabled {
-  cursor: default;
-  opacity: 0.9;
-}
-
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 10px;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: clamp(22px, 2.2vw, 32px);
-  font-weight: 800;
-  line-height: 1.08;
-  text-transform: uppercase;
-  text-shadow: none;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.84));
-}
-
-.akten-card p,
-.feature-card p,
-.system-text {
-  position: relative;
-  z-index: 2;
-  margin: 8px 0 0;
-  color: var(--text-soft);
-  font-size: 19px;
-  line-height: 1.55;
-}
-
-.akten-card .akten-preview {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-}
-
-.folder-chip-row {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.folder-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 5px 10px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.32);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.folder-chip.status-geheim {
-  border-color: rgba(255, 59, 19, 0.52);
-  color: #ffc0ad;
-}
-
-.folder-chip.status-beobachtung {
-  border-color: rgba(255, 122, 24, 0.5);
-  color: #ffd2aa;
-}
-
-.folder-chip.status-archiviert {
-  border-color: rgba(216, 181, 106, 0.3);
-  color: rgba(244, 234, 213, 0.82);
-}
-
-.form-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.form-actions,
-.detail-actions {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.feature-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.feature-card {
-  min-height: 180px;
-  padding: 22px;
-  transition:
-    transform 220ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    filter 220ms ease;
-}
-
-@keyframes systemIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.99);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes tabIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.995);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* =========================================================
-   MODALS
-========================================================= */
-
-.detail-modal,
-.status-modal {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  pointer-events: none;
-}
-
-.detail-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal-backdrop);
-  pointer-events: auto;
-  background:
-    radial-gradient(circle at center, rgba(198, 146, 63, 0.08), transparent 38%),
-    rgba(5, 3, 2, 0.82);
-  backdrop-filter: blur(9px);
-}
-
-.detail-sheet,
-.status-box {
-  position: relative;
-  z-index: var(--z-modal);
-  width: min(980px, calc(100vw - 24px));
-  max-height: calc(100vh - 40px);
-  overflow: auto;
-  padding: 28px;
-  pointer-events: auto;
-  animation: detailOpen 300ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-.status-box {
-  width: min(560px, calc(100vw - 24px));
-}
-
-.detail-topline {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 10px;
-  padding-right: 50px;
-}
-
-.detail-status-seal {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 140px;
-  min-height: 38px;
-  padding: 9px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background:
-    linear-gradient(180deg, rgba(198, 146, 63, 0.16), rgba(114, 80, 25, 0.14));
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.detail-status-seal.status-geheim,
-.status-choice.status-geheim {
-  border-color: rgba(255, 59, 19, 0.5);
-  color: #ffc0ad;
-  background: linear-gradient(180deg, rgba(122, 31, 18, 0.3), rgba(61, 11, 5, 0.2));
-}
-
-.detail-status-seal.status-beobachtung,
-.status-choice.status-beobachtung {
-  border-color: rgba(255, 122, 24, 0.5);
-  color: #ffd2aa;
-  background: linear-gradient(180deg, rgba(255, 122, 24, 0.18), rgba(122, 31, 18, 0.14));
-}
-
-.detail-status-seal.status-archiviert,
-.status-choice.status-archiviert {
-  border-color: rgba(216, 181, 106, 0.3);
-  color: rgba(244, 234, 213, 0.88);
-  background: linear-gradient(180deg, rgba(180, 160, 130, 0.1), rgba(5, 3, 2, 0.14));
-}
-
-.detail-sheet h2,
-.status-box h2 {
-  margin-bottom: 16px;
-  padding-right: 46px;
-  font-size: clamp(30px, 4vw, 54px);
-}
-
-.detail-meta-row {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.detail-meta-box {
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.18);
-  border-radius: var(--radius-md);
-  background: rgba(5, 3, 2, 0.3);
-}
-
-.detail-meta-box strong {
-  font-size: 22px;
-}
-
-.detail-section {
-  position: relative;
-  z-index: 2;
-}
-
-.detail-section + .detail-section {
-  margin-top: 18px;
-}
-
-.detail-section p,
-.detail-content {
-  margin: 0;
-  color: var(--text);
-  font-size: 20px;
-  line-height: 1.62;
-  white-space: pre-wrap;
-}
-
-.detail-actions {
-  margin-top: 24px;
-}
-
-.status-choice-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.status-choice {
-  width: 100%;
-  min-height: 56px;
-  padding: 16px;
-}
-
-@keyframes detailOpen {
-  from {
-    opacity: 0;
-    transform: translateY(22px) scale(0.965);
-  }
-
-  72% {
-    opacity: 1;
-    transform: translateY(-3px) scale(1.008);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* =========================================================
-   DESKTOP SYSTEM SCALE
-========================================================= */
-
-@media (min-width: 1100px) {
-  .akten-system {
-    padding: 36px 0 52px;
-  }
-
-  .system-header,
-  .system-tabs,
-  .tab-content {
-    width: min(1900px, calc(100% - 56px));
-  }
-
-  .system-header {
-    gap: 34px;
-    padding: 34px 38px;
-  }
-
-  .system-brand {
-    gap: 26px;
-  }
-
-  .system-logo {
-    width: 154px;
-  }
-
-  .system-brand h1 {
-    font-size: clamp(34px, 2.55vw, 50px);
-    max-width: 1040px;
-  }
-
-  .system-subline {
-    font-size: 22px;
-  }
-
-  .system-kicker,
-  .section-kicker {
-    font-size: 13px;
-    letter-spacing: 2.1px;
-  }
-
-  .system-header-actions {
-    gap: 16px;
-  }
-
-  .status-pill {
-    min-height: 58px;
-    padding: 13px 18px;
-    font-size: 14px;
-  }
-
-  .logout-btn {
-    min-width: 260px;
-  }
-
-  .system-tabs {
-    grid-template-columns: repeat(4, minmax(220px, 1fr));
-    gap: 18px;
-    margin-top: 26px;
-    margin-bottom: 32px;
-  }
-
-  .tab-btn {
-    min-height: 84px;
-    gap: 14px;
-    padding: 20px 24px;
-    font-size: 15px;
-  }
-
-  .tab-seal {
-    width: 20px;
-    height: 20px;
-  }
-
-  .archive-layout {
-    grid-template-columns: 455px minmax(0, 1fr);
-    gap: 30px;
-  }
-
-  .archive-sidepanel,
-  .archive-main,
-  .panel {
-    padding: 34px;
-  }
-
-  .panel-header {
-    margin-bottom: 28px;
-  }
-
-  .archive-sidepanel h2,
-  .panel h2,
-  .archive-main h2 {
-    font-size: clamp(30px, 2.1vw, 44px);
-    line-height: 1.06;
-  }
-
-  .archive-sidepanel h2 {
-    font-size: clamp(25px, 1.45vw, 32px);
-    line-height: 1.12;
-  }
-
-  .archive-stat {
-    margin-top: 20px;
-    padding: 24px;
-  }
-
-  .archive-stat span,
-  .detail-meta-box span {
-    font-size: 13px;
-  }
-
-  .archive-stat strong {
-    font-size: 40px;
-  }
-
-  .sidepanel-note p,
-  .akten-card p,
-  .feature-card p,
-  .system-text {
-    font-size: 22px;
-  }
-
-  .search-core {
-    gap: 14px;
-    padding: 16px 18px;
-  }
-
-  .search-icon {
-    width: 54px;
-    height: 54px;
-    font-size: 22px;
-  }
-
-  .search-input {
-    min-height: 56px;
-    font-size: 22px;
-  }
-
-  .quick-filters {
-    gap: 14px;
-    margin-bottom: 26px;
-  }
-
-  .filter-btn {
-    min-height: 52px;
-    padding: 12px 18px;
-    font-size: 13px;
-  }
-
-  .akten-list {
-    gap: 22px;
-  }
-
-  .akten-card {
-    padding: 32px 30px 26px;
-  }
-
-  .akten-card h3,
-  .feature-card h3,
-  .detail-section h3 {
-    font-size: clamp(26px, 1.9vw, 36px);
-    line-height: 1.08;
-  }
-
-  .folder-chip-row {
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-
-  .folder-chip {
-    min-height: 34px;
-    padding: 7px 14px;
-    font-size: 12px;
-  }
-
-  .form-grid {
-    gap: 24px;
-  }
-
-  .form-field {
-    margin-bottom: 24px;
-  }
-
-  .form-field label {
-    font-size: 13px;
-  }
-
-  .form-field input,
-  .form-field textarea,
-  .form-field select {
-    min-height: 68px;
-    padding: 18px;
-    font-size: 22px;
-  }
-
-  .form-field textarea {
-    min-height: 330px;
-  }
-
-  .akten-system .primary-btn,
-  .akten-system .secondary-btn,
-  .akten-system .danger-btn,
-  .detail-modal .primary-btn,
-  .detail-modal .secondary-btn,
-  .detail-modal .danger-btn,
-  .status-modal .status-choice {
-    min-height: 68px;
-    padding: 18px 26px;
-    font-size: 14px;
-  }
-
-  .akten-system .small-btn,
-  .detail-modal .small-btn {
-    min-width: 260px;
-  }
-
-  .feature-grid {
-    gap: 24px;
-  }
-
-  .feature-card {
-    min-height: 250px;
-    padding: 32px;
-  }
-
-  .detail-sheet {
-    width: min(1280px, calc(100vw - 48px));
-    padding: 42px;
-  }
-
-  .status-box {
-    width: min(720px, calc(100vw - 48px));
-    padding: 42px;
-  }
-
-  .detail-sheet h2,
-  .status-box h2 {
-    font-size: clamp(34px, 2.8vw, 54px);
-  }
-
-  .detail-meta-row {
-    gap: 20px;
-    margin-bottom: 28px;
-  }
-
-  .detail-meta-box {
-    padding: 24px;
-  }
-
-  .detail-meta-box strong {
-    font-size: 28px;
-  }
-
-  .detail-section p,
-  .detail-content {
-    font-size: 23px;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1040px) {
-  .archive-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 860px) {
-  .system-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .system-header-actions {
-    justify-content: flex-start;
-  }
-
-  .system-tabs {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
-  }
-
-  .form-grid,
-  .detail-meta-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .landing-page {
-    padding: 28px 14px;
-  }
-
-  .landing-logo-button {
-    width: min(390px, 82vw);
-  }
-
-  .landing-title {
-    font-size: 48px;
-  }
-
-  .login-box {
-    padding: 28px 22px 24px;
-  }
-
-  .akten-system {
-    padding: 16px 0 24px;
-  }
-
-  .system-header,
-  .system-tabs,
-  .tab-content {
-    width: calc(100% - 24px);
-  }
-
-  .system-brand {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .system-logo {
-    width: 120px;
-    max-width: 54vw;
-  }
-
-  .system-tabs {
-    grid-template-columns: 1fr;
-  }
-
-  .small-btn,
-  .logout-btn,
-  .status-pill {
-    width: 100%;
-  }
-
-  .panel-header,
-  .detail-topline {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .detail-topline {
-    padding-right: 46px;
-  }
-
-  .detail-sheet,
-  .status-box {
-    padding: 22px;
-  }
-
-  .quick-filters {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 420px) {
-  .login-box h1,
-  .system-header h1,
-  .panel h2,
-  .archive-sidepanel h2,
-  .archive-main h2,
-  .detail-sheet h2,
-  .status-box h2 {
-    font-size: 30px;
-  }
-
-  .primary-btn,
-  .secondary-btn,
-  .danger-btn,
-  .tab-btn,
-  .filter-btn,
-  .status-choice {
-    width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* =========================================================
-   FINAL READABILITY + METALLIC GOLD OVERRIDE
-   This block intentionally sits last so it wins over all
-   previous responsive scale rules.
-========================================================= */
-
-.login-box h1,
-.system-header h1,
-.panel h2,
-.archive-sidepanel h2,
-.archive-main h2,
-.detail-sheet h2,
-.status-box h2,
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  color: #f6d47a !important;
-  background-image:
-    repeating-linear-gradient(
-      105deg,
-      rgba(255, 255, 255, 0.35) 0,
-      rgba(255, 255, 255, 0.35) 1px,
-      rgba(255, 255, 255, 0) 1px,
-      rgba(255, 255, 255, 0) 5px
-    ),
-    linear-gradient(
-      180deg,
-      #fffbe1 0%,
-      #ffe79d 14%,
-      #c88a28 32%,
-      #fff0a8 47%,
-      #a76316 62%,
-      #e0a33b 78%,
-      #6f3f0d 100%
-    ) !important;
-  background-blend-mode: overlay, normal !important;
-  background-clip: text !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  font-family: "Cinzel", Georgia, serif !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.01em !important;
-  text-shadow: none !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(30, 12, 2, 0.95))
-    drop-shadow(0 2px 0 rgba(79, 42, 7, 0.72))
-    drop-shadow(0 0 10px rgba(255, 202, 92, 0.22)) !important;
-}
-
-.system-header h1 {
-  font-size: clamp(32px, 2.2vw, 44px) !important;
-  line-height: 1.08 !important;
-  max-width: 880px !important;
-}
-
-.brand-word {
-  font-family: "Cinzel Decorative", "Cinzel", Georgia, serif !important;
-  font-weight: 700 !important;
-}
-
-.archive-main h2,
-.panel h2 {
-  font-size: clamp(28px, 1.85vw, 38px) !important;
-  line-height: 1.12 !important;
-}
-
-.archive-sidepanel h2 {
-  font-size: clamp(23px, 1.18vw, 28px) !important;
-  line-height: 1.16 !important;
-  max-width: 100% !important;
-  white-space: normal !important;
-  overflow-wrap: normal !important;
-  word-break: normal !important;
-}
-
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  font-size: clamp(24px, 1.55vw, 32px) !important;
-  line-height: 1.12 !important;
-}
-
-.detail-sheet h2,
-.status-box h2 {
-  font-size: clamp(32px, 2.2vw, 46px) !important;
-  line-height: 1.1 !important;
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker,
-.archive-stat span,
-.detail-meta-box span,
-.folder-chip,
-.tab-btn,
-.filter-btn,
-.status-pill,
-.primary-btn,
-.secondary-btn,
-.danger-btn,
-.status-choice {
-  font-family: "Cinzel", Georgia, serif !important;
-  font-weight: 700 !important;
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker {
-  color: #d8aa55 !important;
-  letter-spacing: 1.6px !important;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.9),
-    0 0 10px rgba(242, 199, 107, 0.2) !important;
-}
-
-.archive-stat span,
-.detail-meta-box span {
-  color: rgba(230, 197, 125, 0.72) !important;
-  font-size: 12px !important;
-  letter-spacing: 0.7px !important;
-}
-
-.archive-stat strong,
-.detail-meta-box strong {
-  color: #f6d47a !important;
-  background-image:
-    linear-gradient(180deg, #fff6c9 0%, #e9b955 38%, #9e5f13 68%, #f0c263 100%) !important;
-  background-clip: text !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  font-family: "Cinzel", Georgia, serif !important;
-  font-weight: 800 !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(30, 12, 2, 0.9))
-    drop-shadow(0 0 8px rgba(255, 202, 92, 0.18)) !important;
-}
-
-.tab-btn.active,
-.filter-btn.active,
-.primary-btn {
-  color: #211104 !important;
-  background:
-    linear-gradient(180deg, #fff6c9 0%, #e7b957 34%, #a66518 72%, #f2c76b 100%) !important;
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.5),
-    0 0 26px rgba(242, 199, 107, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.48),
-    inset 0 -2px 0 rgba(65, 32, 5, 0.42) !important;
-}
-
-/* =========================================================
-   BRIGHT GOLD READABILITY FIX
-   Keeps the current sizes but removes the dark dirty texture
-   from important text so it reads clearly on dark panels.
-========================================================= */
-
-.login-box h1,
-.system-header h1,
-.panel h2,
-.archive-sidepanel h2,
-.archive-main h2,
-.detail-sheet h2,
-.status-box h2,
-.akten-card h3,
-.feature-card h3,
-.detail-section h3 {
-  color: #ffe28f !important;
-  background-image:
-    linear-gradient(
-      180deg,
-      #fff9cf 0%,
-      #ffe79a 24%,
-      #f4c564 48%,
-      #ffd978 66%,
-      #c98b2e 100%
-    ) !important;
-  background-blend-mode: normal !important;
-  background-clip: text !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  -webkit-text-stroke: 0.18px rgba(255, 239, 178, 0.34) !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(24, 9, 1, 0.9))
-    drop-shadow(0 0 7px rgba(255, 211, 105, 0.24)) !important;
-}
-
-.system-header h1,
-.archive-sidepanel h2,
-.archive-main h2,
-.panel h2 {
-  text-transform: uppercase !important;
-}
-
-.landing-kicker,
-.login-kicker,
-.section-kicker,
-.system-kicker {
-  color: #f0c56b !important;
-}
-
-.archive-stat span,
-.detail-meta-box span,
-.folder-chip {
-  color: rgba(255, 224, 147, 0.84) !important;
-}
-
-.archive-stat strong,
-.detail-meta-box strong {
-  background-image:
-    linear-gradient(180deg, #fff7c8 0%, #ffd879 42%, #d09130 100%) !important;
-  -webkit-text-stroke: 0.12px rgba(255, 239, 178, 0.26) !important;
-  filter:
-    drop-shadow(0 1px 0 rgba(24, 9, 1, 0.86))
-    drop-shadow(0 0 8px rgba(255, 211, 105, 0.2)) !important;
-}
-
-.akten-card p,
-.feature-card p,
-.system-text,
-.sidepanel-note p,
-.detail-section p,
-.detail-content,
-.system-subline,
-.login-subtitle {
-  color: rgba(246, 232, 202, 0.88) !important;
-}
-
-.search-input {
-  color: rgba(246, 232, 202, 0.92) !important;
-}
-
-.search-input::placeholder,
-.login-field input::placeholder,
-.form-field input::placeholder,
-.form-field textarea::placeholder {
-  color: rgba(246, 232, 202, 0.5) !important;
-}
-
-/* =========================================================
-   ASHBORN VERWALTUNGSSYSTEM V2
-   Neue Module: Datenerfassung, Preislisten, Intern, Buchhaltung
-========================================================= */
-
-.ashborn-main-tabs {
-  grid-template-columns: repeat(6, minmax(145px, 1fr)) !important;
-}
-
-.ashborn-data-layout {
-  margin-bottom: 22px;
-}
-
-.ashborn-list-panel {
-  margin-top: 22px;
-}
-
-.field-hint {
-  position: relative;
-  z-index: 2;
-  margin: 8px 0 0;
-  color: var(--text-muted);
-  font-size: 16px;
-}
-
-.image-preview-grid,
-.detail-image-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.image-preview-item,
-.detail-image-grid a {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-md);
-  background: rgba(5, 3, 2, 0.5);
-  box-shadow: var(--shadow-soft);
-}
-
-.image-preview-item img,
-.detail-image-grid img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  filter: sepia(0.12) contrast(1.04) brightness(0.92);
-}
-
-.image-preview-item .mini-btn {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-}
-
-.card-actions {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.mini-btn {
-  min-width: auto !important;
-  min-height: 34px !important;
-  width: auto !important;
-  padding: 7px 12px !important;
-  font-size: 11px !important;
-  line-height: 1 !important;
-}
-
-.static-card {
-  cursor: default;
-}
-
-.static-card:hover {
-  transform: none;
-}
-
-.price-layout {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.price-form,
-.calculator-card {
-  position: relative;
-  z-index: 2;
-}
-
-.calculator-card {
-  padding: 20px;
-  border: 1px solid rgba(198, 146, 63, 0.26);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(24, 13, 7, 0.86), rgba(5, 3, 2, 0.88)),
-    radial-gradient(circle at 90% 0%, rgba(198, 146, 63, 0.12), transparent 42%);
-  box-shadow: var(--shadow-soft);
-}
-
-.calculator-card h3 {
-  position: relative;
-  z-index: 2;
-  margin: 0 0 16px;
-  color: #f2c76b;
-  font-family: var(--font-title);
-  font-size: clamp(22px, 1.8vw, 30px);
-  text-transform: uppercase;
-}
-
-.calc-result {
-  display: grid;
-  gap: 6px;
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.32);
-  border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.28);
-}
-
-.calc-result span {
-  color: var(--text-muted);
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
-
-.calc-result strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 36px;
-  line-height: 1;
-}
-
-.price-list {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.price-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 14px;
-  align-items: center;
-  padding: 15px 16px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.2));
-}
-
-.price-row strong {
-  display: block;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 18px;
-  text-transform: uppercase;
-}
-
-.price-row span {
-  display: block;
-  margin-top: 4px;
-  color: var(--text-soft);
-  font-size: 17px;
-}
-
-.price-value {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 22px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.price-value.positive {
-  color: #b8ffca;
-}
-
-.price-value.negative {
-  color: #ffb49d;
-}
-
-.cash-overview,
-.cash-form-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 16px;
-}
-
-.cash-overview {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 22px;
-}
-
-.cash-form-grid {
-  grid-template-columns: minmax(180px, 0.45fr) minmax(180px, 0.45fr) minmax(0, 1.1fr);
-  align-items: start;
-}
-
-.cash-stat strong {
-  font-size: clamp(34px, 4vw, 54px);
-}
-
-.detail-image-grid {
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
-
-.detail-image-grid img {
-  height: 190px;
-  transition: transform 220ms ease, filter 220ms ease;
-}
-
-.detail-image-grid a:hover img {
-  transform: scale(1.04);
-  filter: sepia(0.06) contrast(1.1) brightness(1.03);
-}
-
-@media (max-width: 1120px) {
-  .ashborn-main-tabs {
-    grid-template-columns: repeat(3, minmax(160px, 1fr)) !important;
-  }
-
-  .price-layout,
-  .cash-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cash-overview {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 760px) {
-  .ashborn-main-tabs {
-    grid-template-columns: 1fr !important;
-  }
-
-  .price-row {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
-  .price-value {
-    font-size: 28px;
-  }
-
-  .image-preview-grid,
-  .detail-image-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .image-preview-grid,
-  .detail-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   ASHBORN V5: AktenSystem Ausbau
-========================================================= */
-.record-type-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.record-type-stat {
-  padding: 12px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(216, 181, 106, 0.05), rgba(0, 0, 0, 0.18));
-}
-
-.record-type-stat span {
-  display: block;
-  color: rgba(228, 194, 126, 0.68);
-  font-family: var(--font-title);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.record-type-stat strong {
-  display: block;
-  margin-top: 5px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 24px;
-  line-height: 1;
-}
-
-.record-toolbar {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 10px;
-  margin: 14px 0 18px;
-}
-
-.toolbar-field {
-  width: min(250px, 100%);
-  margin-bottom: 0;
-}
-
-.record-toolbar .small-btn {
-  min-width: 160px;
-  min-height: 50px;
-}
-
-.secondary-btn.active {
-  border-color: rgba(255, 227, 160, 0.78);
-  color: #190b04;
-  background: linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
-}
-
-.record-card {
-  text-align: left;
-}
-
-.record-card-main {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 132px minmax(0, 1fr);
-  gap: 18px;
-  align-items: stretch;
-  width: 100%;
-}
-
-.record-thumb {
-  display: grid;
-  place-items: center;
-  min-height: 132px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(242, 199, 107, 0.18), transparent 45%),
-    linear-gradient(180deg, rgba(5, 3, 2, 0.84), rgba(22, 11, 5, 0.92));
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.46);
-}
-
-.record-thumb img {
-  width: 100%;
-  height: 100%;
-  min-height: 132px;
-  object-fit: cover;
-  filter: saturate(1.05) contrast(1.06);
-  transition: transform 220ms ease, filter 220ms ease;
-}
-
-.record-card:hover .record-thumb img {
-  transform: scale(1.06);
-  filter: saturate(1.16) contrast(1.08) brightness(1.05);
-}
-
-.record-thumb span {
-  color: #190b04;
-  font-family: var(--font-brand);
-  font-size: 54px;
-  line-height: 1;
-  text-shadow: 0 1px 0 rgba(255, 240, 190, 0.55);
-  background: var(--gold-metal);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.record-card-body {
-  min-width: 0;
-}
-
-.compact-detail-actions {
-  justify-content: flex-start;
-  margin-top: 14px;
-  margin-bottom: 6px;
-}
-
-#copyTelegramBtn:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-  transform: none;
-}
-
-@media (max-width: 760px) {
-  .record-card-main {
-    grid-template-columns: 1fr;
-  }
-
-  .record-thumb {
-    min-height: 190px;
-  }
-
-  .record-thumb img {
-    min-height: 190px;
-  }
-
-  .record-toolbar,
-  .record-toolbar .small-btn,
-  .toolbar-field {
-    width: 100%;
-  }
-}
-
-/* =========================================================
-   PRICE LIST UPGRADE V7
-========================================================= */
-.price-form-head {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 16px;
-}
-
-.price-form-head h3 {
-  margin: 0;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: clamp(22px, 2vw, 30px);
-  line-height: 1.05;
-  text-transform: uppercase;
-}
-
-.compact-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.price-toolbar {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(190px, 240px) auto auto;
-  gap: 12px;
-  align-items: end;
-  margin: 20px 0 16px;
-}
-
-.price-search-shell {
-  margin: 0;
-}
-
-.enhanced-price-row {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 14px;
-}
-
-.price-main {
-  min-width: 0;
-}
-
-.price-main .folder-chip-row {
-  margin-bottom: 8px;
-}
-
-.price-actions {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.price-actions .mini-btn {
-  min-width: 116px;
-}
-
-.muted-result {
-  opacity: 0.82;
-  margin-bottom: 10px;
-}
-
-.muted-result strong {
-  font-size: 24px;
-}
-
-@media (max-width: 980px) {
-  .price-toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .enhanced-price-row {
-    grid-template-columns: 1fr;
-  }
-
-  .price-actions {
-    justify-content: stretch;
-  }
-
-  .price-actions .mini-btn {
-    flex: 1;
-  }
-}
-
-@media (max-width: 640px) {
-  .price-toolbar,
-  .compact-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   Buchhaltung Upgrade v8
-========================================================= */
-.enhanced-cash-overview {
-  grid-template-columns: repeat(5, minmax(160px, 1fr));
-}
-
-.cash-form-card {
-  position: relative;
-  z-index: 2;
-  margin: 22px 0;
-  padding: 20px;
-  border: 1px solid rgba(198, 146, 63, 0.26);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(24, 13, 7, 0.86), rgba(5, 3, 2, 0.9)),
-    radial-gradient(circle at 88% 0%, rgba(198, 146, 63, 0.12), transparent 42%);
-  box-shadow: var(--shadow-soft);
-}
-
-.cash-toolbar {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) 150px 170px 190px auto auto;
-  gap: 12px;
-  align-items: end;
-  margin: 18px 0;
-}
-
-.cash-search-shell {
-  margin-bottom: 0;
-}
-
-.cash-row {
-  align-items: center;
-}
-
-.cash-row small {
-  display: block;
-  margin-top: 6px;
-  color: rgba(244, 234, 213, 0.42);
-  font-family: var(--font-title);
-  font-size: 11px;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-}
-
-.cash-row-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-@media (max-width: 1180px) {
-  .enhanced-cash-overview {
-    grid-template-columns: repeat(2, minmax(160px, 1fr));
-  }
-
-  .cash-toolbar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .enhanced-cash-overview,
-  .cash-toolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .cash-row-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-
-/* =========================================================
-   BUCHHALTUNG STORNO UPGRADE
-========================================================= */
-.cash-storno-hint {
-  position: relative;
-  z-index: 2;
-  margin: 10px 0 16px;
-  padding: 12px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.22);
-  border-radius: var(--radius-md);
-  color: var(--text-soft);
-  background: rgba(5, 3, 2, 0.34);
-  font-size: 17px;
-}
-
-.cash-storno-hint strong {
-  color: var(--gold-2);
-}
-
-.cash-storno-btn {
-  white-space: nowrap;
-}
-
-.cash-row-storno {
-  border-color: rgba(242, 199, 107, 0.18);
-  opacity: 0.82;
-}
-
-.storno-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 7px 12px;
-  border: 1px solid rgba(242, 199, 107, 0.32);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: rgba(5, 3, 2, 0.45);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-@media (max-width: 720px) {
-  .cash-storno-btn,
-  .storno-badge {
-    width: 100%;
-  }
-}
-
-
-/* =========================================================
-   ASHBORN INTERN UPGRADE V10
-========================================================= */
-.internal-toolbar {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(160px, 210px) minmax(180px, 230px) auto auto;
-  gap: 12px;
-  align-items: end;
-  margin: 20px 0 16px;
-}
-
-.internal-list {
-  margin-top: 10px;
-}
-
-.internal-card p {
-  white-space: pre-wrap;
-}
-
-@media (max-width: 1120px) {
-  .internal-toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 720px) {
-  .internal-toolbar {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   ASHBORN INTERN FIX V11
-   Sichtbare Bearbeiten/Kopieren/Löschen-Aktionen + bessere Übersicht
-========================================================= */
-.internal-panel-v11 .compact-header {
-  margin-bottom: 14px;
-}
-
-.internal-panel-v11 .compact-header h3,
-.internal-help-card-v11 h3,
-.internal-note-card-v11 h3 {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: clamp(22px, 1.8vw, 30px);
-  font-weight: 900;
-  line-height: 1.05;
-  text-transform: uppercase;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
-}
-
-.internal-overview-v11 {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
-  gap: 14px;
-  margin: 18px 0 20px;
-}
-
-.internal-workspace-v11 {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(270px, 360px);
-  gap: 18px;
-  align-items: stretch;
-}
-
-.internal-editor-card-v11,
-.internal-help-card-v11,
-.internal-note-card-v11 {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(198, 146, 63, 0.24);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(24, 13, 7, 0.82), rgba(5, 3, 2, 0.9)),
-    radial-gradient(circle at 92% 10%, rgba(122, 31, 18, 0.14), transparent 36%),
-    radial-gradient(circle at 8% 88%, rgba(198, 146, 63, 0.08), transparent 42%);
-  box-shadow:
-    0 18px 54px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 232, 166, 0.06);
-}
-
-.internal-editor-card-v11,
-.internal-help-card-v11 {
-  padding: 20px;
-}
-
-.internal-help-card-v11 p {
-  position: relative;
-  z-index: 2;
-  color: var(--text-soft);
-  font-size: 18px;
-  margin: 12px 0 18px;
-}
-
-.v11-toolbar {
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(198, 146, 63, 0.16);
-}
-
-.internal-grid-v11 {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 14px;
-  margin-top: 16px;
-}
-
-.internal-note-card-v11 {
-  padding: 18px;
-}
-
-.internal-chip-row-v11 {
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.internal-note-content-v11 {
-  position: relative;
-  z-index: 2;
-  min-height: 84px;
-  margin-top: 12px;
-  padding: 14px;
-  border: 1px solid rgba(198, 146, 63, 0.16);
-  border-radius: var(--radius-md);
-  color: var(--text-soft);
-  background: rgba(0, 0, 0, 0.2);
-  font-size: 18px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.internal-actions-v11 {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.internal-actions-v11 .mini-btn {
-  min-width: 118px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.empty-internal-v11 {
-  grid-column: 1 / -1;
-}
-
-@media (max-width: 980px) {
-  .internal-overview-v11 {
-    grid-template-columns: repeat(2, minmax(130px, 1fr));
-  }
-
-  .internal-workspace-v11 {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .internal-overview-v11,
-  .internal-grid-v11 {
-    grid-template-columns: 1fr;
-  }
-
-  .internal-actions-v11 .mini-btn {
-    flex: 1 1 100%;
-  }
-}
-
-
-/* =========================================================
-   ASHBORN INTERN FIX V12
-   Kleine, klickbare Übersicht + funktionierende Filter-Kacheln
-========================================================= */
-.internal-overview-v11 {
-  display: none !important;
-}
-
-.internal-overview-v12 {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: repeat(7, minmax(96px, 1fr));
-  gap: 8px;
-  margin: 10px 0 14px;
-}
-
-.internal-stat-pill {
-  position: relative;
-  z-index: 3;
-  min-height: 58px;
-  padding: 9px 10px;
-  border: 1px solid rgba(198, 146, 63, 0.24);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.72), rgba(5, 3, 2, 0.86)),
-    radial-gradient(circle at 50% 0%, rgba(198, 146, 63, 0.1), transparent 56%);
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 232, 166, 0.06);
-  cursor: pointer;
-  text-align: left;
-  transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease, box-shadow 180ms ease;
-}
-
-.internal-stat-pill:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 227, 160, 0.54);
-  filter: brightness(1.08);
-  box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.36),
-    0 0 18px rgba(242, 199, 107, 0.12);
-}
-
-.internal-stat-pill.active {
-  border-color: rgba(255, 227, 160, 0.82);
-  color: #190b04;
-  background:
-    linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
-}
-
-.internal-stat-pill span {
-  display: block;
-  font-family: var(--font-title);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.9px;
-  text-transform: uppercase;
-  color: inherit;
-  opacity: 0.86;
-}
-
-.internal-stat-pill strong {
-  display: block;
-  margin-top: 3px;
-  color: inherit;
-  font-family: var(--font-title);
-  font-size: 24px;
-  line-height: 1;
-}
-
-.internal-panel-v11 .system-text {
-  margin-bottom: 6px;
-}
-
-.internal-editor-card-v11,
-.internal-help-card-v11 {
-  padding: 16px;
-}
-
-.internal-panel-v11 .form-field textarea {
-  min-height: 165px;
-}
-
-.internal-help-card-v11 p {
-  font-size: 16px;
-  line-height: 1.42;
-  margin: 8px 0 12px;
-}
-
-.v11-toolbar {
-  margin-top: 16px;
-  padding-top: 14px;
-}
-
-@media (max-width: 1180px) {
-  .internal-overview-v12 {
-    grid-template-columns: repeat(4, minmax(110px, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .internal-overview-v12 {
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-  }
-}
-
-@media (max-width: 480px) {
-  .internal-overview-v12 {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   SYSTEMZENTRALE UPGRADE V13
-========================================================= */
-.system-dashboard-panel {
-  padding-bottom: 18px;
-}
-
-.system-panel-header {
-  align-items: flex-start;
-}
-
-.compact-overview {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(120px, 1fr));
-  gap: 12px;
-  margin: 14px 0 18px;
-}
-
-.system-overview-card {
-  position: relative;
-  min-height: 92px;
-  padding: 14px 12px;
-  border: 1px solid rgba(198, 146, 63, 0.24);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.86), rgba(5, 3, 2, 0.9)),
-    radial-gradient(circle at 50% 0%, rgba(242, 199, 107, 0.12), transparent 56%);
-  box-shadow: var(--shadow-soft);
-  cursor: pointer;
-  overflow: hidden;
-  text-align: left;
-  transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease;
-}
-
-.system-overview-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 227, 160, 0.62);
-  filter: brightness(1.08);
-}
-
-.system-overview-card span {
-  display: block;
-  color: rgba(228, 194, 126, 0.72);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.system-overview-card strong {
-  display: block;
-  margin-top: 10px;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: clamp(24px, 2.1vw, 36px);
-  line-height: 1;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
-}
-
-.balance-card strong {
-  font-size: clamp(20px, 1.75vw, 30px);
-}
-
-.system-info-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.system-info-card,
-.compact-danger-zone {
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(216, 181, 106, 0.045), rgba(0, 0, 0, 0.16));
-  padding: 16px;
-}
-
-.system-info-card h3,
-.compact-danger-zone h3 {
-  margin: 0 0 6px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 17px;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-
-.system-info-card p,
-.compact-danger-zone p {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 18px;
-}
-
-.system-action-grid {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 12px 0 14px;
-}
-
-.compact-danger-zone {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border-color: rgba(255, 119, 96, 0.28);
-  background:
-    linear-gradient(180deg, rgba(122, 31, 18, 0.14), rgba(0, 0, 0, 0.16)),
-    radial-gradient(circle at 100% 0%, rgba(255, 59, 19, 0.1), transparent 46%);
-}
-
-@media (max-width: 1120px) {
-  .compact-overview {
-    grid-template-columns: repeat(3, minmax(150px, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .compact-overview,
-  .system-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .compact-danger-zone {
-    align-items: stretch;
-    flex-direction: column;
-  }
-}
-
-/* =========================================================
-   DASHBOARD V14
-========================================================= */
-.ashborn-main-tabs {
-  grid-template-columns: repeat(7, minmax(130px, 1fr)) !important;
-}
-
-.dashboard-panel {
-  padding: 22px;
-}
-
-.dashboard-header {
-  align-items: flex-start;
-}
-
-.dashboard-subline {
-  position: relative;
-  z-index: 2;
-  margin: 10px 0 0;
-  color: var(--text-soft);
-  font-size: 19px;
-}
-
-.dashboard-header-actions {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.dashboard-hero-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(130px, 1fr));
-  gap: 12px;
-  margin: 18px 0 18px;
-}
-
-.dashboard-metric-card {
-  position: relative;
-  min-height: 124px;
-  padding: 16px 14px;
-  border: 1px solid rgba(198, 146, 63, 0.26);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.88), rgba(5, 3, 2, 0.92)),
-    radial-gradient(circle at 50% 0%, rgba(242, 199, 107, 0.13), transparent 58%);
-  box-shadow: var(--shadow-soft);
-  cursor: pointer;
-  text-align: left;
-  transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease;
-}
-
-.dashboard-metric-card:hover,
-.dashboard-recent-item:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 227, 160, 0.62);
-  filter: brightness(1.08);
-}
-
-.dashboard-metric-card span,
-.dashboard-finance-grid span,
-.dashboard-breakdown span,
-.dashboard-recent-item span {
-  display: block;
-  color: rgba(228, 194, 126, 0.72);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.dashboard-metric-card strong {
-  display: block;
-  margin-top: 10px;
-  color: #f2c76b;
-  background: var(--gold-soft);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: var(--font-title);
-  font-size: clamp(25px, 2.25vw, 40px);
-  line-height: 1;
-  filter: drop-shadow(0 1px 0 rgba(38, 16, 4, 0.82));
-}
-
-.dashboard-metric-card small,
-.dashboard-recent-item small {
-  display: block;
-  margin-top: 9px;
-  color: var(--text-soft);
-  font-size: 16px;
-}
-
-.primary-dashboard-card {
-  grid-column: span 2;
-  background:
-    linear-gradient(180deg, rgba(70, 31, 12, 0.94), rgba(5, 3, 2, 0.96)),
-    radial-gradient(circle at 50% 0%, rgba(255, 208, 100, 0.18), transparent 62%);
-}
-
-.primary-dashboard-card strong {
-  font-size: clamp(30px, 3vw, 54px);
-}
-
-.dashboard-content-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.45fr);
-  gap: 14px;
-}
-
-.dashboard-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, rgba(216, 181, 106, 0.045), rgba(0, 0, 0, 0.16)),
-    radial-gradient(circle at top right, rgba(122, 31, 18, 0.12), transparent 42%);
-  padding: 16px;
-}
-
-.dashboard-card-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.dashboard-card h3 {
-  margin: 0;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 18px;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-
-.dashboard-action-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.dashboard-action-list .small-btn {
-  min-width: 0;
-  width: 100%;
-}
-
-.dashboard-recent-list {
-  display: grid;
-  gap: 8px;
-}
-
-.dashboard-recent-item {
-  width: 100%;
-  min-height: 70px;
-  padding: 11px 12px;
-  border: 1px solid rgba(198, 146, 63, 0.18);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  background: rgba(5, 3, 2, 0.34);
-  cursor: pointer;
-  text-align: left;
-  transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease;
-}
-
-.dashboard-recent-item strong {
-  display: block;
-  margin-top: 3px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 16px;
-  overflow-wrap: anywhere;
-}
-
-.dashboard-breakdown,
-.dashboard-finance-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.dashboard-breakdown div,
-.dashboard-finance-grid div {
-  border: 1px solid rgba(198, 146, 63, 0.16);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  background: rgba(5, 3, 2, 0.28);
-}
-
-.dashboard-breakdown strong,
-.dashboard-finance-grid strong {
-  display: block;
-  margin-top: 7px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 22px;
-}
-
-@media (max-width: 1240px) {
-  .dashboard-hero-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .primary-dashboard-card {
-    grid-column: span 1;
-  }
-}
-
-@media (max-width: 1120px) {
-  .ashborn-main-tabs {
-    grid-template-columns: repeat(3, minmax(160px, 1fr)) !important;
-  }
-  .dashboard-content-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 760px) {
-  .ashborn-main-tabs {
-    grid-template-columns: 1fr !important;
-  }
-  .dashboard-hero-grid,
-  .dashboard-action-list,
-  .dashboard-breakdown,
-  .dashboard-finance-grid {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-header-actions {
-    justify-content: stretch;
-  }
-  .dashboard-header-actions .small-btn,
-  .dashboard-header-actions .status-pill {
-    width: 100%;
-  }
-}
-
-/* =========================================================
-   DASHBOARD GLOBAL SEARCH v15
-========================================================= */
-.dashboard-global-search-card {
-  grid-column: 1 / -1;
-}
-
-.dashboard-global-search-shell {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  margin-top: 14px;
-}
-
-.dashboard-global-search-core {
-  min-width: 0;
-}
-
-.dashboard-global-search-results {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 10px;
-  max-height: 430px;
-  overflow: auto;
-  padding-right: 4px;
-  margin-top: 16px;
-}
-
-.dashboard-global-result {
-  position: relative;
-  display: block;
-  width: 100%;
-  padding: 16px 18px;
-  border: 1px solid rgba(198, 146, 63, 0.24);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.78), rgba(5, 3, 2, 0.88)),
-    radial-gradient(circle at 92% 14%, rgba(198, 146, 63, 0.12), transparent 36%);
-  box-shadow: inset 0 1px 0 rgba(255, 232, 166, 0.06);
-  cursor: pointer;
-  text-align: left;
-  transition:
-    transform 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    filter 180ms ease;
-}
-
-.dashboard-global-result:hover,
-.dashboard-global-result:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgba(255, 227, 160, 0.62);
-  box-shadow:
-    0 18px 38px rgba(0, 0, 0, 0.42),
-    0 0 22px rgba(242, 199, 107, 0.12);
-  filter: brightness(1.06);
-  outline: none;
-}
-
-.dashboard-global-result strong {
-  display: block;
-  margin-top: 10px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 18px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-
-.dashboard-global-result p {
-  margin: 8px 0 0;
-  color: var(--text-soft);
-  font-size: 18px;
-  line-height: 1.35;
-}
-
-@media (max-width: 760px) {
-  .dashboard-global-search-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-global-search-shell .small-btn {
-    width: 100%;
-  }
-
-  .dashboard-global-search-results {
-    max-height: 360px;
-  }
+const SUPABASE_URL = "https://rclpgqrwcygjzqgeurie.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2BWb4LK4GWC8-S4SVPIlvA_iX41QQqg";
+const IMAGE_BUCKET = "ashborn-images";
+const MASTER_LOGIN_EMAIL = "ashborn-system@ashborn.local";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let sessionUser = null;
+let activeRecordFilter = "Alle";
+let activeRecordImageFilter = false;
+let recordSortMode = "newest";
+let currentRecordId = null;
+let pendingImages = [];
+let recordsCache = [];
+let sellPricesCache = [];
+let buyPricesCache = [];
+let internalCache = [];
+let internalSearchQuery = "";
+let internalCategoryFilter = "Alle";
+let internalSortMode = "newest";
+let cashCache = [];
+let cashTypeFilter = "Alle";
+let cashRangeFilter = "all";
+let cashSortMode = "newest";
+let cashSearchQuery = "";
+let isBusy = false;
+let dashboardGlobalSearchQuery = "";
+let tradeOrdersCache = [];
+let tradeDraftItems = [];
+let tradeSearchQuery = "";
+let tradeTypeFilter = "Alle";
+let tradeStatusFilter = "Alle";
+let tradeSortMode = "newest";
+let relationSearchQuery = "";
+
+const $ = (id) => document.getElementById(id);
+const landingPage = $("landingPage");
+const logoButton = $("logoButton");
+const landingLoginBtn = $("landingLoginBtn");
+const loginBox = $("loginBox");
+const closeLoginBtn = $("closeLoginBtn");
+const passwordInput = $("passwordInput");
+const loginBtn = $("loginBtn");
+const loginError = $("loginError");
+const smokeTransition = $("smokeTransition");
+const aktenSystem = $("aktenSystem");
+const logoutBtn = $("logoutBtn");
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+const recordFilterButtons = document.querySelectorAll("[data-record-filter]");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const recordFields = {
+  id: $("recordId"),
+  name: $("recordName"),
+  type: $("recordType"),
+  location: $("recordLocation"),
+  telegram: $("recordTelegram"),
+  description: $("recordDescription"),
+  images: $("recordImages")
+};
+
+function on(element, eventName, handler) {
+  if (!element) return;
+  element.addEventListener(eventName, handler);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  startAmbientEmbers();
+  bindHeroParallax();
+  bindEvents();
+
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session?.user) {
+    sessionUser = data.session.user;
+    showSystem();
+    await loadAllData();
+  } else {
+    showLanding();
+  }
+});
+
+function bindEvents() {
+  on(logoButton, "click", showLogin);
+  on(landingLoginBtn, "click", showLogin);
+  on(closeLoginBtn, "click", hideLogin);
+  on(loginBtn, "click", login);
+
+  on(passwordInput, "keydown", (event) => {
+    if (event.key === "Enter") login();
+    if (event.key === "Escape") hideLogin();
+  });
+  on(logoutBtn, "click", logout);
+  on($("openHelpBtn"), "click", openHelpModal);
+  on($("openHelpBtnDashboard"), "click", openHelpModal);
+  on($("closeHelpBtn"), "click", closeHelpModal);
+  on($("helpBackdrop"), "click", closeHelpModal);
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.tab));
+  });
+
+  recordFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeRecordFilter = button.dataset.recordFilter;
+      recordFilterButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.recordFilter === activeRecordFilter));
+      renderRecords();
+    });
+  });
+
+  on($("recordSearchInput"), "input", renderRecords);
+  on($("recordSortSelect"), "change", (event) => {
+    recordSortMode = event.target.value || "newest";
+    renderRecords();
+  });
+  on($("toggleImageFilterBtn"), "click", () => {
+    activeRecordImageFilter = !activeRecordImageFilter;
+    $("toggleImageFilterBtn").classList.toggle("active", activeRecordImageFilter);
+    $("toggleImageFilterBtn").textContent = activeRecordImageFilter ? "Alle Bilder anzeigen" : "Nur mit Bildern";
+    renderRecords();
+  });
+  on($("clearRecordSearchBtn"), "click", () => {
+    $("recordSearchInput").value = "";
+    activeRecordFilter = "Alle";
+    activeRecordImageFilter = false;
+    recordSortMode = "newest";
+    if ($("recordSortSelect")) $("recordSortSelect").value = "newest";
+    recordFilterButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.recordFilter === "Alle"));
+    if ($("toggleImageFilterBtn")) {
+      $("toggleImageFilterBtn").classList.remove("active");
+      $("toggleImageFilterBtn").textContent = "Nur mit Bildern";
+    }
+    renderRecords();
+  });
+  on($("exportRecordsCsvBtn"), "click", exportRecordsCsv);
+  on($("saveRecordBtn"), "click", saveRecord);
+  on($("resetRecordBtn"), "click", () => {
+    clearRecordForm();
+    setRecordMessage("Felder wurden geleert.", "neutral");
+  });
+  on($("cancelRecordEditBtn"), "click", () => {
+    clearRecordForm();
+    setRecordMessage("Bearbeitung wurde abgebrochen.", "neutral");
+  });
+  on(recordFields.images, "change", handleImageSelection);
+
+  on($("recordList"), "click", (event) => {
+    const editBtn = event.target.closest("[data-edit-record]");
+    const deleteBtn = event.target.closest("[data-delete-record]");
+    const card = event.target.closest(".akten-card");
+
+    if (editBtn) {
+      event.stopPropagation();
+      const record = recordsCache.find((item) => item.id === editBtn.dataset.editRecord);
+      if (record) loadRecordIntoForm(record);
+      return;
+    }
+
+    if (deleteBtn) {
+      event.stopPropagation();
+      deleteRecord(deleteBtn.dataset.deleteRecord);
+      return;
+    }
+
+    if (card && card.dataset.id && !card.disabled) {
+      const record = recordsCache.find((item) => item.id === card.dataset.id);
+      if (record) openDetail(record);
+    }
+  });
+
+  on($("detailBackdrop"), "click", closeDetail);
+  on($("closeDetailBtn"), "click", closeDetail);
+  on($("editRecordBtn"), "click", () => {
+    const record = recordsCache.find((item) => item.id === currentRecordId);
+    if (record) {
+      closeDetail();
+      loadRecordIntoForm(record);
+    }
+  });
+  on($("deleteRecordBtn"), "click", () => deleteRecord(currentRecordId));
+  on($("copyTelegramBtn"), "click", copyCurrentTelegram);
+
+  setupPriceModule("sell");
+  setupPriceModule("buy");
+  on($("saveInternalBtn"), "click", saveInternalNote);
+  on($("resetInternalBtn"), "click", () => {
+    clearInternalForm();
+    setInternalMessage("Felder wurden geleert.", "neutral");
+  });
+  on($("cancelInternalEditBtn"), "click", () => {
+    clearInternalForm();
+    setInternalMessage("Bearbeitung wurde abgebrochen.", "neutral");
+  });
+  on($("clearInternalBtn"), "click", clearInternalNotes);
+  on($("internalSearchInput"), "input", (event) => {
+    internalSearchQuery = event.target.value.trim().toLowerCase();
+    renderInternal();
+  });
+  on($("internalCategoryFilter"), "change", (event) => {
+    internalCategoryFilter = event.target.value || "Alle";
+    renderInternal();
+  });
+  on($("internalSortSelect"), "change", (event) => {
+    internalSortMode = event.target.value || "newest";
+    renderInternal();
+  });
+  on($("clearInternalSearchBtn"), "click", clearInternalSearch);
+  on($("exportInternalCsvBtn"), "click", exportInternalCsv);
+
+  document.querySelectorAll("[data-internal-overview-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      internalCategoryFilter = button.dataset.internalOverviewFilter || "Alle";
+      if ($("internalCategoryFilter")) $("internalCategoryFilter").value = internalCategoryFilter;
+      renderInternal();
+    });
+  });
+  on($("saveCashBtn"), "click", saveCashEntry);
+  on($("clearCashBtn"), "click", clearCashEntries);
+  on($("cashSearchInput"), "input", (event) => {
+    cashSearchQuery = event.target.value.trim().toLowerCase();
+    renderCash();
+  });
+  on($("cashTypeFilter"), "change", (event) => {
+    cashTypeFilter = event.target.value || "Alle";
+    renderCash();
+  });
+  on($("cashRangeFilter"), "change", (event) => {
+    cashRangeFilter = event.target.value || "all";
+    renderCash();
+  });
+  on($("cashSortSelect"), "change", (event) => {
+    cashSortMode = event.target.value || "newest";
+    renderCash();
+  });
+  on($("clearCashSearchBtn"), "click", () => {
+    cashSearchQuery = "";
+    cashTypeFilter = "Alle";
+    cashRangeFilter = "all";
+    cashSortMode = "newest";
+    if ($("cashSearchInput")) $("cashSearchInput").value = "";
+    if ($("cashTypeFilter")) $("cashTypeFilter").value = "Alle";
+    if ($("cashRangeFilter")) $("cashRangeFilter").value = "all";
+    if ($("cashSortSelect")) $("cashSortSelect").value = "newest";
+    renderCash();
+  });
+  on($("exportCashCsvBtn"), "click", exportCashCsv);
+  on($("cashList"), "click", (event) => {
+    const reverseBtn = event.target.closest("[data-reverse-cash]");
+    if (reverseBtn) reverseCashEntry(reverseBtn.dataset.reverseCash);
+  });
+  on($("clearAllDataBtn"), "click", clearAllData);
+  on($("exportDataBtn"), "click", exportData);
+  on($("reloadAllDataBtn"), "click", loadAllData);
+  on($("exportAllCsvBtn"), "click", exportAllCsv);
+  document.querySelectorAll("[data-system-open]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.systemOpen));
+  });
+  document.querySelectorAll("[data-dashboard-open]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.dashboardOpen));
+  });
+  on($("dashboardReloadBtn"), "click", loadAllData);
+  on($("dashboardGlobalSearchInput"), "input", (event) => {
+    dashboardGlobalSearchQuery = (event.target.value || "").trim().toLowerCase();
+    renderDashboardGlobalSearch();
+  });
+  on($("dashboardGlobalSearchClearBtn"), "click", () => {
+    dashboardGlobalSearchQuery = "";
+    if ($("dashboardGlobalSearchInput")) $("dashboardGlobalSearchInput").value = "";
+    renderDashboardGlobalSearch();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if ($("helpModal") && !$("helpModal").classList.contains("hidden")) return closeHelpModal();
+    if (!$("detailModal").classList.contains("hidden")) return closeDetail();
+    if (loginBox.classList.contains("show")) hideLogin();
+  });
+}
+
+
+function openHelpModal() {
+  const modal = $("helpModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeHelpModal() {
+  const modal = $("helpModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function showLogin() {
+  loginError.textContent = "";
+  landingPage.classList.add("login-open");
+  loginBox.classList.add("show");
+  loginBox.setAttribute("aria-hidden", "false");
+  setTimeout(() => passwordInput?.focus(), 120);
+}
+
+function hideLogin() {
+  landingPage.classList.remove("login-open");
+  loginBox.classList.remove("show");
+  loginBox.setAttribute("aria-hidden", "true");
+  loginError.textContent = "";
+  if (passwordInput) passwordInput.value = "";
+}
+
+async function login() {
+  const password = passwordInput.value.trim();
+
+  if (!password) {
+    loginError.textContent = "Bitte Systemkennwort eintragen.";
+    passwordInput.focus();
+    return;
+  }
+
+  setBusy(true, "System wird entsiegelt...");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: MASTER_LOGIN_EMAIL,
+    password
+  });
+
+  setBusy(false);
+
+  if (error || !data.session?.user) {
+    loginError.textContent = "Falsches Systemkennwort.";
+    passwordInput.value = "";
+    passwordInput.focus();
+    loginBox.classList.remove("shake");
+    void loginBox.offsetWidth;
+    loginBox.classList.add("shake");
+    return;
+  }
+
+  sessionUser = data.session.user;
+
+  playSmokeTransition(async () => {
+    showSystem();
+    hideLogin();
+    await loadAllData();
+  });
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  sessionUser = null;
+  recordsCache = [];
+  sellPricesCache = [];
+  buyPricesCache = [];
+  internalCache = [];
+  cashCache = [];
+  closeDetail();
+  showLanding();
+  hideLogin();
+}
+
+function showSystem() {
+  landingPage.classList.add("hidden");
+  aktenSystem.classList.remove("hidden");
+  switchTab("dashboardTab");
+}
+
+function showLanding() {
+  aktenSystem.classList.add("hidden");
+  landingPage.classList.remove("hidden");
+}
+
+function playSmokeTransition(callback) {
+  smokeTransition.classList.remove("active");
+  void smokeTransition.offsetWidth;
+  smokeTransition.classList.add("active");
+  setTimeout(callback, 320);
+  setTimeout(() => smokeTransition.classList.remove("active"), 920);
+}
+
+function switchTab(tabId) {
+  tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === tabId));
+  tabContents.forEach((content) => content.classList.toggle("active", content.id === tabId));
+  closeHelpModal();
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+}
+
+async function loadAllData() {
+  setBusy(true, "Daten werden geladen...");
+
+  const loadSteps = [
+    ["Großes Aktensystem", loadRecords],
+    ["Preisliste Verkauf", () => loadPriceItems("sell")],
+    ["Preisliste Kauf", () => loadPriceItems("buy")],
+    ["Ashborn Intern", loadInternalNotes],
+    ["Buchhaltung", loadCashEntries]
+  ];
+
+  const errors = [];
+
+  try {
+    for (const [label, loader] of loadSteps) {
+      try {
+        await loader();
+      } catch (error) {
+        console.error(`Ladefehler in ${label}:`, error);
+        errors.push(`${label}: ${error.message || error}`);
+      }
+    }
+
+    renderAll();
+
+    if (errors.length) {
+      alert(`Einige Bereiche konnten nicht geladen werden:\n\n${errors.join("\n")}`);
+    }
+  } catch (error) {
+    console.error("Renderfehler nach dem Laden:", error);
+    alert(`Daten wurden geladen, aber die Anzeige hatte einen Fehler: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function safeRender(label, fn) {
+  try {
+    fn();
+  } catch (error) {
+    console.error(`Anzeige-Fehler in ${label}:`, error);
+  }
+}
+
+function renderAll() {
+  safeRender("Großes Aktensystem", renderRecords);
+  safeRender("Preisliste Verkauf", () => renderPriceModule("sell"));
+  safeRender("Preisliste Kauf", () => renderPriceModule("buy"));
+  safeRender("Ashborn Intern", renderInternal);
+  safeRender("Buchhaltung", renderCash);
+  safeRender("Buchhaltung Erweiterungen", renderCashEnhancements);
+  safeRender("Handel / Aufträge", renderTradeOrders);
+  safeRender("Beziehungsnetz", renderRelations);
+  safeRender("Systemzentrale", renderSystemDashboard);
+  safeRender("Dashboard", renderDashboard);
+  safeRender("Dashboard Erweiterungen", renderDashboardEnhancements);
+}
+
+function renderSystemDashboard() {
+  setText("sysRecordsCount", recordsCache.length);
+  setText("sysSellCount", sellPricesCache.length);
+  setText("sysBuyCount", buyPricesCache.length);
+  setText("sysInternalCount", internalCache.length);
+  setText("sysCashCount", cashCache.length);
+  setText("sysBalanceValue", formatMoney(calculateCashBalance(cashCache)));
+  setText("sysProjectUrl", SUPABASE_URL.replace("https://", ""));
+  setText("systemConnectionStatus", sessionUser ? "Supabase verbunden" : "Nicht angemeldet");
+
+  const newest = getNewestDate([
+    ...recordsCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...sellPricesCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...buyPricesCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...internalCache.flatMap((entry) => [entry.createdAtRaw, entry.updatedAtRaw]),
+    ...cashCache.map((entry) => entry.createdAtRaw)
+  ]);
+
+  setText("sysLastUpdate", newest ? formatDate(newest) : "Noch keine Daten vorhanden.");
+}
+
+
+function renderDashboard() {
+  const imageCount = recordsCache.filter((entry) => Array.isArray(entry.images) && entry.images.length > 0).length;
+  const income = cashCache
+    .filter((entry) => entry.type === "einzahlung")
+    .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  const expense = cashCache
+    .filter((entry) => entry.type === "auszahlung")
+    .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  const movement = income + expense;
+
+  setText("dashBalanceValue", formatMoney(calculateCashBalance(cashCache)));
+  setText("dashRecordsCount", recordsCache.length);
+  setText("dashImageCount", `${imageCount} mit Bildern`);
+  setText("dashSellCount", sellPricesCache.length);
+  setText("dashBuyCount", buyPricesCache.length);
+  setText("dashInternalCount", internalCache.length);
+  setText("dashCashCount", cashCache.length);
+  setText("dashCashMovement", `${formatMoney(movement)} Bewegung`);
+  setText("dashIncomeValue", formatMoney(income));
+  setText("dashExpenseValue", formatMoney(expense));
+  setText("dashboardStatusPill", sessionUser ? "System verbunden" : "Nicht angemeldet");
+
+  const lastCash = [...cashCache].sort((a, b) => new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0))[0];
+  setText("dashLastCashDate", lastCash ? formatDate(lastCash.createdAtRaw) : "-");
+
+  setText("dashPersonCount", countRecordsByType("Person"));
+  setText("dashOrgCount", countRecordsByType("Organisation"));
+  setText("dashRouteCount", countRecordsByType("Route"));
+  setText("dashPlaceCount", countRecordsByType("Ort"));
+  setText("dashObjectCount", countRecordsByType("Gegenstand"));
+
+  renderDashboardRecentList();
+  renderDashboardGlobalSearch();
+}
+
+
+function renderDashboardGlobalSearch() {
+  const target = $("dashboardGlobalSearchResults");
+  if (!target) return;
+
+  const input = $("dashboardGlobalSearchInput");
+  const query = dashboardGlobalSearchQuery || (input?.value || "").trim().toLowerCase();
+
+  if (!query) {
+    setText("dashboardGlobalSearchCount", "0 Treffer");
+    target.innerHTML = `<p class="system-text">Gib etwas ein, um alle Bereiche gleichzeitig zu durchsuchen.</p>`;
+    return;
+  }
+
+  const results = buildDashboardGlobalSearchIndex()
+    .filter((entry) => entry.searchText.includes(query))
+    .sort((a, b) => new Date(b.dateRaw || 0) - new Date(a.dateRaw || 0))
+    .slice(0, 40);
+
+  setText("dashboardGlobalSearchCount", `${results.length} Treffer`);
+
+  if (!results.length) {
+    target.innerHTML = `<p class="system-text">Keine Treffer gefunden. Prüfe Schreibweise oder suche nach einem anderen Begriff.</p>`;
+    return;
+  }
+
+  target.innerHTML = results.map((entry) => `
+    <button class="dashboard-global-result" type="button" data-global-open="${escapeHtml(entry.tab)}" data-global-id="${escapeHtml(entry.id || "")}" data-global-kind="${escapeHtml(entry.kind)}">
+      <div class="folder-chip-row">
+        <span class="folder-chip ${createStatusClass(entry.badge)}">${escapeHtml(entry.area)}</span>
+        ${entry.badge ? `<span class="folder-chip">${escapeHtml(entry.badge)}</span>` : ""}
+        ${entry.dateLabel ? `<span class="folder-chip">${escapeHtml(entry.dateLabel)}</span>` : ""}
+      </div>
+      <strong>${escapeHtml(entry.title || "Ohne Titel")}</strong>
+      <p>${escapeHtml(entry.preview || "Keine weiteren Informationen")}</p>
+    </button>
+  `).join("");
+
+  target.querySelectorAll("[data-global-open]").forEach((button) => {
+    button.addEventListener("click", () => openGlobalSearchResult(button.dataset.globalOpen, button.dataset.globalKind, button.dataset.globalId));
+  });
+}
+
+function buildDashboardGlobalSearchIndex() {
+  const toSearch = (...values) => values.join(" ").toLowerCase();
+
+  return [
+    ...recordsCache.map((entry) => ({
+      kind: "record",
+      id: entry.id,
+      area: "Großes Aktensystem",
+      tab: "dataTab",
+      badge: entry.type || "Datensatz",
+      title: entry.name,
+      preview: [entry.location ? `Wo: ${entry.location}` : "", entry.telegram ? `Telegramm: ${entry.telegram}` : "", entry.description || ""].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.name, entry.type, entry.location, entry.telegram, entry.description, entry.createdAt, entry.updatedAt, "großes aktensystem datensatz")
+    })),
+    ...sellPricesCache.map((entry) => ({
+      kind: "sell",
+      id: entry.id,
+      area: "Preisliste Verkauf",
+      tab: "sellTab",
+      badge: entry.category || "Verkauf",
+      title: entry.name,
+      preview: [formatMoney(entry.price), entry.unit || "", entry.note || ""].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price, entry.createdAt, entry.updatedAt, "preisliste verkauf preis artikel")
+    })),
+    ...buyPricesCache.map((entry) => ({
+      kind: "buy",
+      id: entry.id,
+      area: "Preisliste Kauf",
+      tab: "buyTab",
+      badge: entry.category || "Kauf",
+      title: entry.name,
+      preview: [formatMoney(entry.price), entry.unit || "", entry.note || ""].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price, entry.createdAt, entry.updatedAt, "preisliste kauf preis artikel")
+    })),
+    ...internalCache.map((entry) => ({
+      kind: "internal",
+      id: entry.id,
+      area: "Ashborn Intern",
+      tab: "internTab",
+      badge: entry.category || "Intern",
+      title: entry.title,
+      preview: entry.content || "Keine zusätzliche Information",
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.title, entry.category, entry.content, entry.createdAt, entry.updatedAt, "ashborn intern info regel rollen pläne")
+    })),
+    ...cashCache.map((entry) => ({
+      kind: "cash",
+      id: entry.id,
+      area: "Buchhaltung",
+      tab: "cashTab",
+      badge: entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+      title: entry.reason || "Buchung",
+      preview: formatMoney(entry.amount || 0),
+      dateRaw: entry.createdAtRaw,
+      dateLabel: entry.createdAt ? `Gebucht: ${entry.createdAt}` : "",
+      searchText: toSearch(entry.type, entry.reason, entry.amount, entry.createdAt, "buchhaltung kontostand einzahlung auszahlung")
+    }))
+  ];
+}
+
+function openGlobalSearchResult(tabId, kind, id) {
+  switchTab(tabId);
+
+  if (kind === "record" && id) {
+    const record = recordsCache.find((entry) => entry.id === id);
+    if (record) setTimeout(() => openDetail(record), 80);
+    return;
+  }
+
+  if (kind === "sell" && id) {
+    if ($("sellPriceSearchInput")) $("sellPriceSearchInput").value = "";
+    loadPriceIntoForm("sell", id);
+    return;
+  }
+
+  if (kind === "buy" && id) {
+    if ($("buyPriceSearchInput")) $("buyPriceSearchInput").value = "";
+    loadPriceIntoForm("buy", id);
+    return;
+  }
+
+  if (kind === "internal" && id) {
+    const note = internalCache.find((entry) => entry.id === id);
+    if (note) loadInternalIntoForm(note);
+    return;
+  }
+
+  if (kind === "cash" && id) {
+    cashSearchQuery = "";
+    if ($("cashSearchInput")) $("cashSearchInput").value = "";
+    const row = document.querySelector(`[data-cash-id="${CSS.escape(id)}"]`);
+    if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+function countRecordsByType(type) {
+  return recordsCache.filter((entry) => String(entry.type || "") === type).length;
+}
+
+function renderDashboardRecentList() {
+  const target = $("dashboardRecentList");
+  if (!target) return;
+
+  const activities = [
+    ...recordsCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Datensatz",
+      title: entry.name || "Ohne Name",
+      info: entry.type || "Nicht festgelegt",
+      tab: "dataTab"
+    })),
+    ...sellPricesCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Verkauf",
+      title: entry.name || "Artikel",
+      info: formatMoney(entry.price || 0),
+      tab: "sellTab"
+    })),
+    ...buyPricesCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Kauf",
+      title: entry.name || "Artikel",
+      info: formatMoney(entry.price || 0),
+      tab: "buyTab"
+    })),
+    ...internalCache.map((entry) => ({
+      date: entry.updatedAtRaw || entry.createdAtRaw,
+      label: "Intern",
+      title: entry.title || "Interne Info",
+      info: entry.category || "Allgemein",
+      tab: "internTab"
+    })),
+    ...cashCache.map((entry) => ({
+      date: entry.createdAtRaw,
+      label: entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+      title: entry.reason || "Buchung",
+      info: formatMoney(entry.amount || 0),
+      tab: "cashTab"
+    }))
+  ]
+    .filter((entry) => entry.date)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 7);
+
+  if (activities.length === 0) {
+    target.innerHTML = `<p class="system-text">Noch keine Aktivitäten vorhanden.</p>`;
+    return;
+  }
+
+  target.innerHTML = activities.map((entry) => `
+    <button class="dashboard-recent-item" type="button" data-dashboard-open="${escapeHtml(entry.tab)}">
+      <span>${escapeHtml(entry.label)}</span>
+      <strong>${escapeHtml(entry.title)}</strong>
+      <small>${escapeHtml(entry.info)} · ${escapeHtml(formatDate(entry.date))}</small>
+    </button>
+  `).join("");
+
+  target.querySelectorAll("[data-dashboard-open]").forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.dashboardOpen));
+  });
+}
+
+function getNewestDate(values) {
+  const timestamps = values
+    .filter(Boolean)
+    .map((value) => new Date(value).getTime())
+    .filter((value) => Number.isFinite(value));
+
+  if (!timestamps.length) return null;
+  return new Date(Math.max(...timestamps)).toISOString();
+}
+
+async function loadRecords() {
+  const { data, error } = await supabaseClient
+    .from("ashborn_entries")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  recordsCache = await Promise.all((data || []).map(normalizeRecord));
+}
+
+async function normalizeRecord(row) {
+  const images = await withSignedImageUrls(Array.isArray(row.images) ? row.images : []);
+  return {
+    id: row.id,
+    name: row.name || "",
+    type: row.type || "",
+    location: row.find_location || "",
+    telegram: row.telegram_number || "",
+    description: row.description || "",
+    images,
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || ""
+  };
+}
+
+async function withSignedImageUrls(images) {
+  if (!Array.isArray(images)) return [];
+
+  const normalizedImages = [];
+
+  for (const rawImage of images) {
+    try {
+      if (!rawImage || typeof rawImage !== "object") continue;
+
+      const image = {
+        name: String(rawImage.name || "Bild"),
+        path: typeof rawImage.path === "string" ? rawImage.path : "",
+        src: typeof rawImage.src === "string" ? rawImage.src : ""
+      };
+
+      if (!image.path) {
+        normalizedImages.push(image);
+        continue;
+      }
+
+      const { data, error } = await supabaseClient.storage
+        .from(IMAGE_BUCKET)
+        .createSignedUrl(image.path, 60 * 60 * 24);
+
+      normalizedImages.push({
+        ...image,
+        src: error ? image.src : (data?.signedUrl || image.src || "")
+      });
+    } catch (error) {
+      console.error("Bild-URL konnte nicht geladen werden:", error, rawImage);
+    }
+  }
+
+  return normalizedImages;
+}
+
+async function saveRecord() {
+  if (isBusy) return;
+  const name = recordFields.name.value.trim();
+  if (!name) {
+    setRecordMessage("Bitte mindestens den Namen eintragen.", "error");
+    recordFields.name.focus();
+    return;
+  }
+
+  try {
+    setBusy(true, "Datensatz wird gespeichert...");
+    const id = recordFields.id.value.trim() || crypto.randomUUID();
+    const uploadedImages = await uploadPendingImages(id);
+    const payload = {
+      id,
+      name,
+      type: recordFields.type.value || null,
+      find_location: recordFields.location.value.trim() || null,
+      telegram_number: recordFields.telegram.value.trim() || null,
+      description: recordFields.description.value.trim() || null,
+      images: uploadedImages.map((image) => ({ name: image.name || "Bild", path: image.path })),
+      updated_at: new Date().toISOString()
+    };
+
+    if (!recordFields.id.value.trim()) {
+      payload.created_by = sessionUser?.id || null;
+    }
+
+    const { error } = await supabaseClient.from("ashborn_entries").upsert(payload, { onConflict: "id" });
+    if (error) throw error;
+
+    clearRecordForm();
+    setRecordMessage("Datensatz wurde in Supabase gespeichert.", "success");
+    await loadRecords();
+    renderRecords();
+  } catch (error) {
+    console.error(error);
+    setRecordMessage(`Speichern fehlgeschlagen: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function uploadPendingImages(recordId) {
+  const result = [];
+  for (const image of pendingImages) {
+    if (!image.file) {
+      result.push(image);
+      continue;
+    }
+    const extension = getFileExtension(image.file.name);
+    const safeName = sanitizeFileName(image.file.name.replace(/\.[^/.]+$/, ""));
+    const path = `${sessionUser.id}/${recordId}/${Date.now()}-${Math.random().toString(16).slice(2)}-${safeName}${extension}`;
+    const { error } = await supabaseClient.storage.from(IMAGE_BUCKET).upload(path, image.file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+    if (error) throw error;
+    result.push({ name: image.name || image.file.name, path });
+  }
+  return result;
+}
+
+function loadRecordIntoForm(record) {
+  recordFields.id.value = record.id || "";
+  recordFields.name.value = record.name || "";
+  recordFields.type.value = record.type || "";
+  recordFields.location.value = record.location || "";
+  recordFields.telegram.value = record.telegram || "";
+  recordFields.description.value = record.description || "";
+  pendingImages = Array.isArray(record.images) ? record.images.map((img) => ({ ...img })) : [];
+  $("dataFormTitle").textContent = "Daten bearbeiten";
+  $("recordSaveText").textContent = "Änderungen speichern";
+  $("cancelRecordEditBtn").classList.remove("hidden");
+  renderImagePreview();
+  switchTab("dataTab");
+  setRecordMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => recordFields.name.focus(), 80);
+}
+
+function clearRecordForm() {
+  recordFields.id.value = "";
+  recordFields.name.value = "";
+  recordFields.type.value = "";
+  recordFields.location.value = "";
+  recordFields.telegram.value = "";
+  recordFields.description.value = "";
+  recordFields.images.value = "";
+  pendingImages = [];
+  $("dataFormTitle").textContent = "Daten erfassen";
+  $("recordSaveText").textContent = "Daten speichern";
+  $("cancelRecordEditBtn").classList.add("hidden");
+  renderImagePreview();
+}
+
+async function handleImageSelection(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+  const images = await Promise.all(files.map(fileToPreviewImage));
+  pendingImages = [...pendingImages, ...images];
+  renderImagePreview();
+}
+
+function fileToPreviewImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({ name: file.name, src: reader.result, file });
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImagePreview() {
+  const preview = $("imagePreview");
+  if (!preview) return;
+  if (!pendingImages.length) {
+    preview.innerHTML = `<p class="field-hint">Noch keine Bilder ausgewählt.</p>`;
+    return;
+  }
+  preview.innerHTML = pendingImages.map((image, index) => `
+    <div class="image-preview-item">
+      ${image.src ? `<img src="${image.src}" alt="${escapeHtml(image.name || "Bild")}" />` : `<div class="image-placeholder">Bild</div>`}
+      <button type="button" class="danger-btn mini-btn" data-remove-image="${index}">Entfernen</button>
+    </div>
+  `).join("");
+  preview.querySelectorAll("[data-remove-image]").forEach((button) => {
+    button.addEventListener("click", () => {
+      pendingImages.splice(Number(button.dataset.removeImage), 1);
+      renderImagePreview();
+    });
+  });
+}
+
+function renderRecords() {
+  const list = $("recordList");
+  if (!list) return;
+  const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
+  const filtered = recordsCache
+    .filter((record) => {
+      const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
+      const hasImages = Array.isArray(record.images) && record.images.length > 0;
+      const matchesImages = !activeRecordImageFilter || hasImages;
+      const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.createdAt, record.updatedAt].join(" ").toLowerCase();
+      return matchesType && matchesImages && haystack.includes(query);
+    })
+    .sort(sortRecords);
+
+  setText("totalRecordsCount", recordsCache.length);
+  setText("filteredRecordsCount", filtered.length);
+  setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
+  if (!filtered.length) {
+    list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((record) => {
+    const firstImage = Array.isArray(record.images) ? record.images.find((img) => img.src) : null;
+    return `
+      <button class="akten-card record-card" type="button" data-id="${escapeHtml(record.id)}">
+        <div class="record-card-main">
+          <div class="record-thumb ${firstImage ? "has-image" : ""}">
+            ${firstImage ? `<img src="${firstImage.src}" alt="${escapeHtml(firstImage.name || record.name)}" />` : `<span>${escapeHtml((record.type || "A").slice(0, 1))}</span>`}
+          </div>
+          <div class="record-card-body">
+            <div class="folder-chip-row">
+              <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
+              <span class="folder-chip">${escapeHtml(record.updatedAt ? `Bearbeitet: ${record.updatedAt}` : `Erstellt: ${record.createdAt || "-"}`)}</span>
+              <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
+            </div>
+            <h3>${escapeHtml(record.name)}</h3>
+            <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
+            <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
+            <p class="akten-preview">${escapeHtml(record.description || "Keine Beschreibung")}</p>
+            <div class="card-actions">
+              <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
+              <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function sortRecords(a, b) {
+  if (recordSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+  if (recordSortMode === "name") return String(a.name || "").localeCompare(String(b.name || ""), "de");
+  if (recordSortMode === "type") return String(a.type || "").localeCompare(String(b.type || ""), "de") || String(a.name || "").localeCompare(String(b.name || ""), "de");
+  return new Date(b.updatedAtRaw || b.createdAtRaw || 0) - new Date(a.updatedAtRaw || a.createdAtRaw || 0);
+}
+
+function openDetail(record) {
+  currentRecordId = record.id;
+  setText("detailTitle", record.name || "-");
+  setText("detailType", record.type || "Nicht festgelegt");
+  setText("detailLocation", record.location || "-");
+  setText("detailTelegram", record.telegram || "-");
+  setText("detailDescription", record.description || "Keine Beschreibung eingetragen.");
+  setText("detailCreatedAt", record.createdAt || "-");
+  setText("detailUpdatedAt", record.updatedAt || "Noch nicht bearbeitet");
+  if ($("copyTelegramBtn")) $("copyTelegramBtn").disabled = !record.telegram;
+  const images = Array.isArray(record.images) ? record.images : [];
+  $("detailImages").innerHTML = images.length
+    ? images.map((img) => img.src ? `<a href="${img.src}" target="_blank" rel="noopener"><img src="${img.src}" alt="${escapeHtml(img.name || "Bild")}" /></a>` : "").join("")
+    : `<p class="system-text">Keine Bilder hinterlegt.</p>`;
+  $("detailModal").classList.remove("hidden");
+}
+
+function closeDetail() {
+  currentRecordId = null;
+  $("detailModal").classList.add("hidden");
+}
+
+async function deleteRecord(id) {
+  if (!id || isBusy) return;
+  const record = recordsCache.find((item) => item.id === id);
+  if (!record) return;
+  if (!confirm(`Datensatz "${record.name}" wirklich löschen?`)) return;
+
+  try {
+    setBusy(true, "Datensatz wird gelöscht...");
+    const paths = (record.images || []).map((img) => img.path).filter(Boolean);
+    if (paths.length) await supabaseClient.storage.from(IMAGE_BUCKET).remove(paths);
+    const { error } = await supabaseClient.from("ashborn_entries").delete().eq("id", id);
+    if (error) throw error;
+    closeDetail();
+    clearRecordForm();
+    await loadRecords();
+    renderRecords();
+  } catch (error) {
+    alert(`Löschen fehlgeschlagen: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function copyCurrentTelegram() {
+  const record = recordsCache.find((item) => item.id === currentRecordId);
+  if (!record?.telegram) return;
+  try {
+    await navigator.clipboard.writeText(record.telegram);
+    const btn = $("copyTelegramBtn");
+    if (!btn) return;
+    const oldText = btn.textContent;
+    btn.textContent = "Kopiert";
+    setTimeout(() => { btn.textContent = oldText; }, 1200);
+  } catch (error) {
+    alert(`Kopieren fehlgeschlagen: ${error.message || error}`);
+  }
+}
+
+function exportRecordsCsv() {
+  if (!recordsCache.length) {
+    alert("Keine Datensätze zum Exportieren vorhanden.");
+    return;
+  }
+  const headers = ["Name", "Was", "Wo finde ich es", "Telegramm Nummer", "Beschreibung", "Bilder", "Erstellt", "Bearbeitet"];
+  const rows = recordsCache.map((record) => [
+    record.name,
+    record.type,
+    record.location,
+    record.telegram,
+    record.description,
+    Array.isArray(record.images) ? record.images.length : 0,
+    record.createdAt,
+    record.updatedAt
+  ]);
+  const csv = [headers, ...rows]
+    .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(";"))
+    .join("\n");
+  downloadTextFile(`ashborn-datensaetze-${new Date().toISOString().slice(0, 10)}.csv`, csv, "text/csv;charset=utf-8");
+}
+
+
+function setupPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const label = type === "sell" ? "Verkaufs" : "Kauf";
+
+  on($(`${prefix}PriceForm`), "submit", (event) => {
+    event.preventDefault();
+    savePriceItem(type);
+  });
+  on($(`${prefix}CalculatorItem`), "change", () => updateCalculator(type));
+  on($(`${prefix}CalculatorQty`), "input", () => updateCalculator(type));
+  on($(`${prefix}CalculatorAdjust`), "input", () => updateCalculator(type));
+  on($(`${prefix}PriceSearchInput`), "input", () => renderPriceModule(type));
+  on($(`${prefix}PriceSortSelect`), "change", () => renderPriceModule(type));
+  on($(`clear${capitalize(prefix)}PriceSearchBtn`), "click", () => {
+    if ($(`${prefix}PriceSearchInput`)) $(`${prefix}PriceSearchInput`).value = "";
+    if ($(`${prefix}PriceSortSelect`)) $(`${prefix}PriceSortSelect`).value = "name";
+    renderPriceModule(type);
+  });
+  on($(`export${capitalize(prefix)}PricesCsvBtn`), "click", () => exportPriceCsv(type));
+  on($(`cancel${capitalize(prefix)}PriceEditBtn`), "click", () => {
+    clearPriceForm(type);
+    alert(`${label}artikel-Bearbeitung wurde abgebrochen.`);
+  });
+  on($(`clear${capitalize(prefix)}PricesBtn`), "click", () => clearPriceItems(type));
+}
+
+async function loadPriceItems(type) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { data, error } = await supabaseClient.from(table).select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  const normalized = (data || []).map((row) => ({
+    id: row.id,
+    name: row.item_name || "",
+    category: row.category || "",
+    unit: row.unit || "",
+    price: Number(row.price || 0),
+    note: row.note || "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+  if (type === "sell") sellPricesCache = normalized;
+  else buyPricesCache = normalized;
+}
+
+async function savePriceItem(type) {
+  if (isBusy) return;
+  const prefix = type === "sell" ? "sell" : "buy";
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const id = $(`${prefix}PriceId`)?.value.trim();
+  const name = $(`${prefix}ItemName`).value.trim();
+  const category = $(`${prefix}ItemCategory`)?.value.trim() || "";
+  const price = Number($(`${prefix}ItemPrice`).value || 0);
+  const unit = $(`${prefix}ItemUnit`).value.trim();
+  const note = $(`${prefix}ItemNote`).value.trim();
+
+  if (!name || price <= 0) {
+    alert("Bitte mindestens Artikel und Preis eintragen.");
+    return;
+  }
+
+  const payload = {
+    item_name: name,
+    category: category || null,
+    price,
+    unit: unit || null,
+    note: note || null,
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    setBusy(true, id ? "Preis wird aktualisiert..." : "Preis wird gespeichert...");
+    const request = id
+      ? supabaseClient.from(table).update(payload).eq("id", id)
+      : supabaseClient.from(table).insert(payload);
+    const { error } = await request;
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+  } catch (error) {
+    alert(`Preis konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisiblePriceItems(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = [...(type === "sell" ? sellPricesCache : buyPricesCache)];
+  const query = ($(`${prefix}PriceSearchInput`)?.value || "").trim().toLowerCase();
+  const sortMode = $(`${prefix}PriceSortSelect`)?.value || "name";
+
+  const filtered = query
+    ? items.filter((item) => [item.name, item.category, item.unit, item.note, String(item.price)].join(" ").toLowerCase().includes(query))
+    : items;
+
+  filtered.sort((a, b) => {
+    if (sortMode === "priceAsc") return a.price - b.price;
+    if (sortMode === "priceDesc") return b.price - a.price;
+    if (sortMode === "category") return `${a.category || "zzz"}${a.name}`.localeCompare(`${b.category || "zzz"}${b.name}`, "de");
+    if (sortMode === "newest") return String(b.createdAtRaw).localeCompare(String(a.createdAtRaw));
+    return a.name.localeCompare(b.name, "de");
+  });
+
+  return filtered;
+}
+
+function renderPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const allItems = type === "sell" ? sellPricesCache : buyPricesCache;
+  const items = getVisiblePriceItems(type);
+  const list = $(`${prefix}PriceList`);
+  const select = $(`${prefix}CalculatorItem`);
+  if (!list || !select) return;
+
+  const calculatorItems = [...allItems].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  select.innerHTML = calculatorItems.length
+    ? calculatorItems.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${formatMoney(item.price)}</option>`).join("")
+    : `<option value="">Keine Artikel vorhanden</option>`;
+
+  list.innerHTML = items.length
+    ? items.map((item) => `
+      <div class="price-row enhanced-price-row">
+        <div class="price-main">
+          <div class="folder-chip-row">
+            <span class="folder-chip">${escapeHtml(item.category || "Keine Kategorie")}</span>
+            <span class="folder-chip">${escapeHtml(item.unit || "Keine Einheit")}</span>
+          </div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <span>${item.note ? escapeHtml(item.note) : "Keine Notiz"}</span>
+        </div>
+        <div class="price-value">${formatMoney(item.price)}</div>
+        <div class="price-actions">
+          <button class="secondary-btn mini-btn" type="button" data-edit-price="${escapeHtml(item.id)}">Bearbeiten</button>
+          <button class="danger-btn mini-btn" type="button" data-delete-price="${escapeHtml(item.id)}">Löschen</button>
+        </div>
+      </div>
+    `).join("")
+    : `<div class="price-row"><div><strong>Keine Artikel gefunden</strong><span>Lege neue Artikel an oder ändere deine Suche.</span></div></div>`;
+
+  list.querySelectorAll("[data-edit-price]").forEach((button) => {
+    button.addEventListener("click", () => loadPriceIntoForm(type, button.dataset.editPrice));
+  });
+  list.querySelectorAll("[data-delete-price]").forEach((button) => {
+    button.addEventListener("click", () => deletePriceItem(type, button.dataset.deletePrice));
+  });
+  updateCalculator(type);
+}
+
+function loadPriceIntoForm(type, id) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
+  const item = items.find((entry) => entry.id === id);
+  if (!item) return;
+
+  $(`${prefix}PriceId`).value = item.id;
+  $(`${prefix}ItemName`).value = item.name;
+  if ($(`${prefix}ItemCategory`)) $(`${prefix}ItemCategory`).value = item.category || "";
+  $(`${prefix}ItemPrice`).value = item.price;
+  $(`${prefix}ItemUnit`).value = item.unit || "";
+  $(`${prefix}ItemNote`).value = item.note || "";
+
+  setText(`${prefix}PriceFormTitle`, type === "sell" ? "Verkaufsartikel bearbeiten" : "Kaufartikel bearbeiten");
+  setText(`${prefix}PriceSaveText`, "Änderungen speichern");
+  $(`cancel${capitalize(prefix)}PriceEditBtn`)?.classList.remove("hidden");
+  $(`${prefix}ItemName`)?.focus();
+}
+
+function clearPriceForm(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  $(`${prefix}PriceForm`)?.reset();
+  if ($(`${prefix}PriceId`)) $(`${prefix}PriceId`).value = "";
+  setText(`${prefix}PriceFormTitle`, type === "sell" ? "Verkaufsartikel anlegen" : "Kaufartikel anlegen");
+  setText(`${prefix}PriceSaveText`, "Artikel speichern");
+  $(`cancel${capitalize(prefix)}PriceEditBtn`)?.classList.add("hidden");
+}
+
+async function deletePriceItem(type, id) {
+  if (!id || isBusy) return;
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  if (!confirm("Diesen Artikel wirklich löschen?")) return;
+  try {
+    setBusy(true, "Preis wird gelöscht...");
+    const { error } = await supabaseClient.from(table).delete().eq("id", id);
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+  } catch (error) {
+    alert(`Preis konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearPriceItems(type) {
+  if (!confirm("Diese komplette Preisliste wirklich leeren?")) return;
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  try {
+    setBusy(true, "Preisliste wird geleert...");
+    const { error } = await supabaseClient.from(table).delete().not("id", "is", null);
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+  } catch (error) {
+    alert(`Preisliste konnte nicht geleert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function updateCalculator(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
+  const selectedId = $(`${prefix}CalculatorItem`)?.value;
+  const qty = Number($(`${prefix}CalculatorQty`)?.value || 0);
+  const adjustment = Number($(`${prefix}CalculatorAdjust`)?.value || 0);
+  const item = items.find((entry) => entry.id === selectedId);
+  if (!item) {
+    setText(`${prefix}CalculatorSingle`, "0 $");
+    setText(`${prefix}CalculatorResult`, "0 $");
+    return;
+  }
+  const adjustedSingle = item.price * (1 + adjustment / 100);
+  setText(`${prefix}CalculatorSingle`, formatMoney(adjustedSingle));
+  setText(`${prefix}CalculatorResult`, formatMoney(adjustedSingle * qty));
+}
+
+function exportPriceCsv(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = getVisiblePriceItems(type);
+  const rows = [["Artikel", "Kategorie", "Einheit", "Preis", "Notiz", "Erstellt"]];
+  items.forEach((item) => rows.push([item.name, item.category, item.unit, String(item.price).replace(".", ","), item.note, item.createdAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `ashborn_${prefix}_preisliste.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function loadInternalNotes() {
+  const { data, error } = await supabaseClient.from("internal_notes").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  internalCache = (data || []).map((row) => ({
+    id: row.id,
+    title: row.title || "",
+    content: row.content || "",
+    category: row.category || "Allgemein",
+    createdAtRaw: row.created_at,
+    updatedAtRaw: row.updated_at,
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+}
+
+async function saveInternalNote() {
+  if (isBusy) return;
+  const id = $("internalId")?.value.trim() || "";
+  const title = $("internalTitle")?.value.trim() || "";
+  const category = $("internalCategory")?.value || "Allgemein";
+  const content = $("internalContent")?.value.trim() || "";
+
+  if (!title) {
+    setInternalMessage("Bitte eine Überschrift eintragen.", "error");
+    return;
+  }
+
+  try {
+    setBusy(true, id ? "Information wird aktualisiert..." : "Information wird gespeichert...");
+
+    const payload = {
+      title,
+      category,
+      content: content || null,
+      updated_at: new Date().toISOString()
+    };
+
+    const result = id
+      ? await supabaseClient.from("internal_notes").update(payload).eq("id", id)
+      : await supabaseClient.from("internal_notes").insert({ ...payload, created_by: sessionUser?.id || null });
+
+    if (result.error) throw result.error;
+
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    setInternalMessage(id ? "Interne Information wurde aktualisiert." : "Interne Information wurde gespeichert.", "success");
+  } catch (error) {
+    setInternalMessage(`Information konnte nicht gespeichert werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisibleInternalNotes() {
+  let notes = [...internalCache];
+
+  if (internalCategoryFilter !== "Alle") {
+    notes = notes.filter((note) => String(note.category || "Allgemein") === internalCategoryFilter);
+  }
+
+  if (internalSearchQuery) {
+    notes = notes.filter((note) => [note.title, note.category, note.content, note.createdAt, note.updatedAt]
+      .join(" ")
+      .toLowerCase()
+      .includes(internalSearchQuery));
+  }
+
+  notes.sort((a, b) => {
+    if (internalSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+    if (internalSortMode === "title") return String(a.title || "").localeCompare(String(b.title || ""), "de");
+    if (internalSortMode === "category") return String(a.category || "").localeCompare(String(b.category || ""), "de");
+    return new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0);
+  });
+
+  return notes;
+}
+
+function renderInternal() {
+  const list = $("internalList");
+  if (!list) return;
+
+  const notes = getVisibleInternalNotes();
+  const total = internalCache.length;
+  const countByCategory = (category) => internalCache.filter((note) => String(note.category || "Allgemein") === category).length;
+
+  setText("internalTotalCount", String(total));
+  setText("internalRulesCount", String(countByCategory("Regeln")));
+  setText("internalRolesCount", String(countByCategory("Rollen")));
+  setText("internalMembersCount", String(countByCategory("Mitglieder")));
+  setText("internalPlansCount", String(countByCategory("Pläne")));
+  setText("internalAllianceCount", String(countByCategory("Bündnisse")));
+  setText("internalHintsCount", String(countByCategory("Hinweise")));
+  setText("internalVisibleCount", `${notes.length} sichtbar`);
+
+  document.querySelectorAll("[data-internal-overview-filter]").forEach((button) => {
+    button.classList.toggle("active", (button.dataset.internalOverviewFilter || "Alle") === internalCategoryFilter);
+  });
+
+  list.innerHTML = notes.length
+    ? notes.map((note) => {
+      const created = note.createdAt || "-";
+      const updated = note.updatedAt && note.updatedAt !== note.createdAt ? note.updatedAt : "";
+      const preview = note.content || "Keine zusätzliche Information hinterlegt.";
+      return `
+        <article class="internal-note-card-v11" data-internal-card="${escapeHtml(note.id)}">
+          <div class="folder-chip-row internal-chip-row-v11">
+            <span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span>
+            <span class="folder-chip">Erstellt: ${escapeHtml(created)}</span>
+            ${updated ? `<span class="folder-chip">Bearbeitet: ${escapeHtml(updated)}</span>` : ""}
+          </div>
+
+          <h3>${escapeHtml(note.title)}</h3>
+          <div class="internal-note-content-v11">${escapeHtml(preview)}</div>
+
+          <div class="internal-actions-v11">
+            <button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button>
+            <button class="secondary-btn mini-btn" data-copy-internal="${escapeHtml(note.id)}" type="button">Kopieren</button>
+            <button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button>
+          </div>
+        </article>
+      `;
+    }).join("")
+    : `<article class="internal-note-card-v11 empty-internal-v11"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Hinweise, Pläne oder Bündnisse an. Über Suche und Kategorie findest du sie später schnell wieder.</p></article>`;
+
+  list.querySelectorAll("[data-edit-internal]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const note = internalCache.find((entry) => entry.id === button.dataset.editInternal);
+      if (note) loadInternalIntoForm(note);
+    });
+  });
+
+  list.querySelectorAll("[data-copy-internal]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const note = internalCache.find((entry) => entry.id === button.dataset.copyInternal);
+      if (!note) return;
+      const text = [note.title, note.category ? `Kategorie: ${note.category}` : "", note.content || ""].filter(Boolean).join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        setInternalMessage("Interne Information wurde kopiert.", "success");
+      } catch (error) {
+        setInternalMessage("Kopieren wurde vom Browser blockiert.", "error");
+      }
+    });
+  });
+
+  list.querySelectorAll("[data-delete-internal]").forEach((button) => {
+    button.addEventListener("click", () => deleteInternalNote(button.dataset.deleteInternal));
+  });
+}
+
+function loadInternalIntoForm(note) {
+  if (!note) return;
+  $("internalId").value = note.id || "";
+  $("internalTitle").value = note.title || "";
+  $("internalCategory").value = note.category || "Allgemein";
+  $("internalContent").value = note.content || "";
+  setText("internalSaveButtonText", "Änderungen speichern");
+  setText("internalEditorTitle", "Interne Information bearbeiten");
+  $("cancelInternalEditBtn")?.classList.remove("hidden");
+  setInternalMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => $("internalTitle")?.focus(), 80);
+}
+
+function clearInternalForm() {
+  if ($("internalId")) $("internalId").value = "";
+  if ($("internalTitle")) $("internalTitle").value = "";
+  if ($("internalCategory")) $("internalCategory").value = "Allgemein";
+  if ($("internalContent")) $("internalContent").value = "";
+  setText("internalSaveButtonText", "Information speichern");
+  setText("internalEditorTitle", "Interne Information anlegen");
+  $("cancelInternalEditBtn")?.classList.add("hidden");
+}
+
+function setInternalMessage(message, type) {
+  const el = $("internalSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+function clearInternalSearch() {
+  internalSearchQuery = "";
+  internalCategoryFilter = "Alle";
+  internalSortMode = "newest";
+  if ($("internalSearchInput")) $("internalSearchInput").value = "";
+  if ($("internalCategoryFilter")) $("internalCategoryFilter").value = "Alle";
+  if ($("internalSortSelect")) $("internalSortSelect").value = "newest";
+  renderInternal();
+}
+
+function exportInternalCsv() {
+  const notes = getVisibleInternalNotes();
+  const rows = [["Überschrift", "Kategorie", "Information", "Erstellt", "Bearbeitet"]];
+  notes.forEach((note) => rows.push([note.title, note.category, note.content, note.createdAt, note.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_intern_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+async function deleteInternalNote(id) {
+  if (!id || isBusy) return;
+  if (!confirm("Diese interne Information wirklich löschen?")) return;
+  try {
+    setBusy(true, "Information wird gelöscht...");
+    const { error } = await supabaseClient.from("internal_notes").delete().eq("id", id);
+    if (error) throw error;
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    setInternalMessage("Interne Information wurde gelöscht.", "success");
+  } catch (error) {
+    setInternalMessage(`Information konnte nicht gelöscht werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearInternalNotes() {
+  if (!confirm("Alle internen Informationen löschen?")) return;
+  try {
+    setBusy(true, "Interne Informationen werden gelöscht...");
+    const { error } = await supabaseClient.from("internal_notes").delete().not("id", "is", null);
+    if (error) throw error;
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    setInternalMessage("Interne Informationen wurden gelöscht.", "success");
+  } catch (error) {
+    setInternalMessage(`Interne Informationen konnten nicht gelöscht werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function loadCashEntries() {
+  const { data, error } = await supabaseClient.from("accounting_transactions").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  cashCache = (data || []).map((row) => ({
+    id: row.id,
+    type: row.transaction_type,
+    amount: Number(row.amount || 0),
+    reason: row.reason || "",
+    createdAtRaw: row.created_at,
+    createdAt: formatDate(row.created_at)
+  }));
+}
+
+async function saveCashEntry() {
+  if (isBusy) return;
+  const type = $("cashType").value === "withdraw" ? "auszahlung" : "einzahlung";
+  const amount = Number($("cashAmount").value || 0);
+  const reason = $("cashReason").value.trim();
+  if (amount <= 0) return alert("Bitte einen Betrag größer als 0 eintragen.");
+  if (!reason) return alert("Bitte eine Begründung eintragen.");
+  try {
+    setBusy(true, "Buchung wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({
+      transaction_type: type,
+      amount,
+      reason,
+      created_by: sessionUser?.id || null
+    });
+    if (error) throw error;
+    $("cashAmount").value = "";
+    $("cashReason").value = "";
+    await loadCashEntries();
+    renderCash();
+    renderCashEnhancements();
+  } catch (error) {
+    alert(`Buchung konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisibleCashEntries() {
+  const now = Date.now();
+  const rangeDays = cashRangeFilter === "7" ? 7 : cashRangeFilter === "30" ? 30 : cashRangeFilter === "90" ? 90 : null;
+  let entries = [...cashCache];
+
+  entries = entries.filter((entry) => {
+    const matchesType = cashTypeFilter === "Alle" || entry.type === cashTypeFilter;
+    const haystack = [entry.type, entry.amount, entry.reason, entry.createdAt].join(" ").toLowerCase();
+    const matchesSearch = !cashSearchQuery || haystack.includes(cashSearchQuery);
+    let matchesRange = true;
+
+    if (rangeDays) {
+      const time = new Date(entry.createdAtRaw || entry.createdAt).getTime();
+      matchesRange = Number.isFinite(time) && now - time <= rangeDays * 24 * 60 * 60 * 1000;
+    }
+
+    return matchesType && matchesSearch && matchesRange;
+  });
+
+  entries.sort((a, b) => {
+    if (cashSortMode === "oldest") return new Date(a.createdAtRaw) - new Date(b.createdAtRaw);
+    if (cashSortMode === "amountAsc") return Number(a.amount || 0) - Number(b.amount || 0);
+    if (cashSortMode === "amountDesc") return Number(b.amount || 0) - Number(a.amount || 0);
+    return new Date(b.createdAtRaw) - new Date(a.createdAtRaw);
+  });
+
+  return entries;
+}
+
+function calculateCashBalance(entries = []) {
+  const deposits = entries.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const withdraws = entries.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  return deposits - withdraws;
+}
+
+function renderCash() {
+  const deposits = cashCache.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const withdraws = cashCache.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const visibleEntries = getVisibleCashEntries();
+  const visibleDeposits = visibleEntries.filter((e) => e.type === "einzahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const visibleWithdraws = visibleEntries.filter((e) => e.type === "auszahlung").reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+  setText("currentBalance", formatMoney(deposits - withdraws));
+  setText("depositTotal", formatMoney(deposits));
+  setText("withdrawTotal", formatMoney(withdraws));
+  setText("cashBookingCount", String(cashCache.length));
+  setText("cashFilteredBalance", formatMoney(visibleDeposits - visibleWithdraws));
+
+  const list = $("cashList");
+  if (!list) return;
+  list.innerHTML = visibleEntries.length
+    ? visibleEntries.map((entry) => {
+      const isStorno = String(entry.reason || "").trim().toUpperCase().startsWith("STORNO");
+      return `
+      <div class="price-row cash-row ${isStorno ? "cash-row-storno" : ""}" data-cash-id="${escapeHtml(entry.id)}">
+        <div>
+          <strong>${entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung"} · ${escapeHtml(entry.createdAt)}</strong>
+          <span>${escapeHtml(entry.reason)}</span>
+          <small>Buchungs-ID: ${escapeHtml(String(entry.id || "").slice(0, 8))}${isStorno ? " · Gegenbuchung" : ""}</small>
+        </div>
+        <div class="cash-row-actions">
+          <div class="price-value ${entry.type === "auszahlung" ? "negative" : "positive"}">${entry.type === "auszahlung" ? "-" : "+"}${formatMoney(entry.amount)}</div>
+          ${isStorno
+            ? `<span class="storno-badge">STORNIERT</span>`
+            : `<button class="danger-btn mini-btn cash-storno-btn" data-reverse-cash="${escapeHtml(entry.id)}" type="button">Buchung stornieren</button>`}
+        </div>
+      </div>`;
+    }).join("")
+    : `<div class="price-row"><div><strong>Keine Buchungen gefunden</strong><span>Ändere Suche, Filter oder Zeitraum.</span></div></div>`;
+}
+
+async function reverseCashEntry(id) {
+  if (!id || isBusy) return;
+  const entry = cashCache.find((item) => item.id === id);
+  if (!entry) return;
+  if (String(entry.reason || "").trim().toUpperCase().startsWith("STORNO")) {
+    alert("Diese Buchung ist bereits eine Storno-Gegenbuchung und kann nicht erneut storniert werden.");
+    return;
+  }
+  const reverseType = entry.type === "einzahlung" ? "auszahlung" : "einzahlung";
+  const label = entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung";
+  const reverseLabel = reverseType === "einzahlung" ? "Einzahlung" : "Auszahlung";
+  if (!confirm(`${label} über ${formatMoney(entry.amount)} wirklich stornieren?
+
+Es wird automatisch eine neue Gegenbuchung als ${reverseLabel} erstellt. Die ursprüngliche Buchung bleibt im Verlauf sichtbar.`)) return;
+
+  try {
+    setBusy(true, "Storno wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({
+      transaction_type: reverseType,
+      amount: Number(entry.amount || 0),
+      reason: `STORNO zu ${label} vom ${entry.createdAt}: ${entry.reason}`,
+      created_by: sessionUser?.id || null
+    });
+    if (error) throw error;
+    await loadCashEntries();
+    renderCash();
+    renderCashEnhancements();
+  } catch (error) {
+    alert(`Storno konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function exportCashCsv() {
+  const entries = getVisibleCashEntries();
+  if (!entries.length) return alert("Keine Buchungen zum Exportieren vorhanden.");
+  const rows = [["Datum", "Art", "Betrag", "Begründung", "Buchungs-ID"]];
+  entries.forEach((entry) => rows.push([
+    entry.createdAt,
+    entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung",
+    String(entry.amount).replace(".", ","),
+    entry.reason,
+    entry.id
+  ]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn-buchhaltung-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + csv, "text/csv;charset=utf-8");
+}
+
+async function clearCashEntries() {
+  if (!confirm("Buchhaltung wirklich leeren?")) return;
+  try {
+    setBusy(true, "Buchhaltung wird geleert...");
+    const { error } = await supabaseClient.from("accounting_transactions").delete().not("id", "is", null);
+    if (error) throw error;
+    await loadCashEntries();
+    renderCash();
+    renderCashEnhancements();
+  } catch (error) {
+    alert(`Buchhaltung konnte nicht geleert werden. Eventuell fehlt noch die Delete-Policy: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function clearAllData() {
+  if (!confirm("Wirklich ALLE Ashborn-Daten in Supabase löschen?")) return;
+  const confirmation = prompt("Zur Sicherheit bitte ASHBORN eingeben, um alle Systemdaten zu löschen:");
+  if (confirmation !== "ASHBORN") {
+    alert("Löschung abgebrochen. Bestätigung war nicht korrekt.");
+    return;
+  }
+
+  try {
+    setBusy(true, "Systemdaten werden gelöscht...");
+    const tables = ["ashborn_entries", "price_sale", "price_purchase", "internal_notes", "accounting_transactions"];
+    for (const table of tables) {
+      const { error } = await supabaseClient.from(table).delete().not("id", "is", null);
+      if (error) throw error;
+    }
+    recordsCache = [];
+    sellPricesCache = [];
+    buyPricesCache = [];
+    internalCache = [];
+    cashCache = [];
+    clearRecordForm();
+    renderAll();
+  } catch (error) {
+    alert(`Nicht alles konnte gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function downloadTextFile(filename, content, mimeType = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportData() {
+  const data = {
+    records: recordsCache,
+    sellPrices: sellPricesCache,
+    buyPrices: buyPricesCache,
+    internal: internalCache,
+    cash: cashCache,
+    exportedAt: new Date().toISOString()
+  };
+  downloadTextFile(`ashborn-export-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(data, null, 2), "application/json;charset=utf-8");
+}
+
+function exportAllCsv() {
+  const rows = [
+    ["Bereich", "Name/Titel", "Kategorie/Typ", "Wert", "Beschreibung/Grund", "Erstellt"],
+    ...recordsCache.map((entry) => ["Aktensystem", entry.name, entry.type, entry.find_location || entry.telegram_number || "", entry.description || "", formatDate(entry.created_at)]),
+    ...sellPricesCache.map((entry) => ["Verkauf", entry.item_name, entry.category || "", formatMoney(entry.price), entry.note || "", formatDate(entry.created_at)]),
+    ...buyPricesCache.map((entry) => ["Kauf", entry.item_name, entry.category || "", formatMoney(entry.price), entry.note || "", formatDate(entry.created_at)]),
+    ...internalCache.map((entry) => ["Intern", entry.title, entry.category || "", "", entry.content || "", formatDate(entry.created_at)]),
+    ...cashCache.map((entry) => ["Buchhaltung", entry.transaction_type, "", formatMoney(entry.amount), entry.reason || "", formatDate(entry.created_at)])
+  ];
+
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn-gesamt-export-${new Date().toISOString().slice(0, 10)}.csv`, "﻿" + csv, "text/csv;charset=utf-8");
+}
+
+function setBusy(state, message = "") {
+  isBusy = state;
+  if (loginBtn) loginBtn.disabled = state;
+  const saveRecordBtn = $("saveRecordBtn");
+  if (saveRecordBtn) saveRecordBtn.disabled = state;
+  if (message) console.log(message);
+}
+
+function setText(id, value) {
+  const el = $(id);
+  if (el) el.textContent = String(value);
+}
+
+function setRecordMessage(message, type) {
+  const el = $("recordSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#039;", '"': "&quot;" }[char]));
+}
+
+function formatMoney(value) {
+  const number = Number(value || 0);
+  return `${number.toLocaleString("de-DE", { maximumFractionDigits: 2 })} $`;
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  return new Date(value).toLocaleString("de-DE");
+}
+
+function capitalize(value) {
+  return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+}
+
+function createStatusClass(value) {
+  const normalized = String(value || "").toLowerCase();
+  if (normalized.includes("person")) return "status-geheim";
+  if (normalized.includes("organisation")) return "status-beobachtung";
+  if (normalized.includes("route")) return "status-beobachtung";
+  if (normalized.includes("ort")) return "status-archiviert";
+  return "";
+}
+
+function sanitizeFileName(value) {
+  return String(value || "bild").toLowerCase().replace(/[^a-z0-9-_]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "bild";
+}
+
+function getFileExtension(filename) {
+  const match = String(filename || "").match(/\.[a-zA-Z0-9]+$/);
+  return match ? match[0].toLowerCase() : ".jpg";
+}
+
+function startAmbientEmbers() {
+  const emberLayer = document.querySelector(".bg-embers");
+  if (!emberLayer || prefersReducedMotion) return;
+  setInterval(() => {
+    const ember = document.createElement("span");
+    ember.className = "ember-particle";
+    ember.style.setProperty("--ember-left", `${Math.random() * 100}%`);
+    ember.style.setProperty("--ember-size", `${2 + Math.random() * 4}px`);
+    ember.style.setProperty("--ember-duration", `${6 + Math.random() * 7}s`);
+    ember.style.setProperty("--ember-drift", `${-40 + Math.random() * 80}px`);
+    emberLayer.appendChild(ember);
+    setTimeout(() => ember.remove(), 14000);
+  }, 620);
+}
+
+function bindHeroParallax() {
+  const scene = document.querySelector(".bg-scene");
+  if (!scene || prefersReducedMotion) return;
+  window.addEventListener("pointermove", (event) => {
+    const x = (event.clientX / window.innerWidth - 0.5) * 1.6;
+    const y = (event.clientY / window.innerHeight - 0.5) * 1.6;
+    scene.style.transform = `scale(1.035) translate3d(${x}%, ${y}%, 0)`;
+  }, { passive: true });
 }
 
 /* =========================================================
    ASHBORN FEATURE PACK v16
+   Favoriten, Wichtigkeit, Tags, ToDos/Kontakte, Verknüpfungen,
+   Warenkorb/Belege, Buchhaltung Kategorien, Monatsübersicht, Charts
 ========================================================= */
-.feature-grid-form {
-  align-items: end;
+
+const FEATURE_INTERNAL_CATEGORIES = ["Allgemein", "Regeln", "Rollen", "Mitglieder", "Pläne", "Bündnisse", "Hinweise", "Aufgaben", "Kontakte"];
+const priceCarts = { sell: [], buy: [] };
+
+function getElValue(id, fallback = "") {
+  const el = $(id);
+  if (!el) return fallback;
+  if (el.type === "checkbox") return !!el.checked;
+  return String(el.value ?? fallback);
 }
 
-.feature-check {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 50px;
-  padding: 13px 14px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-md);
-  color: var(--gold-2);
-  background: linear-gradient(180deg, rgba(5,3,2,.88), rgba(22,11,5,.78));
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1.1px;
-  text-transform: uppercase;
+function setElValue(id, value = "") {
+  const el = $(id);
+  if (!el) return;
+  if (el.type === "checkbox") el.checked = !!value;
+  else el.value = value ?? "";
 }
 
-.feature-check input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--gold-2);
+function csvTagsToArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).map(String);
+  return String(value || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean);
 }
 
-.record-conditional-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+function tagsToText(tags) {
+  return Array.isArray(tags) ? tags.join(", ") : String(tags || "");
 }
 
-.record-conditional-grid textarea {
-  min-height: 118px;
+function selectedValues(id) {
+  const el = $(id);
+  if (!el) return [];
+  return Array.from(el.selectedOptions || []).map((option) => option.value).filter(Boolean);
 }
 
-.tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px 0 !important;
+function setSelectedValues(id, values) {
+  const wanted = new Set(Array.isArray(values) ? values : []);
+  const el = $(id);
+  if (!el) return;
+  Array.from(el.options || []).forEach((option) => { option.selected = wanted.has(option.value); });
 }
 
-.tag-row span,
-.gold-chip {
-  color: #190b04 !important;
-  background: linear-gradient(180deg, #ffe7a3, var(--gold-2) 48%, var(--gold));
-  border-color: rgba(255, 227, 160, 0.8) !important;
+function safeJsonArray(value) {
+  return Array.isArray(value) ? value : [];
 }
 
-.tag-row span {
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
+function buildRelatedOptions(currentId = "") {
+  const select = $("recordRelatedIds");
+  if (!select) return;
+  const options = recordsCache
+    .filter((entry) => entry.id !== currentId)
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "de"));
+  select.innerHTML = options.map((entry) => `<option value="${escapeHtml(entry.id)}">${escapeHtml(entry.name)} (${escapeHtml(entry.type || "Datensatz")})</option>`).join("");
 }
 
-.favorite-card {
-  border-color: rgba(255, 227, 160, 0.72) !important;
-  box-shadow: var(--shadow), 0 0 28px rgba(242, 199, 107, 0.16) !important;
+async function normalizeRecord(row) {
+  const images = await withSignedImageUrls(Array.isArray(row.images) ? row.images : []);
+  return {
+    id: row.id,
+    name: row.name || "",
+    type: row.type || "",
+    location: row.find_location || "",
+    telegram: row.telegram_number || "",
+    description: row.description || "",
+    images,
+    favorite: !!row.favorite,
+    importance: row.importance || "Normal",
+    tags: safeJsonArray(row.tags),
+    relatedIds: safeJsonArray(row.related_ids),
+    relationStatus: row.relation_status || "",
+    orgMembers: row.org_members || "",
+    routeInfo: row.route_info || "",
+    placeInfo: row.place_info || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : "",
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || ""
+  };
 }
 
-.detail-extra-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+function checkRecordDuplicates(name, telegram, currentId = "") {
+  const n = String(name || "").trim().toLowerCase();
+  const t = String(telegram || "").trim().toLowerCase();
+  const duplicates = recordsCache.filter((entry) => entry.id !== currentId && (
+    (n && String(entry.name || "").trim().toLowerCase() === n) ||
+    (t && String(entry.telegram || "").trim().toLowerCase() === t)
+  ));
+  if (!duplicates.length) return true;
+  return confirm(`Möglicher Duplikat-Treffer gefunden:\n\n${duplicates.map((d) => `• ${d.name} (${d.type || "ohne Art"})`).join("\n")}\n\nTrotzdem speichern?`);
 }
 
-.detail-extra-grid div,
-.monthly-overview-grid > div {
-  border: 1px solid rgba(198,146,63,.24);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  background: rgba(5,3,2,.32);
-}
-
-.detail-extra-grid span,
-.monthly-overview-grid span,
-.mini-chart-line span {
-  display: block;
-  color: rgba(228,194,126,.72);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .8px;
-  text-transform: uppercase;
-}
-
-.detail-extra-grid strong,
-.monthly-overview-grid strong {
-  display: block;
-  margin-top: 5px;
-  color: var(--text);
-  white-space: pre-wrap;
-}
-
-.detail-image-item {
-  position: relative;
-}
-
-.detail-image-item .mini-btn {
-  margin-top: 8px;
-  width: 100%;
-}
-
-.cart-box {
-  position: relative;
-  z-index: 2;
-  margin-top: 14px;
-  padding: 12px;
-  border: 1px solid rgba(198,146,63,.22);
-  border-radius: var(--radius-md);
-  background: rgba(5,3,2,.28);
-}
-
-.cart-lines {
-  display: grid;
-  gap: 8px;
-}
-
-.cart-lines > div {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 10px;
-  align-items: center;
-  padding: 8px;
-  border-bottom: 1px solid rgba(198,146,63,.14);
-}
-
-.compact-actions {
-  margin: 10px 0;
-}
-
-.monthly-overview-card {
-  position: relative;
-  z-index: 2;
-  margin: 18px 0;
-  padding: 18px;
-  border: 1px solid rgba(198,146,63,.24);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(31,16,8,.76), rgba(5,3,2,.82));
-}
-
-.monthly-overview-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.monthly-overview-grid small,
-.feature-meta-line {
-  display: block;
-  margin-top: 6px;
-  color: var(--text-soft);
-  font-size: 15px;
-}
-
-.mini-chart-stack {
-  display: grid;
-  gap: 10px;
-}
-
-.mini-chart-line {
-  display: grid;
-  grid-template-columns: 116px 1fr auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.mini-chart-line div {
-  height: 12px;
-  border: 1px solid rgba(242,199,107,.24);
-  border-radius: 999px;
-  overflow: hidden;
-  background: rgba(5,3,2,.54);
-}
-
-.mini-chart-line i {
-  display: block;
-  height: 100%;
-  min-width: 2px;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--gold-dark), var(--gold-2));
-  box-shadow: 0 0 18px rgba(242,199,107,.24);
-}
-
-.mini-chart-line strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.always-hidden-feature {
-  display: none !important;
-}
-
-@media (max-width: 980px) {
-  .record-conditional-grid,
-  .monthly-overview-grid,
-  .detail-extra-grid {
-    grid-template-columns: 1fr;
+async function saveRecord() {
+  if (isBusy) return;
+  const name = recordFields.name.value.trim();
+  if (!name) {
+    setRecordMessage("Bitte mindestens den Namen eintragen.", "error");
+    recordFields.name.focus();
+    return;
   }
 
-  .mini-chart-line {
-    grid-template-columns: 1fr;
-    gap: 5px;
+  const currentId = recordFields.id.value.trim();
+  const telegram = recordFields.telegram.value.trim();
+  if (!checkRecordDuplicates(name, telegram, currentId)) return;
+
+  try {
+    setBusy(true, "Datensatz wird gespeichert...");
+    const id = currentId || crypto.randomUUID();
+    const uploadedImages = await uploadPendingImages(id);
+    const payload = {
+      id,
+      name,
+      type: recordFields.type.value || null,
+      find_location: recordFields.location.value.trim() || null,
+      telegram_number: telegram || null,
+      description: recordFields.description.value.trim() || null,
+      images: uploadedImages.map((image) => ({ name: image.name || "Bild", path: image.path })),
+      favorite: getElValue("recordFavorite", false),
+      importance: getElValue("recordImportance", "Normal") || "Normal",
+      tags: csvTagsToArray(getElValue("recordTags", "")),
+      related_ids: selectedValues("recordRelatedIds"),
+      relation_status: getElValue("recordRelationStatus", "") || null,
+      org_members: getElValue("recordOrgMembers", "").trim() || null,
+      route_info: getElValue("recordRouteInfo", "").trim() || null,
+      place_info: getElValue("recordPlaceInfo", "").trim() || null,
+      updated_at: new Date().toISOString()
+    };
+    if (!currentId) payload.created_by = sessionUser?.id || null;
+
+    const { error } = await supabaseClient.from("ashborn_entries").upsert(payload, { onConflict: "id" });
+    if (error) throw error;
+
+    clearRecordForm();
+    setRecordMessage("Datensatz wurde gespeichert.", "success");
+    await loadRecords();
+    renderRecords();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    console.error(error);
+    setRecordMessage(`Speichern fehlgeschlagen: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
   }
 }
+
+function loadRecordIntoForm(record) {
+  buildRelatedOptions(record.id || "");
+  recordFields.id.value = record.id || "";
+  recordFields.name.value = record.name || "";
+  recordFields.type.value = record.type || "";
+  recordFields.location.value = record.location || "";
+  recordFields.telegram.value = record.telegram || "";
+  recordFields.description.value = record.description || "";
+  setElValue("recordFavorite", !!record.favorite);
+  setElValue("recordImportance", record.importance || "Normal");
+  setElValue("recordRelationStatus", record.relationStatus || "");
+  setElValue("recordTags", tagsToText(record.tags));
+  setSelectedValues("recordRelatedIds", record.relatedIds || []);
+  setElValue("recordOrgMembers", record.orgMembers || "");
+  setElValue("recordRouteInfo", record.routeInfo || "");
+  setElValue("recordPlaceInfo", record.placeInfo || "");
+  pendingImages = Array.isArray(record.images) ? record.images.map((img) => ({ ...img })) : [];
+  $("dataFormTitle").textContent = "Daten bearbeiten";
+  $("recordSaveText").textContent = "Änderungen speichern";
+  $("cancelRecordEditBtn").classList.remove("hidden");
+  renderImagePreview();
+  switchTab("dataTab");
+  setRecordMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => recordFields.name.focus(), 80);
+}
+
+function clearRecordForm() {
+  recordFields.id.value = "";
+  recordFields.name.value = "";
+  recordFields.type.value = "";
+  recordFields.location.value = "";
+  recordFields.telegram.value = "";
+  recordFields.description.value = "";
+  recordFields.images.value = "";
+  setElValue("recordFavorite", false);
+  setElValue("recordImportance", "Normal");
+  setElValue("recordRelationStatus", "");
+  setElValue("recordTags", "");
+  setSelectedValues("recordRelatedIds", []);
+  setElValue("recordOrgMembers", "");
+  setElValue("recordRouteInfo", "");
+  setElValue("recordPlaceInfo", "");
+  pendingImages = [];
+  buildRelatedOptions("");
+  $("dataFormTitle").textContent = "Daten erfassen";
+  $("recordSaveText").textContent = "Daten speichern";
+  $("cancelRecordEditBtn").classList.add("hidden");
+  renderImagePreview();
+}
+
+function renderRecords() {
+  buildRelatedOptions(recordFields.id?.value || "");
+  const list = $("recordList");
+  if (!list) return;
+  const query = ($("recordSearchInput")?.value || "").trim().toLowerCase();
+  const filtered = recordsCache
+    .filter((record) => {
+      const matchesType = activeRecordFilter === "Alle" || record.type === activeRecordFilter;
+      const hasImages = Array.isArray(record.images) && record.images.length > 0;
+      const matchesImages = !activeRecordImageFilter || hasImages;
+      const haystack = [record.name, record.type, record.location, record.telegram, record.description, record.importance, record.relationStatus, tagsToText(record.tags), record.orgMembers, record.routeInfo, record.placeInfo, record.createdAt, record.updatedAt].join(" ").toLowerCase();
+      return matchesType && matchesImages && haystack.includes(query);
+    })
+    .sort(sortRecords);
+
+  setText("totalRecordsCount", recordsCache.length);
+  setText("filteredRecordsCount", filtered.length);
+  setText("imageRecordsCount", recordsCache.filter((item) => Array.isArray(item.images) && item.images.length).length);
+  if (!filtered.length) {
+    list.innerHTML = `<button class="akten-card" type="button" disabled><div class="folder-chip-row"><span class="folder-chip">Keine Daten</span><span class="folder-chip">0 Treffer</span></div><h3>Keine Einträge gefunden</h3><p>Erstelle einen neuen Datensatz oder ändere deine Suche.</p></button>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((record) => {
+    const firstImage = Array.isArray(record.images) ? record.images.find((img) => img.src) : null;
+    return `
+      <button class="akten-card record-card ${record.favorite ? "favorite-card" : ""}" type="button" data-id="${escapeHtml(record.id)}">
+        <div class="record-card-main">
+          <div class="record-thumb ${firstImage ? "has-image" : ""}">
+            ${firstImage ? `<img src="${firstImage.src}" alt="${escapeHtml(firstImage.name || record.name)}" />` : `<span>${escapeHtml((record.type || "A").slice(0, 1))}</span>`}
+          </div>
+          <div class="record-card-body">
+            <div class="folder-chip-row">
+              ${record.favorite ? `<span class="folder-chip gold-chip">★ Favorit</span>` : ""}
+              <span class="folder-chip ${createStatusClass(record.type)}">${escapeHtml(record.type || "Nicht festgelegt")}</span>
+              <span class="folder-chip ${createStatusClass(record.importance)}">${escapeHtml(record.importance || "Normal")}</span>
+              ${record.relationStatus ? `<span class="folder-chip">${escapeHtml(record.relationStatus)}</span>` : ""}
+              <span class="folder-chip">${Array.isArray(record.images) ? record.images.length : 0} Bild(er)</span>
+            </div>
+            <h3>${escapeHtml(record.name)}</h3>
+            <p><strong>Wo?</strong> ${escapeHtml(record.location || "Nicht eingetragen")}</p>
+            <p><strong>Telegramm:</strong> ${escapeHtml(record.telegram || "Nicht eingetragen")}</p>
+            ${record.tags?.length ? `<p class="tag-row">${record.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</p>` : ""}
+            <p class="akten-preview">${escapeHtml(record.description || record.orgMembers || record.routeInfo || record.placeInfo || "Keine Beschreibung")}</p>
+            <div class="card-actions">
+              <span class="secondary-btn mini-btn" data-edit-record="${escapeHtml(record.id)}">Bearbeiten</span>
+              <span class="danger-btn mini-btn" data-delete-record="${escapeHtml(record.id)}">Löschen</span>
+            </div>
+          </div>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function openDetail(record) {
+  currentRecordId = record.id;
+  setText("detailTitle", record.name || "-");
+  setText("detailType", record.type || "Nicht festgelegt");
+  setText("detailLocation", record.location || "-");
+  setText("detailTelegram", record.telegram || "-");
+  setText("detailCreatedAt", record.createdAt || "-");
+  setText("detailUpdatedAt", record.updatedAt || "-");
+  setText("detailDescription", record.description || "Keine Beschreibung hinterlegt.");
+  const relatedNames = (record.relatedIds || []).map((id) => recordsCache.find((entry) => entry.id === id)?.name).filter(Boolean);
+  const extra = $("detailExtraInfo");
+  if (extra) {
+    extra.innerHTML = [
+      ["Favorit", record.favorite ? "Ja" : "Nein"],
+      ["Wichtigkeit", record.importance || "Normal"],
+      ["Tags", tagsToText(record.tags) || "-"],
+      ["Beziehungsstatus", record.relationStatus || "-"],
+      ["Verknüpft", relatedNames.join(", ") || "-"],
+      ["Mitglieder", record.orgMembers || "-"],
+      ["Route", record.routeInfo || "-"],
+      ["Ort", record.placeInfo || "-"]
+    ].map(([a,b]) => `<div><span>${escapeHtml(a)}</span><strong>${escapeHtml(b)}</strong></div>`).join("");
+  }
+  const imageBox = $("detailImages");
+  if (imageBox) {
+    imageBox.innerHTML = Array.isArray(record.images) && record.images.length
+      ? record.images.map((image, index) => `
+        <div class="detail-image-item">
+          ${image.src ? `<img src="${image.src}" alt="${escapeHtml(image.name || "Bild")}" />` : `<div class="image-placeholder">Bild</div>`}
+          <button class="danger-btn mini-btn" type="button" data-delete-detail-image="${index}">Bild löschen</button>
+        </div>`).join("")
+      : `<p class="system-text">Keine Bilder vorhanden.</p>`;
+    imageBox.querySelectorAll("[data-delete-detail-image]").forEach((button) => {
+      button.addEventListener("click", () => deleteDetailImage(Number(button.dataset.deleteDetailImage)));
+    });
+  }
+  $("detailModal").classList.remove("hidden");
+}
+
+async function deleteDetailImage(index) {
+  const record = recordsCache.find((entry) => entry.id === currentRecordId);
+  if (!record || !Array.isArray(record.images) || !record.images[index]) return;
+  if (!confirm("Dieses Bild wirklich aus dem Datensatz entfernen?")) return;
+  const image = record.images[index];
+  const nextImages = record.images.filter((_, i) => i !== index).map((img) => ({ name: img.name || "Bild", path: img.path }));
+  try {
+    setBusy(true, "Bild wird gelöscht...");
+    if (image.path) await supabaseClient.storage.from(IMAGE_BUCKET).remove([image.path]);
+    const { error } = await supabaseClient.from("ashborn_entries").update({ images: nextImages, updated_at: new Date().toISOString() }).eq("id", record.id);
+    if (error) throw error;
+    await loadRecords();
+    const updated = recordsCache.find((entry) => entry.id === record.id);
+    if (updated) openDetail(updated);
+    renderRecords();
+  } catch (error) {
+    alert(`Bild konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function loadPriceItems(type) {
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const { data, error } = await supabaseClient.from(table).select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  const normalized = (data || []).map((row) => ({
+    id: row.id,
+    name: row.item_name || "",
+    category: row.category || "",
+    unit: row.unit || "",
+    price: Number(row.price || 0),
+    note: row.note || "",
+    favorite: !!row.favorite,
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+  if (type === "sell") sellPricesCache = normalized;
+  else buyPricesCache = normalized;
+}
+
+async function savePriceItem(type) {
+  if (isBusy) return;
+  const prefix = type === "sell" ? "sell" : "buy";
+  const table = type === "sell" ? "price_sale" : "price_purchase";
+  const id = $(`${prefix}PriceId`)?.value.trim();
+  const name = $(`${prefix}ItemName`).value.trim();
+  const category = $(`${prefix}ItemCategory`)?.value.trim() || "";
+  const price = Number($(`${prefix}ItemPrice`).value || 0);
+  const unit = $(`${prefix}ItemUnit`).value.trim();
+  const note = $(`${prefix}ItemNote`).value.trim();
+  if (!name || price <= 0) return alert("Bitte mindestens Artikel und Preis eintragen.");
+  const exists = (type === "sell" ? sellPricesCache : buyPricesCache).find((item) => item.id !== id && item.name.trim().toLowerCase() === name.toLowerCase());
+  if (exists && !confirm(`Artikel "${name}" existiert bereits. Trotzdem speichern?`)) return;
+  const payload = { item_name: name, category: category || null, price, unit: unit || null, note: note || null, updated_at: new Date().toISOString() };
+  try {
+    setBusy(true, id ? "Preis wird aktualisiert..." : "Preis wird gespeichert...");
+    const request = id ? supabaseClient.from(table).update(payload).eq("id", id) : supabaseClient.from(table).insert(payload);
+    const { error } = await request;
+    if (error) throw error;
+    clearPriceForm(type);
+    await loadPriceItems(type);
+    renderPriceModule(type);
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Preis konnte nicht gespeichert werden: ${error.message || error}`);
+  } finally { setBusy(false); }
+}
+
+function getMatchingOtherPrice(type, item) {
+  const other = type === "sell" ? buyPricesCache : sellPricesCache;
+  return other.find((entry) => entry.name.trim().toLowerCase() === item.name.trim().toLowerCase());
+}
+
+function marginText(type, item) {
+  const other = getMatchingOtherPrice(type, item);
+  if (!other) return "Kein Vergleich";
+  const sell = type === "sell" ? item.price : other.price;
+  const buy = type === "sell" ? other.price : item.price;
+  const diff = sell - buy;
+  const percent = buy > 0 ? (diff / buy) * 100 : 0;
+  return `Marge: ${formatMoney(diff)} / ${percent.toFixed(1)}%`;
+}
+
+function renderPriceModule(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const allItems = type === "sell" ? sellPricesCache : buyPricesCache;
+  const items = getVisiblePriceItems(type);
+  const list = $(`${prefix}PriceList`);
+  const select = $(`${prefix}CalculatorItem`);
+  if (!list || !select) return;
+  const calculatorItems = [...allItems].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  select.innerHTML = calculatorItems.length ? calculatorItems.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${formatMoney(item.price)}</option>`).join("") : `<option value="">Keine Artikel vorhanden</option>`;
+  list.innerHTML = items.length ? items.map((item) => `
+    <div class="price-row enhanced-price-row ${item.favorite ? "favorite-card" : ""}">
+      <div class="price-main">
+        <div class="folder-chip-row"><span class="folder-chip">${escapeHtml(item.category || "Keine Kategorie")}</span><span class="folder-chip">${escapeHtml(item.unit || "Keine Einheit")}</span><span class="folder-chip">${escapeHtml(marginText(type, item))}</span></div>
+        <strong>${escapeHtml(item.name)}</strong><span>${item.note ? escapeHtml(item.note) : "Keine Notiz"}</span>
+      </div>
+      <div class="price-value">${formatMoney(item.price)}</div>
+      <div class="price-actions"><button class="secondary-btn mini-btn" type="button" data-edit-price="${escapeHtml(item.id)}">Bearbeiten</button><button class="danger-btn mini-btn" type="button" data-delete-price="${escapeHtml(item.id)}">Löschen</button></div>
+    </div>`).join("") : `<div class="price-row"><div><strong>Keine Artikel gefunden</strong><span>Lege neue Artikel an oder ändere deine Suche.</span></div></div>`;
+  list.querySelectorAll("[data-edit-price]").forEach((button) => button.addEventListener("click", () => loadPriceIntoForm(type, button.dataset.editPrice)));
+  list.querySelectorAll("[data-delete-price]").forEach((button) => button.addEventListener("click", () => deletePriceItem(type, button.dataset.deletePrice)));
+  updateCalculator(type);
+  renderCart(type);
+}
+
+function addCurrentCalculatorToCart(type) {
+  const prefix = type === "sell" ? "sell" : "buy";
+  const items = type === "sell" ? sellPricesCache : buyPricesCache;
+  const item = items.find((entry) => entry.id === $(`${prefix}CalculatorItem`)?.value);
+  if (!item) return;
+  const qty = Math.max(1, Number($(`${prefix}CalculatorQty`)?.value || 1));
+  const adjustment = Number($(`${prefix}CalculatorAdjust`)?.value || 0);
+  const single = item.price * (1 + adjustment / 100);
+  priceCarts[type].push({ id: item.id, name: item.name, qty, single, total: single * qty });
+  renderCart(type);
+}
+
+function renderCart(type) {
+  const box = $(`${type}CartBox`);
+  if (!box) return;
+  const cart = priceCarts[type] || [];
+  const total = cart.reduce((sum, item) => sum + item.total, 0);
+  box.innerHTML = cart.length ? `<div class="cart-lines">${cart.map((item, index) => `<div><span>${escapeHtml(item.name)} × ${item.qty}</span><strong>${formatMoney(item.total)}</strong><button class="danger-btn mini-btn" type="button" data-cart-remove="${index}">×</button></div>`).join("")}</div><div class="calc-result"><span>Warenkorb Gesamt</span><strong>${formatMoney(total)}</strong></div>` : `<p class="field-hint">Warenkorb ist leer.</p>`;
+  box.querySelectorAll("[data-cart-remove]").forEach((btn) => btn.addEventListener("click", () => { priceCarts[type].splice(Number(btn.dataset.cartRemove), 1); renderCart(type); }));
+}
+
+async function createReceiptFromCart(type) {
+  const cart = priceCarts[type] || [];
+  if (!cart.length) return alert("Der Warenkorb ist leer.");
+  const total = cart.reduce((sum, item) => sum + item.total, 0);
+  const isSell = type === "sell";
+  const reason = `${isSell ? "Verkaufsbeleg" : "Kaufbeleg"}: ${cart.map((item) => `${item.name} x${item.qty}`).join(", ")}`;
+  if (!confirm(`${reason}\n\nGesamt: ${formatMoney(total)}\n\nIn Buchhaltung übernehmen?`)) return;
+  try {
+    setBusy(true, "Beleg wird gebucht...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({ transaction_type: isSell ? "einzahlung" : "auszahlung", amount: total, reason, category: isSell ? "Verkauf" : "Einkauf", created_by: sessionUser?.id || null });
+    if (error) throw error;
+    priceCarts[type] = [];
+    await loadCashEntries();
+    renderCash();
+    renderCashEnhancements();
+    renderCart(type);
+    alert("Beleg wurde in die Buchhaltung übernommen.");
+  } catch (error) {
+    alert(`Beleg konnte nicht erstellt werden: ${error.message || error}`);
+  } finally { setBusy(false); }
+}
+
+async function loadInternalNotes() {
+  const { data, error } = await supabaseClient.from("internal_notes").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  internalCache = (data || []).map((row) => ({
+    id: row.id,
+    title: row.title || "",
+    content: row.content || "",
+    category: row.category || "Allgemein",
+    favorite: !!row.favorite,
+    importance: row.importance || "Normal",
+    tags: safeJsonArray(row.tags),
+    assignee: row.assignee || "",
+    dueDate: row.due_date || "",
+    status: row.status || "Offen",
+    createdAtRaw: row.created_at,
+    updatedAtRaw: row.updated_at,
+    createdAt: formatDate(row.created_at),
+    updatedAt: formatDate(row.updated_at)
+  }));
+}
+
+async function saveInternalNote() {
+  if (isBusy) return;
+  const id = $("internalId")?.value.trim() || "";
+  const title = $("internalTitle")?.value.trim() || "";
+  const category = $("internalCategory")?.value || "Allgemein";
+  const content = $("internalContent")?.value.trim() || "";
+  if (!title) return setInternalMessage("Bitte eine Überschrift eintragen.", "error");
+  try {
+    setBusy(true, id ? "Information wird aktualisiert..." : "Information wird gespeichert...");
+    const payload = { title, category, content: content || null, favorite: getElValue("internalFavorite", false), importance: getElValue("internalImportance", "Normal"), tags: csvTagsToArray(getElValue("internalTags", "")), assignee: getElValue("internalAssignee", "") || null, due_date: getElValue("internalDueDate", "") || null, status: getElValue("internalStatus", "Offen"), updated_at: new Date().toISOString() };
+    const result = id ? await supabaseClient.from("internal_notes").update(payload).eq("id", id) : await supabaseClient.from("internal_notes").insert({ ...payload, created_by: sessionUser?.id || null });
+    if (result.error) throw result.error;
+    clearInternalForm();
+    await loadInternalNotes();
+    renderInternal();
+    renderDashboard();
+    setInternalMessage(id ? "Interne Information wurde aktualisiert." : "Interne Information wurde gespeichert.", "success");
+  } catch (error) {
+    setInternalMessage(`Information konnte nicht gespeichert werden: ${error.message || error}`, "error");
+  } finally { setBusy(false); }
+}
+
+function getVisibleInternalNotes() {
+  let notes = [...internalCache];
+  if (internalCategoryFilter !== "Alle") notes = notes.filter((note) => String(note.category || "Allgemein") === internalCategoryFilter);
+  if (internalSearchQuery) {
+    notes = notes.filter((note) => [note.title, note.category, note.content, note.importance, note.status, note.assignee, note.dueDate, tagsToText(note.tags), note.createdAt, note.updatedAt].join(" ").toLowerCase().includes(internalSearchQuery));
+  }
+  notes.sort((a, b) => {
+    if (internalSortMode === "oldest") return new Date(a.createdAtRaw || 0) - new Date(b.createdAtRaw || 0);
+    if (internalSortMode === "title") return String(a.title || "").localeCompare(String(b.title || ""), "de");
+    if (internalSortMode === "category") return String(a.category || "").localeCompare(String(b.category || ""), "de");
+    return new Date(b.createdAtRaw || 0) - new Date(a.createdAtRaw || 0);
+  });
+  return notes;
+}
+
+function renderInternal() {
+  const list = $("internalList");
+  if (!list) return;
+  const notes = getVisibleInternalNotes();
+  const total = internalCache.length;
+  const countByCategory = (category) => internalCache.filter((note) => String(note.category || "Allgemein") === category).length;
+  setText("internalTotalCount", String(total));
+  setText("internalRulesCount", String(countByCategory("Regeln")));
+  setText("internalRolesCount", String(countByCategory("Rollen")));
+  setText("internalMembersCount", String(countByCategory("Mitglieder") + countByCategory("Kontakte")));
+  setText("internalPlansCount", String(countByCategory("Pläne") + countByCategory("Aufgaben")));
+  setText("internalAllianceCount", String(countByCategory("Bündnisse")));
+  setText("internalHintsCount", String(countByCategory("Hinweise")));
+  setText("internalVisibleCount", `${notes.length} sichtbar`);
+  document.querySelectorAll("[data-internal-overview-filter]").forEach((button) => button.classList.toggle("active", (button.dataset.internalOverviewFilter || "Alle") === internalCategoryFilter));
+  list.innerHTML = notes.length ? notes.map((note) => `
+    <article class="internal-note-card-v11 ${note.favorite ? "favorite-card" : ""}" data-internal-card="${escapeHtml(note.id)}">
+      <div class="folder-chip-row internal-chip-row-v11"><span class="folder-chip ${createStatusClass(note.category)}">${escapeHtml(note.category || "Allgemein")}</span><span class="folder-chip ${createStatusClass(note.importance)}">${escapeHtml(note.importance || "Normal")}</span><span class="folder-chip">${escapeHtml(note.status || "Offen")}</span>${note.favorite ? `<span class="folder-chip gold-chip">★ Favorit</span>` : ""}</div>
+      <h3>${escapeHtml(note.title)}</h3>
+      <div class="internal-note-content-v11">${escapeHtml(note.content || "Keine zusätzliche Information hinterlegt.")}</div>
+      <div class="feature-meta-line">${[note.assignee ? `Zuständig: ${note.assignee}` : "", note.dueDate ? `Fällig: ${note.dueDate}` : "", note.tags?.length ? `Tags: ${tagsToText(note.tags)}` : ""].filter(Boolean).map(escapeHtml).join(" · ")}</div>
+      <div class="internal-actions-v11"><button class="primary-btn mini-btn" data-edit-internal="${escapeHtml(note.id)}" type="button">Bearbeiten</button><button class="secondary-btn mini-btn" data-copy-internal="${escapeHtml(note.id)}" type="button">Kopieren</button><button class="danger-btn mini-btn" data-delete-internal="${escapeHtml(note.id)}" type="button">Löschen</button></div>
+    </article>`).join("") : `<article class="internal-note-card-v11 empty-internal-v11"><h3>Noch keine internen Informationen</h3><p>Lege Regeln, Rollen, Kontakte, Aufgaben, Hinweise, Pläne oder Bündnisse an.</p></article>`;
+  list.querySelectorAll("[data-edit-internal]").forEach((button) => button.addEventListener("click", () => { const note = internalCache.find((entry) => entry.id === button.dataset.editInternal); if (note) loadInternalIntoForm(note); }));
+  list.querySelectorAll("[data-copy-internal]").forEach((button) => button.addEventListener("click", async () => { const note = internalCache.find((entry) => entry.id === button.dataset.copyInternal); if (!note) return; const text = [note.title, `Kategorie: ${note.category}`, note.assignee ? `Zuständig: ${note.assignee}` : "", note.content || ""].filter(Boolean).join("\n"); try { await navigator.clipboard.writeText(text); setInternalMessage("Interne Information wurde kopiert.", "success"); } catch { setInternalMessage("Kopieren wurde vom Browser blockiert.", "error"); } }));
+  list.querySelectorAll("[data-delete-internal]").forEach((button) => button.addEventListener("click", () => deleteInternalNote(button.dataset.deleteInternal)));
+}
+
+function loadInternalIntoForm(note) {
+  if (!note) return;
+  setElValue("internalId", note.id || "");
+  setElValue("internalTitle", note.title || "");
+  setElValue("internalCategory", note.category || "Allgemein");
+  setElValue("internalContent", note.content || "");
+  setElValue("internalFavorite", !!note.favorite);
+  setElValue("internalImportance", note.importance || "Normal");
+  setElValue("internalStatus", note.status || "Offen");
+  setElValue("internalAssignee", note.assignee || "");
+  setElValue("internalDueDate", note.dueDate || "");
+  setElValue("internalTags", tagsToText(note.tags));
+  setText("internalSaveButtonText", "Änderungen speichern");
+  setText("internalEditorTitle", "Interne Information bearbeiten");
+  $("cancelInternalEditBtn")?.classList.remove("hidden");
+  setInternalMessage("Bearbeitungsmodus aktiv.", "neutral");
+  setTimeout(() => $("internalTitle")?.focus(), 80);
+}
+
+function clearInternalForm() {
+  setElValue("internalId", ""); setElValue("internalTitle", ""); setElValue("internalCategory", "Allgemein"); setElValue("internalContent", ""); setElValue("internalFavorite", false); setElValue("internalImportance", "Normal"); setElValue("internalStatus", "Offen"); setElValue("internalAssignee", ""); setElValue("internalDueDate", ""); setElValue("internalTags", "");
+  setText("internalSaveButtonText", "Information speichern");
+  setText("internalEditorTitle", "Interne Information anlegen");
+  $("cancelInternalEditBtn")?.classList.add("hidden");
+}
+
+async function loadCashEntries() {
+  const { data, error } = await supabaseClient.from("accounting_transactions").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  cashCache = (data || []).map((row) => ({ id: row.id, type: row.transaction_type, amount: Number(row.amount || 0), reason: row.reason || "", category: row.category || "Sonstiges", createdAtRaw: row.created_at, createdAt: formatDate(row.created_at) }));
+}
+
+async function saveCashEntry() {
+  if (isBusy) return;
+  const type = $("cashType").value === "withdraw" ? "auszahlung" : "einzahlung";
+  const amount = Number($("cashAmount").value || 0);
+  const reason = $("cashReason").value.trim();
+  const category = getElValue("cashCategory", "Sonstiges");
+  if (amount <= 0) return alert("Bitte einen Betrag größer als 0 eintragen.");
+  if (!reason) return alert("Bitte eine Begründung eintragen.");
+  try {
+    setBusy(true, "Buchung wird gespeichert...");
+    const { error } = await supabaseClient.from("accounting_transactions").insert({ transaction_type: type, amount, reason, category, created_by: sessionUser?.id || null });
+    if (error) throw error;
+    $("cashAmount").value = ""; $("cashReason").value = "";
+    await loadCashEntries(); renderCash(); renderCashEnhancements(); renderDashboard(); renderDashboardEnhancements();
+  } catch (error) { alert(`Buchung konnte nicht gespeichert werden: ${error.message || error}`); } finally { setBusy(false); }
+}
+
+function renderCashMonthlyOverview(entries = cashCache) {
+  const box = $("cashMonthlyOverview");
+  if (!box) return;
+  const grouped = {};
+  entries.forEach((entry) => {
+    const d = new Date(entry.createdAtRaw || Date.now());
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    grouped[key] ||= { income: 0, expense: 0, count: 0 };
+    grouped[key].count++;
+    if (entry.type === "einzahlung") grouped[key].income += entry.amount;
+    else grouped[key].expense += entry.amount;
+  });
+  const rows = Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6);
+  box.innerHTML = rows.length ? rows.map(([month, data]) => `<div><span>${month}</span><strong>${formatMoney(data.income - data.expense)}</strong><small>Einnahmen ${formatMoney(data.income)} · Ausgaben ${formatMoney(data.expense)} · ${data.count} Buchungen</small></div>`).join("") : `<p class="system-text">Noch keine Monatsdaten.</p>`;
+}
+
+function renderCashEnhancements() {
+  renderCashMonthlyOverview(cashCache);
+  document.querySelectorAll(".cash-row").forEach((row, index) => {
+    const entry = getVisibleCashEntries()[index];
+    const title = row.querySelector("strong");
+    if (entry && entry.category && title && !title.textContent.includes(entry.category)) {
+      title.insertAdjacentText("beforeend", ` · ${entry.category}`);
+    }
+  });
+}
+
+function renderDashboardCharts() {
+  const box = $("dashboardCharts");
+  if (!box) return;
+  const income = cashCache.filter(e=>e.type==="einzahlung").reduce((s,e)=>s+e.amount,0);
+  const expense = cashCache.filter(e=>e.type==="auszahlung").reduce((s,e)=>s+e.amount,0);
+  const maxMoney = Math.max(income, expense, 1);
+  const counts = [
+    ["Person", countRecordsByType("Person")], ["Organisation", countRecordsByType("Organisation")], ["Route", countRecordsByType("Route")], ["Ort", countRecordsByType("Ort")], ["Gegenstand", countRecordsByType("Gegenstand")]
+  ];
+  const maxCount = Math.max(...counts.map(([,v])=>v),1);
+  box.innerHTML = `
+    <div class="mini-chart-line"><span>Einzahlungen</span><div><i style="width:${(income/maxMoney)*100}%"></i></div><strong>${formatMoney(income)}</strong></div>
+    <div class="mini-chart-line"><span>Auszahlungen</span><div><i style="width:${(expense/maxMoney)*100}%"></i></div><strong>${formatMoney(expense)}</strong></div>
+    ${counts.map(([label,value])=>`<div class="mini-chart-line"><span>${label}</span><div><i style="width:${(value/maxCount)*100}%"></i></div><strong>${value}</strong></div>`).join("")}`;
+}
+
+function renderDashboardEnhancements() {
+  renderDashboardCharts();
+}
+
+function exportRecordsCsv() {
+  const rows = [["Name", "Was", "Wichtigkeit", "Favorit", "Beziehungsstatus", "Tags", "Wo", "Telegramm", "Beschreibung", "Mitglieder", "Route", "Ort", "Bilder", "Erstellt", "Bearbeitet"]];
+  recordsCache.forEach((record) => rows.push([record.name, record.type, record.importance, record.favorite ? "Ja" : "Nein", record.relationStatus, tagsToText(record.tags), record.location, record.telegram, record.description, record.orgMembers, record.routeInfo, record.placeInfo, Array.isArray(record.images) ? record.images.length : 0, record.createdAt, record.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_datensaetze_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+function exportCashCsv() {
+  const rows = [["Datum", "Art", "Kategorie", "Betrag", "Begründung"]];
+  getVisibleCashEntries().forEach((entry) => rows.push([entry.createdAt, entry.type, entry.category || "", String(entry.amount).replace(".", ","), entry.reason]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_buchhaltung_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+function exportInternalCsv() {
+  const notes = getVisibleInternalNotes();
+  const rows = [["Überschrift", "Kategorie", "Wichtigkeit", "Favorit", "Status", "Zuständig", "Fällig", "Tags", "Information", "Erstellt", "Bearbeitet"]];
+  notes.forEach((note) => rows.push([note.title, note.category, note.importance, note.favorite ? "Ja" : "Nein", note.status, note.assignee, note.dueDate, tagsToText(note.tags), note.content, note.createdAt, note.updatedAt]));
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replaceAll('"', '""')}"`).join(";")).join("\n");
+  downloadTextFile(`ashborn_intern_${new Date().toISOString().slice(0, 10)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+}
+
+function handleQuickAction(action) {
+  if (action === "newRecord") { switchTab("dataTab"); clearRecordForm(); setTimeout(()=>recordFields.name?.focus(),100); }
+  if (action === "newTodo") { switchTab("internTab"); clearInternalForm(); setElValue("internalCategory", "Aufgaben"); setElValue("internalStatus", "Offen"); setTimeout(()=>$("internalTitle")?.focus(),100); }
+  if (action === "newCash") { switchTab("cashTab"); setTimeout(()=>$("cashAmount")?.focus(),100); }
+}
+
+function refreshInternalCategoryOptions() {
+  ["internalCategory", "internalCategoryFilter"].forEach((id) => {
+    const select = $(id); if (!select) return;
+    const current = select.value || (id.endsWith("Filter") ? "Alle" : "Allgemein");
+    const opts = id.endsWith("Filter") ? ["Alle", ...FEATURE_INTERNAL_CATEGORIES] : FEATURE_INTERNAL_CATEGORIES;
+    select.innerHTML = opts.map((cat) => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join("");
+    select.value = opts.includes(current) ? current : opts[0];
+  });
+}
+
+// Extra bindings after the original bindEvents ran.
+document.addEventListener("DOMContentLoaded", () => {
+  refreshInternalCategoryOptions();
+  buildRelatedOptions("");
+  ["sell", "buy"].forEach((type) => {
+    on($(`${type}AddCartBtn`), "click", () => addCurrentCalculatorToCart(type));
+    on($(`${type}CreateReceiptBtn`), "click", () => createReceiptFromCart(type));
+  });
+  document.querySelectorAll("[data-quick-action]").forEach((button) => button.addEventListener("click", () => handleQuickAction(button.dataset.quickAction)));
+  on($("recordType"), "change", () => {});
+});
 
 /* =========================================================
-   DROPDOWN FIX v16.1
-   Native select/dropdown colors for Opera/Chrome/Edge
+   ASHBORN v17
+   Beziehungsnetz + Handels-/Auftragsverwaltung
 ========================================================= */
-select,
-.form-field select,
-.toolbar-field select {
-  color: #ffe8aa !important;
-  background-color: #090504 !important;
-  background-image:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.96), rgba(5, 3, 2, 0.98)),
-    radial-gradient(circle at 100% 0%, rgba(198, 146, 63, 0.16), transparent 44%) !important;
-  border-color: rgba(242, 199, 107, 0.44) !important;
-  box-shadow:
-    inset 0 0 22px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(198, 146, 63, 0.08) !important;
-  color-scheme: dark;
+
+function normalizeTradeOrder(row) {
+  const items = (row.trade_order_items || row.items || []).map((item) => ({
+    id: item.id,
+    itemName: item.item_name || "",
+    qty: Number(item.qty || 0),
+    unitPrice: Number(item.unit_price || 0),
+    costPrice: Number(item.cost_price || 0),
+    total: Number(item.total || (Number(item.qty || 0) * Number(item.unit_price || 0)))
+  }));
+  const total = Number(row.total || items.reduce((sum, item) => sum + item.total, 0));
+  const costTotal = Number(row.cost_total || items.reduce((sum, item) => sum + (item.qty * item.costPrice), 0));
+  return {
+    id: row.id,
+    orderType: row.order_type || "sell",
+    partner: row.partner || "",
+    status: row.status || "Offen",
+    note: row.note || "",
+    linkedRecordId: row.linked_record_id || "",
+    total,
+    costTotal,
+    profit: Number(row.profit ?? (row.order_type === "sell" ? total - costTotal : 0)),
+    items,
+    createdAtRaw: row.created_at || "",
+    updatedAtRaw: row.updated_at || row.created_at || "",
+    createdAt: formatDate(row.created_at),
+    updatedAt: row.updated_at ? formatDate(row.updated_at) : ""
+  };
 }
 
-select:hover,
-.form-field select:hover,
-.toolbar-field select:hover {
-  border-color: rgba(255, 227, 160, 0.72) !important;
-  box-shadow:
-    inset 0 0 22px rgba(0, 0, 0, 0.74),
-    0 0 22px rgba(242, 199, 107, 0.12) !important;
+async function loadTradeOrders() {
+  const { data, error } = await supabaseClient
+    .from("trade_orders")
+    .select("*, trade_order_items(*)")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  tradeOrdersCache = (data || []).map(normalizeTradeOrder);
 }
 
-select:focus,
-.form-field select:focus,
-.toolbar-field select:focus {
-  color: #fff0bf !important;
-  background-color: #120702 !important;
-  border-color: rgba(255, 227, 160, 0.82) !important;
+function refreshTradeRecordOptions() {
+  const tradeLinked = $("tradeLinkedRecord");
+  const relationSelect = $("relationRecordSelect");
+  const options = recordsCache
+    .slice()
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "de"))
+    .map((record) => `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} (${escapeHtml(record.type || "Datensatz")})</option>`)
+    .join("");
+  if (tradeLinked) tradeLinked.innerHTML = `<option value="">Keine Verknüpfung</option>${options}`;
+  if (relationSelect) relationSelect.innerHTML = `<option value="">Datensatz auswählen...</option>${options}`;
 }
 
-select option,
-select optgroup {
-  color: #f4ead5 !important;
-  background: #120702 !important;
-  background-color: #120702 !important;
+function refreshTradeCatalogOptions() {
+  const type = getElValue("tradeType", "sell");
+  const select = $("tradeCatalogItem");
+  if (!select) return;
+  const items = (type === "sell" ? sellPricesCache : buyPricesCache).slice().sort((a, b) => a.name.localeCompare(b.name, "de"));
+  select.innerHTML = `<option value="">Freie Position</option>` + items.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} — ${formatMoney(item.price)}</option>`).join("");
 }
 
-select option:checked,
-select option:hover,
-select option:focus {
-  color: #160b05 !important;
-  background: #d8a84d !important;
-  background-color: #d8a84d !important;
+function getReferenceCostForItem(name) {
+  const key = String(name || "").trim().toLowerCase();
+  if (!key) return 0;
+  const buy = buyPricesCache.find((item) => String(item.name || "").trim().toLowerCase() === key);
+  return buy ? Number(buy.price || 0) : 0;
 }
 
-select option:disabled {
-  color: rgba(244, 234, 213, 0.42) !important;
-  background: #090504 !important;
+function applyTradeCatalogSelection() {
+  const type = getElValue("tradeType", "sell");
+  const id = getElValue("tradeCatalogItem", "");
+  const item = (type === "sell" ? sellPricesCache : buyPricesCache).find((entry) => entry.id === id);
+  if (!item) return;
+  setElValue("tradeItemName", item.name || "");
+  setElValue("tradeItemPrice", item.price || 0);
+  setElValue("tradeItemCost", type === "sell" ? getReferenceCostForItem(item.name) : item.price || 0);
 }
 
-select[multiple] option {
-  padding: 8px 10px;
-  border-bottom: 1px solid rgba(198, 146, 63, 0.12);
+function addTradeDraftItem() {
+  const name = getElValue("tradeItemName", "").trim();
+  const qty = Math.max(1, Number(getElValue("tradeItemQty", 1) || 1));
+  const unitPrice = Math.max(0, Number(getElValue("tradeItemPrice", 0) || 0));
+  const costPrice = Math.max(0, Number(getElValue("tradeItemCost", 0) || 0));
+  if (!name) return alert("Bitte einen Artikelnamen eintragen.");
+  if (unitPrice <= 0) return alert("Bitte einen Einzelpreis größer als 0 eintragen.");
+  tradeDraftItems.push({ itemName: name, qty, unitPrice, costPrice, total: qty * unitPrice });
+  setElValue("tradeItemName", "");
+  setElValue("tradeItemQty", 1);
+  setElValue("tradeItemPrice", 0);
+  setElValue("tradeItemCost", 0);
+  if ($("tradeCatalogItem")) $("tradeCatalogItem").value = "";
+  renderTradeDraftItems();
 }
+
+function renderTradeDraftItems() {
+  const box = $("tradeItemsPreview");
+  if (!box) return;
+  const total = tradeDraftItems.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const cost = tradeDraftItems.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.costPrice || 0)), 0);
+  const profit = getElValue("tradeType", "sell") === "sell" ? total - cost : 0;
+  setText("tradeDraftTotal", formatMoney(total));
+  setText("tradeDraftProfit", formatMoney(profit));
+  if (!tradeDraftItems.length) {
+    box.innerHTML = `<p class="field-hint">Noch keine Positionen im Auftrag.</p>`;
+    return;
+  }
+  box.innerHTML = `<div class="cart-lines">${tradeDraftItems.map((item, index) => `
+    <div>
+      <span>${escapeHtml(item.itemName)} × ${item.qty}</span>
+      <strong>${formatMoney(item.total)}</strong>
+      <small>EK/Ref: ${formatMoney(item.costPrice)} · Gewinn: ${formatMoney((item.unitPrice - item.costPrice) * item.qty)}</small>
+      <button class="danger-btn mini-btn" type="button" data-trade-remove-item="${index}">×</button>
+    </div>`).join("")}</div>`;
+  box.querySelectorAll("[data-trade-remove-item]").forEach((button) => button.addEventListener("click", () => {
+    tradeDraftItems.splice(Number(button.dataset.tradeRemoveItem), 1);
+    renderTradeDraftItems();
+  }));
+}
+
+function clearTradeForm() {
+  setElValue("tradeOrderId", "");
+  setElValue("tradeType", "sell");
+  setElValue("tradePartner", "");
+  setElValue("tradeStatus", "Offen");
+  setElValue("tradeLinkedRecord", "");
+  setElValue("tradeNote", "");
+  setElValue("tradeCreateCash", false);
+  tradeDraftItems = [];
+  setText("tradeFormTitle", "Neuen Auftrag erstellen");
+  setText("tradeSaveText", "Auftrag speichern");
+  $("cancelTradeEditBtn")?.classList.add("hidden");
+  refreshTradeCatalogOptions();
+  refreshTradeRecordOptions();
+  renderTradeDraftItems();
+  setTradeMessage("", "neutral");
+}
+
+function setTradeMessage(message, type) {
+  const el = $("tradeSaveInfo");
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = type === "success" ? "#b8ffca" : type === "error" ? "#ff9ca1" : "#f2d796";
+}
+
+async function saveTradeOrder(event) {
+  event?.preventDefault();
+  if (isBusy) return;
+  const id = getElValue("tradeOrderId", "").trim();
+  const orderType = getElValue("tradeType", "sell");
+  const partner = getElValue("tradePartner", "").trim();
+  const status = getElValue("tradeStatus", "Offen");
+  const note = getElValue("tradeNote", "").trim();
+  const linkedRecordId = getElValue("tradeLinkedRecord", "") || null;
+  if (!partner) return setTradeMessage("Bitte Kunde / Organisation eintragen.", "error");
+  if (!tradeDraftItems.length) return setTradeMessage("Bitte mindestens eine Position hinzufügen.", "error");
+  const total = tradeDraftItems.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const costTotal = tradeDraftItems.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.costPrice || 0)), 0);
+  const profit = orderType === "sell" ? total - costTotal : 0;
+  const payload = {
+    order_type: orderType,
+    partner,
+    status,
+    note: note || null,
+    linked_record_id: linkedRecordId,
+    total,
+    cost_total: costTotal,
+    profit,
+    created_by: sessionUser?.id || null,
+    updated_at: new Date().toISOString()
+  };
+  try {
+    setBusy(true, "Auftrag wird gespeichert...");
+    let orderId = id;
+    if (id) {
+      const { error } = await supabaseClient.from("trade_orders").update(payload).eq("id", id);
+      if (error) throw error;
+      await supabaseClient.from("trade_order_items").delete().eq("order_id", id);
+    } else {
+      const { data, error } = await supabaseClient.from("trade_orders").insert(payload).select("id").single();
+      if (error) throw error;
+      orderId = data.id;
+    }
+    const itemRows = tradeDraftItems.map((item) => ({
+      order_id: orderId,
+      item_name: item.itemName,
+      qty: item.qty,
+      unit_price: item.unitPrice,
+      cost_price: item.costPrice,
+      total: item.total
+    }));
+    const { error: itemError } = await supabaseClient.from("trade_order_items").insert(itemRows);
+    if (itemError) throw itemError;
+
+    if (getElValue("tradeCreateCash", false)) {
+      const transaction_type = orderType === "sell" ? "einzahlung" : "auszahlung";
+      const reason = `${orderType === "sell" ? "Verkaufsauftrag" : "Kaufauftrag"}: ${partner} · ${tradeDraftItems.map((item) => `${item.itemName} x${item.qty}`).join(", ")}`;
+      const { error: cashError } = await supabaseClient.from("accounting_transactions").insert({ transaction_type, amount: total, reason, category: orderType === "sell" ? "Verkauf" : "Einkauf", created_by: sessionUser?.id || null });
+      if (cashError) throw cashError;
+      await loadCashEntries();
+    }
+    clearTradeForm();
+    setTradeMessage("Auftrag wurde gespeichert.", "success");
+    await loadTradeOrders();
+    renderTradeOrders();
+    renderRelations();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    console.error(error);
+    setTradeMessage(`Auftrag konnte nicht gespeichert werden: ${error.message || error}`, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+function loadTradeIntoForm(id) {
+  const order = tradeOrdersCache.find((entry) => entry.id === id);
+  if (!order) return;
+  refreshTradeRecordOptions();
+  setElValue("tradeOrderId", order.id);
+  setElValue("tradeType", order.orderType);
+  setElValue("tradePartner", order.partner);
+  setElValue("tradeStatus", order.status);
+  setElValue("tradeLinkedRecord", order.linkedRecordId || "");
+  setElValue("tradeNote", order.note || "");
+  setElValue("tradeCreateCash", false);
+  tradeDraftItems = order.items.map((item) => ({ ...item }));
+  refreshTradeCatalogOptions();
+  renderTradeDraftItems();
+  setText("tradeFormTitle", "Auftrag bearbeiten");
+  setText("tradeSaveText", "Änderungen speichern");
+  $("cancelTradeEditBtn")?.classList.remove("hidden");
+  switchTab("tradeTab");
+  setTradeMessage("Bearbeitungsmodus aktiv.", "neutral");
+}
+
+async function updateTradeStatus(id, status) {
+  try {
+    setBusy(true, "Status wird geändert...");
+    const { error } = await supabaseClient.from("trade_orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+    if (error) throw error;
+    await loadTradeOrders();
+    renderTradeOrders();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Status konnte nicht geändert werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function deleteTradeOrder(id) {
+  const order = tradeOrdersCache.find((entry) => entry.id === id);
+  if (!order) return;
+  if (!confirm(`Auftrag von "${order.partner}" wirklich löschen?`)) return;
+  try {
+    setBusy(true, "Auftrag wird gelöscht...");
+    await supabaseClient.from("trade_order_items").delete().eq("order_id", id);
+    const { error } = await supabaseClient.from("trade_orders").delete().eq("id", id);
+    if (error) throw error;
+    await loadTradeOrders();
+    renderTradeOrders();
+    renderDashboard();
+    renderDashboardEnhancements();
+  } catch (error) {
+    alert(`Auftrag konnte nicht gelöscht werden: ${error.message || error}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function getVisibleTradeOrders() {
+  const query = tradeSearchQuery || (getElValue("tradeSearchInput", "").trim().toLowerCase());
+  let orders = tradeOrdersCache.slice();
+  if (tradeTypeFilter !== "Alle") orders = orders.filter((order) => order.orderType === tradeTypeFilter);
+  if (tradeStatusFilter !== "Alle") orders = orders.filter((order) => order.status === tradeStatusFilter);
+  if (query) {
+    orders = orders.filter((order) => [
+      order.partner, order.status, order.note, order.total, order.profit, order.createdAt, order.updatedAt,
+      ...order.items.flatMap((item) => [item.itemName, item.qty, item.unitPrice, item.costPrice])
+    ].join(" ").toLowerCase().includes(query));
+  }
+  orders.sort((a, b) => {
+    if (tradeSortMode === "oldest") return String(a.createdAtRaw).localeCompare(String(b.createdAtRaw));
+    if (tradeSortMode === "totalDesc") return b.total - a.total;
+    if (tradeSortMode === "totalAsc") return a.total - b.total;
+    if (tradeSortMode === "partner") return String(a.partner).localeCompare(String(b.partner), "de");
+    return String(b.createdAtRaw).localeCompare(String(a.createdAtRaw));
+  });
+  return orders;
+}
+
+function renderTradeOrders() {
+  refreshTradeRecordOptions();
+  refreshTradeCatalogOptions();
+  renderTradeDraftItems();
+  const list = $("tradeOrderList");
+  if (!list) return;
+  const totalVolume = tradeOrdersCache.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  setText("tradeTotalCount", tradeOrdersCache.length);
+  setText("tradeOpenCount", tradeOrdersCache.filter((o) => o.status === "Offen").length);
+  setText("tradeDoneCount", tradeOrdersCache.filter((o) => o.status === "Abgeschlossen").length);
+  setText("tradeTotalVolume", formatMoney(totalVolume));
+  const orders = getVisibleTradeOrders();
+  if (!orders.length) {
+    list.innerHTML = `<div class="empty-state-card"><h3>Keine Aufträge gefunden</h3><p>Erstelle einen neuen Auftrag oder ändere Filter/Suche.</p></div>`;
+    return;
+  }
+  list.innerHTML = orders.map((order) => {
+    const linked = recordsCache.find((record) => record.id === order.linkedRecordId);
+    return `<article class="trade-order-card">
+      <div class="folder-chip-row">
+        <span class="folder-chip ${createStatusClass(order.orderType)}">${order.orderType === "sell" ? "Verkauf" : "Kauf"}</span>
+        <span class="folder-chip ${createStatusClass(order.status)}">${escapeHtml(order.status)}</span>
+        ${linked ? `<span class="folder-chip">Verknüpft: ${escapeHtml(linked.name)}</span>` : ""}
+        <span class="folder-chip">${escapeHtml(order.createdAt || "-")}</span>
+      </div>
+      <div class="trade-order-head">
+        <div><h3>${escapeHtml(order.partner || "Ohne Partner")}</h3><p>${escapeHtml(order.note || "Keine Notiz")}</p></div>
+        <div class="trade-order-money"><strong>${formatMoney(order.total)}</strong><small>Gewinn: ${formatMoney(order.profit)}</small></div>
+      </div>
+      <div class="trade-items-list">${order.items.map((item) => `<div><span>${escapeHtml(item.itemName)} × ${item.qty}</span><strong>${formatMoney(item.total)}</strong><small>EP ${formatMoney(item.unitPrice)} · EK/Ref ${formatMoney(item.costPrice)}</small></div>`).join("")}</div>
+      <div class="form-actions compact-actions">
+        <button class="secondary-btn mini-btn" type="button" data-edit-trade="${escapeHtml(order.id)}">Bearbeiten</button>
+        <button class="primary-btn mini-btn" type="button" data-complete-trade="${escapeHtml(order.id)}">Abschließen</button>
+        <button class="secondary-btn mini-btn" type="button" data-relation-from-trade="${escapeHtml(order.partner)}">Netz anzeigen</button>
+        <button class="danger-btn mini-btn" type="button" data-delete-trade="${escapeHtml(order.id)}">Löschen</button>
+      </div>
+    </article>`;
+  }).join("");
+  list.querySelectorAll("[data-edit-trade]").forEach((button) => button.addEventListener("click", () => loadTradeIntoForm(button.dataset.editTrade)));
+  list.querySelectorAll("[data-complete-trade]").forEach((button) => button.addEventListener("click", () => updateTradeStatus(button.dataset.completeTrade, "Abgeschlossen")));
+  list.querySelectorAll("[data-delete-trade]").forEach((button) => button.addEventListener("click", () => deleteTradeOrder(button.dataset.deleteTrade)));
+  list.querySelectorAll("[data-relation-from-trade]").forEach((button) => button.addEventListener("click", () => { relationSearchQuery = button.dataset.relationFromTrade || ""; if ($("relationSearchInput")) $("relationSearchInput").value = relationSearchQuery; switchTab("relationTab"); renderRelations(); }));
+}
+
+function buildRelationIndex() {
+  const toSearch = (...values) => values.join(" ").toLowerCase();
+  return [
+    ...recordsCache.map((entry) => ({ kind: "record", area: "Datensatz", tab: "dataTab", id: entry.id, title: entry.name, badge: entry.type || "Datensatz", preview: [entry.location, entry.telegram, entry.relationStatus, entry.description, tagsToText(entry.tags), entry.orgMembers, entry.routeInfo, entry.placeInfo].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.name, entry.type, entry.location, entry.telegram, entry.description, entry.relationStatus, tagsToText(entry.tags), entry.orgMembers, entry.routeInfo, entry.placeInfo) })),
+    ...internalCache.map((entry) => ({ kind: "internal", area: "Intern", tab: "internTab", id: entry.id, title: entry.title, badge: entry.category || "Intern", preview: [entry.status, entry.assignee, entry.content, tagsToText(entry.tags)].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.title, entry.category, entry.content, entry.status, entry.assignee, tagsToText(entry.tags)) })),
+    ...tradeOrdersCache.map((entry) => ({ kind: "trade", area: "Handel", tab: "tradeTab", id: entry.id, title: entry.partner, badge: entry.orderType === "sell" ? "Verkauf" : "Kauf", preview: [entry.status, formatMoney(entry.total), entry.note, ...entry.items.map((item) => item.itemName)].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.partner, entry.status, entry.note, entry.total, entry.profit, ...entry.items.flatMap((item) => [item.itemName, item.qty, item.unitPrice])) })),
+    ...cashCache.map((entry) => ({ kind: "cash", area: "Buchhaltung", tab: "cashTab", id: entry.id, title: entry.reason || "Buchung", badge: entry.type === "einzahlung" ? "Einzahlung" : "Auszahlung", preview: [formatMoney(entry.amount), entry.category].filter(Boolean).join(" · "), dateRaw: entry.createdAtRaw, searchText: toSearch(entry.reason, entry.type, entry.amount, entry.category, entry.createdAt) })),
+    ...sellPricesCache.map((entry) => ({ kind: "sell", area: "Verkaufspreis", tab: "sellTab", id: entry.id, title: entry.name, badge: entry.category || "Verkauf", preview: [formatMoney(entry.price), entry.unit, entry.note].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price) })),
+    ...buyPricesCache.map((entry) => ({ kind: "buy", area: "Kaufpreis", tab: "buyTab", id: entry.id, title: entry.name, badge: entry.category || "Kauf", preview: [formatMoney(entry.price), entry.unit, entry.note].filter(Boolean).join(" · "), dateRaw: entry.updatedAtRaw || entry.createdAtRaw, searchText: toSearch(entry.name, entry.category, entry.unit, entry.note, entry.price) }))
+  ];
+}
+
+function renderRelations() {
+  refreshTradeRecordOptions();
+  const target = $("relationResults");
+  const graph = $("relationGraphBox");
+  if (!target || !graph) return;
+  const query = (relationSearchQuery || getElValue("relationSearchInput", "")).trim().toLowerCase();
+  if (!query) {
+    setText("relationResultCount", 0);
+    setText("relationRecordCount", 0);
+    setText("relationTradeCount", 0);
+    setText("relationCashCount", 0);
+    graph.innerHTML = `<p class="system-text">Gib einen Suchbegriff ein oder wähle einen Datensatz aus.</p>`;
+    target.innerHTML = "";
+    return;
+  }
+  const results = buildRelationIndex().filter((entry) => entry.searchText.includes(query)).sort((a, b) => new Date(b.dateRaw || 0) - new Date(a.dateRaw || 0));
+  setText("relationResultCount", results.length);
+  setText("relationRecordCount", results.filter((r) => r.kind === "record").length);
+  setText("relationTradeCount", results.filter((r) => r.kind === "trade").length);
+  setText("relationCashCount", results.filter((r) => r.kind === "cash").length);
+  const grouped = results.reduce((acc, entry) => { acc[entry.area] = (acc[entry.area] || 0) + 1; return acc; }, {});
+  graph.innerHTML = `<div class="relation-node main-node">${escapeHtml(query)}</div>${Object.entries(grouped).map(([area, count]) => `<div class="relation-link-line"></div><div class="relation-node"><strong>${escapeHtml(area)}</strong><span>${count} Treffer</span></div>`).join("")}`;
+  target.innerHTML = results.length ? results.map((entry) => `<button class="dashboard-global-result" type="button" data-relation-open="${escapeHtml(entry.tab)}" data-relation-kind="${escapeHtml(entry.kind)}" data-relation-id="${escapeHtml(entry.id || "")}"><div class="folder-chip-row"><span class="folder-chip">${escapeHtml(entry.area)}</span><span class="folder-chip ${createStatusClass(entry.badge)}">${escapeHtml(entry.badge || "-")}</span></div><strong>${escapeHtml(entry.title || "Ohne Titel")}</strong><p>${escapeHtml(entry.preview || "Keine Vorschau")}</p></button>`).join("") : `<p class="system-text">Keine Verknüpfungen gefunden.</p>`;
+  target.querySelectorAll("[data-relation-open]").forEach((button) => button.addEventListener("click", () => openGlobalSearchResult(button.dataset.relationOpen, button.dataset.relationKind, button.dataset.relationId)));
+}
+
+const originalRenderDashboardV17 = renderDashboard;
+renderDashboard = function renderDashboardV17() {
+  originalRenderDashboardV17();
+  const tradeVolume = tradeOrdersCache.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  setText("dashTradeCount", tradeOrdersCache.length);
+  setText("dashTradeVolume", `${formatMoney(tradeVolume)} Volumen`);
+  const linkedCount = recordsCache.filter((record) => Array.isArray(record.relatedIds) && record.relatedIds.length).length + tradeOrdersCache.filter((order) => order.linkedRecordId).length;
+  setText("dashRelationCount", linkedCount);
+};
+
+const originalBuildDashboardGlobalSearchIndexV17 = buildDashboardGlobalSearchIndex;
+buildDashboardGlobalSearchIndex = function buildDashboardGlobalSearchIndexV17() {
+  return [
+    ...originalBuildDashboardGlobalSearchIndexV17(),
+    ...tradeOrdersCache.map((entry) => ({
+      kind: "trade",
+      id: entry.id,
+      area: "Handel / Auftrag",
+      tab: "tradeTab",
+      badge: entry.orderType === "sell" ? "Verkauf" : "Kauf",
+      title: entry.partner,
+      preview: [entry.status, formatMoney(entry.total), entry.note, ...entry.items.map((item) => item.itemName)].filter(Boolean).join(" · "),
+      dateRaw: entry.updatedAtRaw || entry.createdAtRaw,
+      dateLabel: entry.updatedAt ? `Bearbeitet: ${entry.updatedAt}` : entry.createdAt ? `Erstellt: ${entry.createdAt}` : "",
+      searchText: [entry.partner, entry.status, entry.note, entry.total, entry.profit, ...entry.items.flatMap((item) => [item.itemName, item.qty, item.unitPrice, item.costPrice]), "handel auftrag verkauf kauf"].join(" ").toLowerCase()
+    }))
+  ];
+};
+
+const originalOpenGlobalSearchResultV17 = openGlobalSearchResult;
+openGlobalSearchResult = function openGlobalSearchResultV17(tabId, kind, id) {
+  if (kind === "trade" && id) {
+    switchTab("tradeTab");
+    setTimeout(() => loadTradeIntoForm(id), 80);
+    return;
+  }
+  originalOpenGlobalSearchResultV17(tabId, kind, id);
+};
+
+const originalRenderDashboardEnhancementsV17 = renderDashboardEnhancements;
+renderDashboardEnhancements = function renderDashboardEnhancementsV17() {
+  originalRenderDashboardEnhancementsV17();
+  renderTradeOrders();
+  renderRelations();
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  on($("tradeOrderForm"), "submit", saveTradeOrder);
+  on($("tradeType"), "change", () => { refreshTradeCatalogOptions(); renderTradeDraftItems(); });
+  on($("tradeCatalogItem"), "change", applyTradeCatalogSelection);
+  on($("addTradeItemBtn"), "click", addTradeDraftItem);
+  on($("clearTradeItemsBtn"), "click", () => { tradeDraftItems = []; renderTradeDraftItems(); });
+  on($("cancelTradeEditBtn"), "click", clearTradeForm);
+  on($("tradeSearchInput"), "input", (event) => { tradeSearchQuery = (event.target.value || "").trim().toLowerCase(); renderTradeOrders(); });
+  on($("tradeTypeFilter"), "change", (event) => { tradeTypeFilter = event.target.value || "Alle"; renderTradeOrders(); });
+  on($("tradeStatusFilter"), "change", (event) => { tradeStatusFilter = event.target.value || "Alle"; renderTradeOrders(); });
+  on($("tradeSortSelect"), "change", (event) => { tradeSortMode = event.target.value || "newest"; renderTradeOrders(); });
+  on($("clearTradeSearchBtn"), "click", () => { tradeSearchQuery = ""; tradeTypeFilter = "Alle"; tradeStatusFilter = "Alle"; tradeSortMode = "newest"; if ($("tradeSearchInput")) $("tradeSearchInput").value = ""; if ($("tradeTypeFilter")) $("tradeTypeFilter").value = "Alle"; if ($("tradeStatusFilter")) $("tradeStatusFilter").value = "Alle"; if ($("tradeSortSelect")) $("tradeSortSelect").value = "newest"; renderTradeOrders(); });
+  on($("relationSearchInput"), "input", (event) => { relationSearchQuery = (event.target.value || "").trim(); renderRelations(); });
+  on($("relationUseSelectedBtn"), "click", () => { const id = getElValue("relationRecordSelect", ""); const record = recordsCache.find((entry) => entry.id === id); if (!record) return; relationSearchQuery = [record.name, record.telegram, record.type].filter(Boolean)[0] || record.name; if ($("relationSearchInput")) $("relationSearchInput").value = relationSearchQuery; renderRelations(); });
+});
+
+// v17 quick action override
+const originalHandleQuickActionV17 = handleQuickAction;
+handleQuickAction = function handleQuickActionV17(action) {
+  if (action === "newTrade") { switchTab("tradeTab"); clearTradeForm(); setTimeout(() => $("tradePartner")?.focus(), 100); return; }
+  originalHandleQuickActionV17(action);
+};
 
 /* =========================================================
-   ASHBORN v17 - Beziehungsnetz + Handel
+   ASHBORN VERWALTUNG CLEAN OVERRIDES
+   Aufträge/Finden wurden bewusst aus der Oberfläche entfernt.
 ========================================================= */
-.trade-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 20px;
-  align-items: start;
-}
+const ashbornV2BuildSearchIndex = buildDashboardGlobalSearchIndex;
+buildDashboardGlobalSearchIndex = function buildDashboardGlobalSearchIndexV2() {
+  return ashbornV2BuildSearchIndex().filter((entry) => entry.tab !== "tradeTab" && entry.tab !== "relationTab" && entry.kind !== "trade");
+};
 
-.trade-form,
-.trade-side-card,
-.relation-panel .dashboard-metric-card,
-.trade-order-card {
-  position: relative;
-}
-
-.trade-item-builder {
-  position: relative;
-  z-index: 2;
-  margin: 18px 0;
-  padding: 16px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(216, 181, 106, 0.04), rgba(0, 0, 0, 0.16));
-}
-
-.trade-summary-box {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 16px 0;
-}
-
-.trade-summary-box > div {
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.22);
-  border-radius: var(--radius-md);
-  background: rgba(5, 3, 2, 0.34);
-}
-
-.trade-summary-box span,
-.trade-order-money small,
-.trade-items-list small {
-  display: block;
-  color: rgba(244, 234, 213, 0.64);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-}
-
-.trade-summary-box strong,
-.trade-order-money strong {
-  display: block;
-  margin-top: 5px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 27px;
-  line-height: 1;
-}
-
-.trade-order-list {
-  display: grid;
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.trade-order-card {
-  padding: 18px;
-  border: 1px solid rgba(198, 146, 63, 0.28);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(31, 16, 8, 0.86), rgba(5, 3, 2, 0.92)),
-    radial-gradient(circle at 90% 0%, rgba(198, 146, 63, 0.1), transparent 42%);
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-}
-
-.trade-order-head {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  margin-top: 12px;
-}
-
-.trade-order-head h3 {
-  margin: 0 0 8px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 24px;
-  text-transform: uppercase;
-}
-
-.trade-order-head p {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 18px;
-}
-
-.trade-order-money {
-  min-width: 180px;
-  text-align: right;
-}
-
-.trade-items-list {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 8px;
-  margin: 14px 0;
-}
-
-.trade-items-list > div,
-.cart-lines > div {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px;
-  border: 1px solid rgba(198, 146, 63, 0.18);
-  border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.trade-items-list span,
-.cart-lines span {
-  color: var(--text);
-  font-weight: 700;
-}
-
-.trade-items-list strong,
-.cart-lines strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-}
-
-.relation-search-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(240px, 340px);
-  gap: 12px;
-  align-items: end;
-  margin-bottom: 16px;
-}
-
-.relation-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.relation-graph-box {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  min-height: 96px;
-  margin-bottom: 18px;
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.18);
-  border-radius: var(--radius-xl);
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.relation-node {
-  display: grid;
-  place-items: center;
-  min-height: 78px;
-  padding: 12px;
-  border: 1px solid rgba(198, 146, 63, 0.28);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(242, 199, 107, 0.12), transparent 60%),
-    linear-gradient(180deg, rgba(43, 18, 8, 0.72), rgba(5, 3, 2, 0.88));
-  text-align: center;
-  box-shadow: inset 0 1px 0 rgba(255, 232, 166, 0.07);
-}
-
-.relation-node.main-node {
-  border-color: rgba(255, 227, 160, 0.72);
-  color: #190b04;
-  background: linear-gradient(180deg, #ffe7a3, var(--gold-2) 42%, var(--gold) 66%, var(--gold-dark));
-  font-family: var(--font-title);
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.relation-node strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  text-transform: uppercase;
-}
-
-.relation-node span {
-  color: var(--text-soft);
-  font-size: 15px;
-}
-
-.relation-link-line {
-  display: none;
-}
-
-.empty-state-card {
-  position: relative;
-  z-index: 2;
-  padding: 24px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-xl);
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.empty-state-card h3 {
-  margin: 0 0 8px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-}
-
-.empty-state-card p {
-  margin: 0;
-  color: var(--text-soft);
-}
-
-@media (max-width: 980px) {
-  .trade-layout,
-  .relation-search-grid {
-    grid-template-columns: 1fr;
+const ashbornV2OpenGlobalResult = openGlobalSearchResult;
+openGlobalSearchResult = function openGlobalSearchResultV2(tabId, kind, id) {
+  if (tabId === "tradeTab" || tabId === "relationTab" || kind === "trade") {
+    switchTab("dashboardTab");
+    return;
   }
+  ashbornV2OpenGlobalResult(tabId, kind, id);
+};
 
-  .relation-summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+const ashbornV2HandleQuickAction = handleQuickAction;
+handleQuickAction = function handleQuickActionV2(action) {
+  if (action === "newTrade") {
+    switchTab("sellTab");
+    return;
   }
-
-  .trade-order-head {
-    display: grid;
-  }
-
-  .trade-order-money {
-    text-align: left;
-  }
-}
-
-@media (max-width: 620px) {
-  .relation-summary-grid,
-  .trade-summary-box {
-    grid-template-columns: 1fr;
-  }
-
-  .trade-items-list > div,
-  .cart-lines > div {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================================================
-   V18 EASY MODE / FIRST USER GUIDANCE
-========================================================= */
-.system-guide-strip {
-  width: min(1340px, calc(100% - 32px));
-  margin: -8px auto 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  padding: 10px 12px;
-  border: 1px solid rgba(242, 199, 107, 0.2);
-  border-radius: var(--radius-lg);
-  background: rgba(5, 3, 2, 0.48);
-  box-shadow: inset 0 1px 0 rgba(255, 232, 166, 0.05);
-}
-
-.system-guide-strip span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 30px;
-  padding: 6px 10px;
-  border: 1px solid rgba(198, 146, 63, 0.18);
-  border-radius: 999px;
-  color: rgba(244, 234, 213, 0.82);
-  background: rgba(24, 13, 7, 0.62);
-  font-size: 15px;
-}
-
-.system-guide-strip strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 12px;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-
-.easy-start-panel,
-.context-help-box {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 18px;
-  border: 1px solid rgba(242, 199, 107, 0.24);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(43, 18, 8, 0.82), rgba(5, 3, 2, 0.78)),
-    radial-gradient(circle at 100% 0%, rgba(242, 199, 107, 0.12), transparent 34%);
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 232, 166, 0.06);
-}
-
-.easy-start-panel {
-  padding: 18px;
-}
-
-.easy-start-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-  margin-bottom: 14px;
-}
-
-.easy-start-head h3,
-.help-sheet h2 {
-  margin: 0;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: clamp(24px, 2vw, 34px);
-  line-height: 1.05;
-  text-transform: uppercase;
-}
-
-.easy-start-head p,
-.context-help-box,
-.help-sheet p,
-.help-tip-box {
-  color: var(--text-soft);
-  font-size: 18px;
-}
-
-.easy-start-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.easy-start-card {
-  min-height: 118px;
-  padding: 16px;
-  border: 1px solid rgba(242, 199, 107, 0.28);
-  border-radius: var(--radius-lg);
-  color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(31, 16, 8, 0.94), rgba(5, 3, 2, 0.92)),
-    radial-gradient(circle at 20% 0%, rgba(255, 122, 24, 0.14), transparent 44%);
-  text-align: left;
-  cursor: pointer;
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, filter 180ms ease;
-}
-
-.easy-start-card:hover,
-.easy-start-card:focus-visible {
-  transform: translateY(-3px);
-  border-color: rgba(255, 227, 160, 0.72);
-  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.5), 0 0 24px rgba(242, 199, 107, 0.15);
-  filter: brightness(1.06);
-}
-
-.easy-start-card strong {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 15px;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-}
-
-.easy-start-card span {
-  display: block;
-  color: var(--text-soft);
-  font-size: 17px;
-  line-height: 1.35;
-}
-
-.context-help-box {
-  width: min(1340px, calc(100% - 32px));
-  margin: 0 auto 16px;
-  padding: 12px 16px;
-  line-height: 1.45;
-}
-
-.context-help-box strong {
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-
-.help-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 140;
-}
-
-.help-sheet {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 145;
-  width: min(980px, calc(100vw - 28px));
-  max-height: calc(100vh - 34px);
-  overflow: auto;
-  padding: 28px;
-  border: 1px solid rgba(242, 199, 107, 0.44);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(31, 16, 8, 0.98), rgba(5, 3, 2, 0.99)),
-    radial-gradient(circle at top right, rgba(122, 31, 18, 0.22), transparent 36%);
-  box-shadow: var(--shadow), 0 0 40px rgba(242, 199, 107, 0.14);
-  transform: translate(-50%, -50%);
-}
-
-.help-steps-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.help-steps-grid article {
-  padding: 16px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-lg);
-  background: rgba(5, 3, 2, 0.42);
-}
-
-.help-steps-grid span {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  margin-bottom: 10px;
-  border-radius: 50%;
-  color: #160b05;
-  background: var(--gold-soft);
-  font-family: var(--font-title);
-  font-weight: 900;
-}
-
-.help-steps-grid h3 {
-  margin: 0 0 8px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 17px;
-  text-transform: uppercase;
-}
-
-.help-steps-grid p {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.4;
-}
-
-.help-tip-box {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 227, 160, 0.24);
-  border-radius: var(--radius-lg);
-  background: rgba(198, 146, 63, 0.08);
-}
-
-.help-tip-box strong {
-  color: var(--gold-2);
-}
-
-@media (max-width: 980px) {
-  .easy-start-grid,
-  .help-steps-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .easy-start-head {
-    display: block;
-  }
-
-  .easy-start-head .small-btn {
-    margin-top: 12px;
-  }
-}
-
-@media (max-width: 640px) {
-  .easy-start-grid,
-  .help-steps-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .system-guide-strip span {
-    width: 100%;
-  }
-
-  .help-sheet {
-    padding: 22px 16px;
-  }
-}
-
-/* =========================================================
-   ASHBORN VERWALTUNG CLEAN / ÜBERSICHTLICH
-========================================================= */
-.ashborn-main-tabs {
-  grid-template-columns: repeat(7, minmax(105px, 1fr));
-}
-
-.v2-start-panel,
-.v2-data-form-panel,
-.v2-data-list-panel {
-  padding: clamp(18px, 2.2vw, 28px);
-}
-
-.v2-start-header,
-.v2-clean-header {
-  align-items: flex-start;
-  gap: 18px;
-  border-bottom: 1px solid rgba(198, 146, 63, 0.16);
-  padding-bottom: 18px;
-}
-
-.v2-start-header h2,
-.v2-clean-header h2 {
-  margin-bottom: 8px;
-}
-
-.v2-summary-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(130px, 1fr));
-  gap: 14px;
-  margin: 20px 0;
-}
-
-.v2-summary-grid .dashboard-metric-card {
-  min-height: 132px;
-  padding: 18px;
-}
-
-.v2-search-card {
-  margin-top: 16px;
-}
-
-.v2-start-bottom-grid {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.v2-finance-card .dashboard-finance-grid {
-  grid-template-columns: 1fr;
-}
-
-.v2-mini-stats {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(92px, 1fr));
-  gap: 10px;
-  min-width: min(430px, 100%);
-}
-
-.v2-mini-stats > div {
-  padding: 12px 14px;
-  border: 1px solid rgba(198, 146, 63, 0.22);
-  border-radius: var(--radius-md);
-  background: rgba(5, 3, 2, 0.34);
-}
-
-.v2-mini-stats span,
-.v2-finance-card span {
-  display: block;
-  color: rgba(228, 194, 126, 0.74);
-  font-family: var(--font-title);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.v2-mini-stats strong {
-  display: block;
-  margin-top: 5px;
-  color: var(--gold-2);
-  font-family: var(--font-title);
-  font-size: 24px;
-  line-height: 1;
-}
-
-.v2-feature-row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.v2-compact-textarea {
-  min-height: 150px !important;
-}
-
-.v2-list-controls {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(190px, 260px);
-  gap: 14px;
-  align-items: end;
-  margin-bottom: 14px;
-}
-
-.v2-list-controls .search-shell,
-.v2-search-shell {
-  margin-bottom: 0;
-}
-
-.v2-filter-row,
-.v2-record-toolbar {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 12px 0;
-}
-
-.v2-record-toolbar {
-  justify-content: flex-end;
-  padding-top: 8px;
-  border-top: 1px solid rgba(198, 146, 63, 0.12);
-}
-
-.v2-record-list {
-  margin-top: 16px;
-}
-
-.form-field select,
-.toolbar-field select,
-select {
-  color: var(--gold-2) !important;
-  background-color: #090504 !important;
-  background-image:
-    linear-gradient(180deg, rgba(5, 3, 2, 0.96), rgba(22, 11, 5, 0.96)),
-    radial-gradient(circle at 100% 0%, rgba(198, 146, 63, 0.14), transparent 42%) !important;
-  border-color: rgba(242, 199, 107, 0.38) !important;
-}
-
-select option {
-  color: #f4ead5;
-  background: #090504;
-}
-
-@media (max-width: 1180px) {
-  .v2-summary-grid {
-    grid-template-columns: repeat(3, minmax(150px, 1fr));
-  }
-  .v2-start-bottom-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 860px) {
-  .ashborn-main-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .v2-summary-grid,
-  .v2-mini-stats,
-  .v2-list-controls,
-  .v2-feature-row {
-    grid-template-columns: 1fr;
-  }
-  .v2-record-toolbar {
-    justify-content: stretch;
-  }
-  .v2-record-toolbar .small-btn,
-  .v2-filter-row .filter-btn {
-    flex: 1 1 160px;
-  }
-}
+  ashbornV2HandleQuickAction(action);
+};

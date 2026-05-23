@@ -2985,7 +2985,7 @@ handleQuickAction = function handleQuickActionV17(action) {
 };
 
 /* =========================================================
-   ASHBORN V2 CLEAN OVERRIDES
+   ASHBORN VERWALTUNG CLEAN OVERRIDES
    Aufträge/Finden wurden bewusst aus der Oberfläche entfernt.
 ========================================================= */
 const ashbornV2BuildSearchIndex = buildDashboardGlobalSearchIndex;
